@@ -1,0 +1,55 @@
+Package: FIESTAutils
+Type: Package
+Title: Utility Functions and Spatial Tools for FIESTA and FIESTAnalysis
+Version: 0.1.0
+Date: 2022-01-13
+Authors@R:
+    c(person(given = "Tracey",
+             family = "Frescino",
+             role = "aut",
+             email = "tracey.frescino@usda.gov"),
+      person(given = "Chris",
+             family = "Toney",
+             role = "aut",
+             email = "chris.toney@usda.gov"),
+      person(given = "Grayson",
+             family = "White",
+             role = c("aut", "cre"),
+             email = "graysonwhite13@gmail.com"))
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+Depends:
+    R (>= 3.5.0)
+Imports:
+    data.table,
+    DBI,
+    graphics,
+    grDevices,
+    hbsae,
+    JoSAE,
+    knitr,
+    mase,
+    methods,
+    nlme,
+    raster,
+    Rcpp,
+    RColorBrewer,
+    rgdal,
+    RPostgreSQL,
+    RSQLite,
+    sae,
+    sf,
+    sp,
+    sqldf, 
+    stats,
+    units,
+    utils,
+    xml2
+Suggests:
+    arcgisbinding,
+    xlsx
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+LinkingTo: Rcpp
+RoxygenNote: 7.1.2
