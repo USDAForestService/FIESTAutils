@@ -33,6 +33,52 @@ NULL
 NULL
 
 
+#' Reference tables - NODATA Values.
+#'
+#' List of NODATA Values based on data type.
+#'
+#'
+#' @name DEFAULT_NODATA
+#' @docType data
+#' @format A list of 6 components.
+#' @source gdal values.
+#' @keywords datasets
+NULL
+
+
+#' Reference tables - gdal data types.
+#'
+#' Table with gdal data type names.
+#'
+#'
+#' @name GDT_NAMES
+#' @docType data
+#' @format A vector of 12 data type values.
+#' @source gdal values.
+#' @keywords datasets
+NULL
+
+
+#' Reference table - List of RMRS plots that have fallen out of inventory
+#' because they were not found or they were in the wrong place.
+#'
+#' Table with variable codes (VALUE) and descriptions (MEANING).
+#'
+#'
+#' @name kindcd3old
+#' @docType data
+#' @format A dataframe 
+#' @source FIA query.
+#' SELECT bp.STATECD, bp.COUNTYCD, bp.PLOT_FIADB NEW_PLOT, bp.START_DATE NEW_START_DATE,
+#'       	bp_old.COUNTYCD OLD_COUNTYCD, bp_old.PLOT_FIADB OLD_PLOT, 
+#'	bp_old.END_DATE OLD_END_DATE, p.CN
+#' FROM fs_nims_rmrs.NIMS_BASE_PLOT bp
+#' JOIN fs_nims_rmrs.NIMS_BASE_PLOT bp_old on (bp.PREV_NBP_CN=bp_old.CN)
+#' JOIN fs_nims_rmrs.NIMS_PLOT_RMRS_VW p on(p.NBP_CN=bp_old.CN)
+#' WHERE p.KINDCD = 1
+#' ORDER BY bp.STATECD, bp.COUNTYCD, bp_old.PLOT_FIADB"
+#' @keywords datasets
+NULL
 
 
 #' Reference tables - Code definitions.
