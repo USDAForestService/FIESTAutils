@@ -35,7 +35,6 @@ Imports:
     Rcpp,
     RColorBrewer,
     rgdal,
-    RPostgreSQL,
     RSQLite,
     sae,
     sf,
@@ -47,6 +46,7 @@ Imports:
     xml2
 Suggests:
     arcgisbinding,
+    RPostgreSQL,
     xlsx
 License: file LICENSE
 Encoding: UTF-8
