@@ -92,7 +92,7 @@ DBtestSQLite <- function(SQLitefn = NULL,
     }
     if (dbconnopen) {
       ## Connect to database   
-      sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
+      #sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
       return(sqlconn)    
     } else {
       DBI::dbDisconnect(sqlconn)
