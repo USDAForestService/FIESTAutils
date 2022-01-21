@@ -292,7 +292,7 @@ MAest.gregEN(
   FIA = TRUE,
   model = "linear",
   save4testing = TRUE,
-  getweights = TRUE
+  getweights = FALSE
 )
 
 MAest(
