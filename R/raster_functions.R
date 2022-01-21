@@ -256,7 +256,7 @@ spPlotRastcl <- function(rastcl, bks=NULL, col.bks=NULL, col.palette=NULL, ext=N
         col.bks <- col.palette(nbrbks)
       }
     } else {
-      col.bks <- terrain.colors(nbrbks)
+      col.bks <- grDevices::terrain.colors(nbrbks)
     }
   } else {
     if (length(col.bks) != nbrbks-1)

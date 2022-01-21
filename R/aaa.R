@@ -1,4 +1,4 @@
-#' @import data.table sf stats utils graphics grDevices
+#' @import data.table sf stats utils 
 #' @importFrom methods canCoerce new
 #' @useDynLib FIESTAutils
 #' @importFrom Rcpp sourceCpp
