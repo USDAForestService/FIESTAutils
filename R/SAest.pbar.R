@@ -550,11 +550,11 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       setnames(unit.hbsae, "DOMAIN", dunitvar)
     } else {
       unit.hbsae <- data.frame(
-        DOMAIN = est.unit$sampledAreaNames,
-        hbsaeU = est.unit$est,
-        hbsaeU.se = sqrt(est.unit$mse)
+        DOMAIN = unit.hbsae.obj$sampledAreaNames,
+        hbsaeU = unit.hbsae.obj$est,
+        hbsaeU.se = sqrt(unit.hbsae.obj$mse)
       )
-      unit.hbsae <- merge(unit.hbsae, dunitlut.unit[, c(dunitvar, "n.total")],
+      unit.hbsae <- merge(unit.hbsae, dunitlut.dom[, c(dunitvar, "n.total")],
                    by.x="DOMAIN", by.y=dunitvar)
       names(unit.hbsae)[names(unit.hbsae) == "DOMAIN"] <- dunitvar
       names(unit.hbsae)[names(unit.hbsae) == "n.total"] <- "NBRPLT"
