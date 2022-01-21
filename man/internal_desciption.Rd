@@ -388,8 +388,8 @@ SAest.unit(
 
 SAest.area(
   fmla.dom.area,
-  pltdat.dom,
-  dunitlut.dom,
+  pltdat.area,
+  dunitlut.area,
   cuniqueid,
   dunitvar = "DOMAIN",
   predselect.area,
