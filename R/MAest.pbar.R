@@ -384,7 +384,8 @@ MAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, unitlut=NULL,
 		modelselect=modelselect, getweights=getweights)
 
     } else if (MAmethod == "gregEN") {
-      estlst <- MAest.gregEN(yn.vect, N, x_sample, x_pop, FIA=FIA)
+      estlst <- MAest.gregEN(yn.vect, N, x_sample, x_pop, FIA=FIA,
+                             getweights=getweights)
 
     } else if (MAmethod == "ratio") {
       if (length(prednames) > 1) {
@@ -467,7 +468,7 @@ MAest.unit <- function(unit, dat, cuniqueid, unitlut, unitvar,
 ## testing
 #unit = estunits[1]
 #domain="TOTAL"
-
+ 
   dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response),
 			with=FALSE]
   if (nrow(dat.unit) == 0 || sum(!is.na(dat.unit[[domain]])) == 0) {
