@@ -107,8 +107,7 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
   NBRPLT.gt0 <- sum(y > 0)
 
   ## define empty data frame for storing selected predictors
-  predselect <- x_pop[FALSE, ]
-
+  predselect <- x_pop[FALSE, , drop=FALSE]
 
   if (modelselect) {
     ## Get model-selected variables using mase::gregElasticNet()
@@ -165,10 +164,13 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
     }
     return(returnlst)
   }
-
+ 
   selected <- data.frame(t(estgreg$coefficients))[,-1]
-  predselect <- rbindlist(list(predselect, selected), fill=TRUE)
-
+  if (class(selected) != "data.frame") {
+    predselect <- rbindlist(list(predselect, as.list(selected)), fill=TRUE)
+  } else {  
+    predselect <- rbindlist(list(predselect, selected), fill=TRUE)
+  }
   estgregdt <- data.table(estgreg$pop_mean, estgreg$pop_mean_var, NBRPLT, NBRPLT.gt0)
   setnames(estgregdt, c("nhat", "nhat.var", "NBRPLT", "NBRPLT.gt0"))
   returnlst <- list(est=estgregdt, predselect=predselect)
