@@ -254,7 +254,7 @@ MAest.ratio <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE) {
 #' @rdname internal_desciption
 #' @export
 MAest.gregEN <- function(y, N, x_sample, x_pop, FIA=TRUE, model="linear",
-		save4testing=TRUE, getweights = TRUE) {
+		save4testing=TRUE, getweights=FALSE) {
 
 #y <- yn.vect
 
