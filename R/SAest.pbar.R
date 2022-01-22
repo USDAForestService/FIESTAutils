@@ -417,8 +417,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       if (showsteps) {
         if (length(predselect.unit) > 0) {
           ## unit-level selection
-          dev.new()
-          par(mfrow=c(rnbr,cnbr))
+          grDevices::dev.new()
+          graphics::par(mfrow=c(rnbr,cnbr))
           for (pred in prednames) {
             main2 <- ifelse(pred %in% predselect.unit, "selected", "not selected")
             if (!is.null(largebnd.val) && largebnd.val != 1) {
@@ -433,8 +433,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
         if (length(predselect.area) > 0) {
           ## area-level selection
-          dev.new()
-          par(mfrow=c(rnbr,cnbr))
+          grDevices::dev.new()
+          graphics::par(mfrow=c(rnbr,cnbr))
           for (pred in prednames) {
             main2 <- ifelse(pred %in% predselect.area, "selected", "not selected")
             if (!is.null(largebnd.val) && largebnd.val != 1) {
@@ -453,9 +453,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
           ## unit-level selection
           out_layer <- paste0("SApred_unit_", ylab)
           jpgfn <- paste0(stepfolder, "/", out_layer, ".jpg")
-          jpeg(jpgfn, res=300, units="in", width=pwidth, height=pheight)
+          grDevices::jpeg(jpgfn, res=300, units="in", width=pwidth, height=pheight)
 
-          par(mfrow=c(rnbr,cnbr))
+          graphics::par(mfrow=c(rnbr,cnbr))
           for (pred in prednames) {
             main2 <- ifelse(pred %in% predselect.unit, "selected", "not selected")
             if (!is.null(largebnd.val) && largebnd.val != 1) {
@@ -466,7 +466,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
             }
             plot(dunitlut.dom[[pred]], dunitlut.dom[[yn]], xlab=pred, ylab=ylab, main=main)
           }
-          dev.off()
+          grDevices::dev.off()
         }
 
         if (length(predselect.area) > 0) {
@@ -474,9 +474,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
           ## area-level selection
           out_layer <- paste0("SApred_area", ylab)
           jpgfn <- paste0(stepfolder, "/", out_layer, ".jpg")
-          jpeg(jpgfn, res=300, units="in", width=pwidth, height=pheight)
+          grDevices::jpeg(jpgfn, res=300, units="in", width=pwidth, height=pheight)
 
-          par(mfrow=c(rnbr,cnbr))
+          graphics::par(mfrow=c(rnbr,cnbr))
           for (pred in prednames) {
             main2 <- ifelse(pred %in% predselect.area, "selected", "not selected")
             if (!is.null(largebnd.val) && largebnd.val != 1) {
@@ -487,7 +487,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
             }
             plot(dunitlut.dom[[pred]], dunitlut.dom[[yn]], xlab=pred, ylab=ylab, main=main)
           }
-          dev.off()
+          grDevices::dev.off()
         }
       }
     }

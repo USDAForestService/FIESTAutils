@@ -24,10 +24,8 @@ Imports:
     data.table,
     DBI,
     graphics,
-    grDevices,
     hbsae,
     JoSAE,
-    knitr,
     mase,
     methods,
     nlme,
@@ -47,7 +45,8 @@ Imports:
 Suggests:
     arcgisbinding,
     RPostgreSQL,
-    xlsx
+    xlsx,
+    knitr
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
