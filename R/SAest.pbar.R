@@ -620,7 +620,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     } else {
       area.JoSAE.obj <- area.JoSAE.objlst$JoSAEest
       area.JoSAE.al <- area.JoSAE.objlst$JoSAE.al
-      area.JoSAE <- area.JoSAE.obj$results[,1:7]
+      area.JoSAE <- area.JoSAE.objlst$results[,1:7]
       names(area.JoSAE) <- c("DOMAIN", "DIR", "DIR.se", "JFH", "JFH.se",
                       "JA.synth", "JA.synth.se")
       ## To add space to messages

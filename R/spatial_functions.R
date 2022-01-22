@@ -578,7 +578,7 @@ getIntersect <- function(layer1, layer2, layer1.unique, layer2fld, overlapThresh
 #' @export
 clip.othertables <- function(inids, othertabnms, othertabs=NULL, uniqueid="PLT_CN",
 	savedata=FALSE, outfn.pre=NULL, outfolder=NULL, out_fmt="csv",
-	out_dsn=NULL, outfn.date=FALSE, overwrite=FALSE, gui=FALSE) {
+	out_dsn=NULL, outfn.date=FALSE, overwrite_layer=FALSE, gui=FALSE) {
 
   ## Adds to file filters to Cran R Filters table.
   if (.Platform$OS.type=="windows")
@@ -689,7 +689,7 @@ clip.othertables <- function(inids, othertabnms, othertabs=NULL, uniqueid="PLT_C
                                    outfolder=outfolder,
                                    out_dsn=out_dsn,
                                    out_layer=outnm,
-                                   overwrite_layer=overwrite,
+                                   overwrite_layer=overwrite_layer,
                                    index.unique=idx.unique))
         }
         intablst[[returnnm]] <- get(returnnm)

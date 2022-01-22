@@ -1121,7 +1121,7 @@ clip.othertables(
   out_fmt = "csv",
   out_dsn = NULL,
   outfn.date = FALSE,
-  overwrite = FALSE,
+  overwrite_layer = FALSE,
   gui = FALSE
 )
 

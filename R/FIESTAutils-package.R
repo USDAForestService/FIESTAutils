@@ -58,27 +58,24 @@ NULL
 #' @keywords datasets
 NULL
 
-
-#' Reference table - List of RMRS plots that have fallen out of inventory
-#' because they were not found or they were in the wrong place.
-#'
-#' Table with variable codes (VALUE) and descriptions (MEANING).
-#'
-#'
-#' @name kindcd3old
+#' Reference table - diameter 2-inch class codes (DIA).
+#' 
+#' Table with min (MIN), max (MAX), and 2-inch class diameter codes (MEANING).
+#' 
+#' 
+#' @name ref_diacl2in
 #' @docType data
-#' @format A dataframe 
-#' @source FIA query.
-#' SELECT bp.STATECD, bp.COUNTYCD, bp.PLOT_FIADB NEW_PLOT, bp.START_DATE NEW_START_DATE,
-#'       	bp_old.COUNTYCD OLD_COUNTYCD, bp_old.PLOT_FIADB OLD_PLOT, 
-#'	bp_old.END_DATE OLD_END_DATE, p.CN
-#' FROM fs_nims_rmrs.NIMS_BASE_PLOT bp
-#' JOIN fs_nims_rmrs.NIMS_BASE_PLOT bp_old on (bp.PREV_NBP_CN=bp_old.CN)
-#' JOIN fs_nims_rmrs.NIMS_PLOT_RMRS_VW p on(p.NBP_CN=bp_old.CN)
-#' WHERE p.KINDCD = 1
-#' ORDER BY bp.STATECD, bp.COUNTYCD, bp_old.PLOT_FIADB"
+#' @format A dataframe with 3 columns, MIN, MAX, and MEANING.
+#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
+#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
+#' Forest Inventory and Analysis Database: Database Description and Users
+#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
+#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
+#' manual_5-1-2_p2_07_2012.pdf)
+#' @source Imported from comma-delimited file.
 #' @keywords datasets
 NULL
+
 
 
 #' Reference tables - Code definitions.
