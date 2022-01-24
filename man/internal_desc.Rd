@@ -77,7 +77,7 @@
 \alias{vectorTranslate}
 \alias{wtcalc}
 \alias{wtcalc.unit}
-\title{Internal functions used for development of FIESTA}
+\title{General Utility Functions}
 \usage{
 DBvars.default(
   istree,
@@ -521,14 +521,13 @@ wtcalc(wtLUT, strvar, acrevar)
 wtcalc.unit(wtLUT, strvar, unit, unitvar, acrevar)
 }
 \description{
-These functions are used internally by developers of the FIESTA and
-FIESTAnalysis R packages. They are not meant to be used on their own, or by
-users. While some functions may be useful on their own, they will not be
-regularly updated, documented, or changed for a particular use.
+These functions provide a wide-range of general utility for a variety of
+data types. They were developed by the FIESTA development team and solve 
+many general and specific problems for data analysis in R.
 }
 \details{
-These functions are not to be called by a user, and are for development
-purposes only.
+These functions provide a wide-range of general utility for a variety of
+data types.
 }
 \author{
 Tracey S. Frescino, Chris Toney, Grayson W. White
