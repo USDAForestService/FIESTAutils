@@ -6,8 +6,7 @@
 %   R/getrhat.R, R/groupStrata.R, R/groupUnits.R, R/internal_description.R,
 %   R/raster_analysis.R, R/raster_functions.R, R/save1tab.R, R/save2tabs.R,
 %   R/spatial_functions.R, R/strat_collapse.R, R/vector_proc.r, R/write2csv.R,
-%   R/write2gdb.R, R/write2sqlite.R, R/write2xlsx.R, R/wtcalc.R,
-%   R/wtcalc_unit.R, R/xlsx_functions.R
+%   R/write2gdb.R, R/write2sqlite.R, R/wtcalc.R, R/wtcalc_unit.R
 \name{DBvars.default}
 \alias{DBvars.default}
 \alias{DBgetfn}
@@ -133,12 +132,8 @@
 \alias{write2csv}
 \alias{write2gdb}
 \alias{write2sqlite}
-\alias{write2xlsx}
 \alias{wtcalc}
 \alias{wtcalc.unit}
-\alias{pcheck.xlsx}
-\alias{wrapSE}
-\alias{setCells}
 \title{Internal functions used for development of FIESTA}
 \usage{
 DBvars.default(
@@ -939,85 +934,9 @@ write2sqlite(
   index = NULL
 )
 
-write2xlsx(
-  esttab,
-  psetab = NULL,
-  wbnm = NULL,
-  sheetnm = NULL,
-  tabtitle = NULL,
-  subtitle = NULL,
-  rowgrp = FALSE,
-  rowgrp2 = FALSE,
-  colgrp = FALSE,
-  rowgrpnm = NULL,
-  rowgrp2nm = NULL,
-  rowgrp.subtot = FALSE,
-  rowgrp2.subtot = FALSE,
-  subtotvals = NULL,
-  colgrp.subtot = FALSE,
-  cnames = NULL,
-  rowtotal = TRUE,
-  coltotal = TRUE,
-  rowtottxt = "Total",
-  coltottxt = "Total",
-  estnm = "Estimate",
-  psenm = "Percent Sampling Error",
-  title.colvar = NULL,
-  title.rowvar = NULL,
-  title.fontsize = 12,
-  fill = TRUE,
-  title.rowgrp = NULL,
-  estround = 1,
-  pseround = 2,
-  allin1 = FALSE,
-  addSEcol = FALSE,
-  footnote1 = NULL,
-  footnote2 = NULL,
-  footnote3 = NULL,
-  footnote4 = NULL,
-  savewb = TRUE,
-  cellWidth.grp = 6,
-  cellwidth = 11,
-  cellwidthSE = NULL,
-  psenm.out = "PSE",
-  outfn = NULL,
-  outfolder = NULL,
-  autosize = FALSE
-)
-
 wtcalc(wtLUT, strvar, acrevar)
 
 wtcalc.unit(wtLUT, strvar, unit, unitvar, acrevar)
-
-pcheck.xlsx(
-  wbnm,
-  savewb = TRUE,
-  outfn = NULL,
-  outfolder = NULL,
-  outfn.date = TRUE,
-  overwrite = FALSE
-)
-
-wrapSE(x)
-
-setCells(
-  datsheet,
-  estgrp,
-  psegrp,
-  nbrgrps = 1,
-  startrow = 1,
-  endrow = NULL,
-  subtotal = TRUE,
-  totcols,
-  estcols,
-  psecols,
-  esttab.style,
-  psetab.style,
-  rnames = rnames,
-  norname = FALSE,
-  allin1 = FALSE,
-  addSEcol = FALSE
-)
 }
 \description{
 These functions are used internally by developers of the FIESTA and

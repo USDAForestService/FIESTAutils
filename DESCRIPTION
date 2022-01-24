@@ -45,7 +45,6 @@ Imports:
 Suggests:
     arcgisbinding,
     RPostgreSQL,
-    xlsx,
     knitr
 License: file LICENSE
 Encoding: UTF-8
