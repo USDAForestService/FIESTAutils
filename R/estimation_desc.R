@@ -14,6 +14,6 @@
 #' Tracey S. Frescino, Grayson W. White
 #'
 #' @keywords
-#' estimation
-#' @name estimation_desciption
+#' internal
+#' @name estimation_desc
 NULL

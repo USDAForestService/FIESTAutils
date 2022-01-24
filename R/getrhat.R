@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getrhat <- function(x){
   ## DESCRIPTION: Internal function to calculate rhat and variance or rhat.

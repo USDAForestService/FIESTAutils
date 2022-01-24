@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getlt10char <- function(dbname){
 

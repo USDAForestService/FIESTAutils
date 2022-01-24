@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 groupEstunit <- function(x, minplotnum) {
   ## DESCRIPTION: Groups estimation units with total plots <= minplotnum.
@@ -42,7 +42,7 @@ groupEstunit <- function(x, minplotnum) {
   return(x)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 groupStrata <- function(x, minplotnum) {
   ## DESCRIPTION: Groups strata with total plots <= minplotnum.

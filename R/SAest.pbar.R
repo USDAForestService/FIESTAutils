@@ -1,4 +1,4 @@
-#' @rdname estimation_desciption
+#' @rdname estimation_desc
 #' @export
 SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
 	dunitvar, predselect.unit, prior = NULL) {
@@ -110,7 +110,7 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
   }
 }
 
-#' @rdname estimation_desciption
+#' @rdname estimation_desc
 #' @export
 SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
 	dunitvar="DOMAIN", predselect.area, yn, SApackage, prior=NULL) {
@@ -250,7 +250,7 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
   }
 }
 
-#' @rdname estimation_desciption
+#' @rdname estimation_desc
 #' @export
 SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 	dunitlut, prednames=NULL, dunitvar="DOMAIN",
@@ -899,7 +899,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 ########################################################################
 ## By domain
 ########################################################################
-#' @rdname estimation_desciption
+#' @rdname estimation_desc
 #' @export
 SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN",
 		SApackage, SAmethod, prednames=NULL, domain, response=NULL,
@@ -946,7 +946,7 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
 ########################################################################
 ## By largebnd
 ########################################################################
-#' @rdname estimation_desciption
+#' @rdname estimation_desc
 #' @export
 SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 		dunitlut, dunitvar="DOMAIN", SApackage="JoSAE",

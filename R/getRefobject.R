@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getRefobject <- function(xvar){
   ## DESCRIPTION: Internal function to get the name of the reftable

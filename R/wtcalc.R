@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 wtcalc <- function(wtLUT, strvar, acrevar){
   ## DESCRIPTION: Internal function to calculate weights (proportions) by strata.

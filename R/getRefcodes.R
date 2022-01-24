@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getRefcodes <- function(xvar){
   ## DESCRIPTION: Internal function to facilitate looking at codes from ref_codes

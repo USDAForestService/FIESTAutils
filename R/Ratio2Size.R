@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 Ratio2Size <- function(sumyn, ysum, sumyd, uniqueid, stratalut, unitvar, strvar, domain){
   ########################################################################################

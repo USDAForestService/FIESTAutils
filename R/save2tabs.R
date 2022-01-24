@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 save2tabs <- function(tab1, tab2, tab1.title, tab2.title, outfolder, coltitlerow=TRUE,
 	coltitle=NULL, addtitle=TRUE, rowtotal=TRUE, rnames=NULL, outfn.estpse=NULL,

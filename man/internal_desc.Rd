@@ -3,7 +3,7 @@
 %   R/Ratio2Size.R, R/addCI.R, R/change10char.R, R/cool_functions.R,
 %   R/cool_spfunctions.R, R/fileexistsnm.R, R/getRefcodes.R, R/getRefobject.R,
 %   R/getadjfactorGB.R, R/getadjfactorPLOT.R, R/getfunnm.R, R/getlt10char.R,
-%   R/getrhat.R, R/groupStrata.R, R/groupUnits.R, R/internal_description.R,
+%   R/getrhat.R, R/groupStrata.R, R/groupUnits.R, R/internal_desc.R,
 %   R/raster_analysis.R, R/raster_functions.R, R/save1tab.R, R/save2tabs.R,
 %   R/spatial_functions.R, R/strat_collapse.R, R/vector_proc.r, R/write2csv.R,
 %   R/write2gdb.R, R/write2sqlite.R, R/wtcalc.R, R/wtcalc_unit.R
@@ -64,7 +64,7 @@
 \alias{groupEstunit}
 \alias{groupStrata}
 \alias{groupUnits}
-\alias{internal_desciption}
+\alias{internal_desc}
 \alias{getGDALDataTypeName}
 \alias{getDefaultNodata}
 \alias{getOffset}

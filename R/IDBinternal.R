@@ -8,7 +8,7 @@
 ## DBgetbyids		## Gets data from database from ids
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 DBvars.default <- function(istree, isseed, isveg, isdwm, issubp, regionVars,
 	plotgeom=FALSE, regionVarsRS="RMRS") {
@@ -204,7 +204,7 @@ DBvars.default <- function(istree, isseed, isveg, isdwm, issubp, regionVars,
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 DBgetfn <- function(tab, invtype, outfn.pre, stabbrlst=NULL, evalid=NULL, qry=FALSE,
 	othertxt=NULL, outfn.date=FALSE, addslash=FALSE, ext="csv", outfolder=NULL,
@@ -242,7 +242,7 @@ DBgetfn <- function(tab, invtype, outfn.pre, stabbrlst=NULL, evalid=NULL, qry=FA
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1=FALSE,
 	ACI=FALSE){
@@ -311,7 +311,7 @@ getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
 	varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
@@ -462,7 +462,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getEvalid.ppsa <- function(ppsa, states=NULL, evalAll=FALSE, evalCur=FALSE,
 		evalEndyr=NULL, evalType="VOL") {
@@ -543,7 +543,7 @@ getEvalid.ppsa <- function(ppsa, states=NULL, evalAll=FALSE, evalCur=FALSE,
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getPlotCur <- function(pltx, Endyr=NULL, varCur="MEASYEAR", Endyr.filter=NULL,
 	designcd1=TRUE) {
@@ -625,7 +625,7 @@ getPlotCur <- function(pltx, Endyr=NULL, varCur="MEASYEAR", Endyr.filter=NULL,
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 gui_filterdf <- function(df, byname=TRUE) {
   ## DESCRIPTION: get filter from a data frame
@@ -708,7 +708,7 @@ gui_filterdf <- function(df, byname=TRUE) {
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 DBgetbyids <- function(dbconn, ids, layernm, layerid="PLT_CN") {
   ## DESCRIPTION: gets data from database from ids (e.g., CN)

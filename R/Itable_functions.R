@@ -8,7 +8,7 @@
 ## crossxbyunit
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 allin1f <- function(x, y, char.width=NULL, estnull="--", psenull="--",
 	estround=NULL, pseround=NULL) {
@@ -49,7 +49,7 @@ allin1f <- function(x, y, char.width=NULL, estnull="--", psenull="--",
 
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 crosstabx <- function(x, xvar, estnm, psenm, allin1=FALSE, char.width=NULL,
 		estround=NULL, pseround=NULL, estnull="--", psenull="--") {
@@ -89,7 +89,7 @@ crosstabx <- function(x, xvar, estnm, psenm, allin1=FALSE, char.width=NULL,
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 	xvar2=NULL, uniquex2=NULL, xvar2.add0=FALSE) {
@@ -279,7 +279,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 addrowgrp <- function(x, uniquerow, rowvar, rowgrpnm, title.rnames=NULL) {
 
@@ -289,7 +289,7 @@ addrowgrp <- function(x, uniquerow, rowvar, rowgrpnm, title.rnames=NULL) {
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NULL,
 	rowvar, colvar, estnm, psenm, estround=NULL, pseround=NULL, gtotal=TRUE,
@@ -537,7 +537,7 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getdomain <- function() {
   ref_domain <- ref_domain
@@ -550,7 +550,7 @@ getdomain <- function() {
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getestvar <- function() {
   ref_estvar <- ref_estvar
@@ -570,7 +570,7 @@ getestvar <- function() {
 }
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 crossxbyunit <- function(unit=NULL, unit_grpest=NULL, unit_rowest=NULL,
 	unit_colest=NULL, unit_totest=NULL, unitvar, rowvar, colvar,

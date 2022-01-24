@@ -22,14 +22,14 @@
 # findnm
 # chkdbtab
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getext <- function(x) {
   xbasename <- basename(x)
   strsplit(xbasename, paste0(basename.NoExt(xbasename), "."))[[1]][2]
 }
 
-#' @rdname checks_description
+#' @rdname checks_desc
 #' @export
 checkfilenm <- function(fn, outfolder=NULL, ext=NULL,
 	stopifnull=FALSE) {
@@ -81,7 +81,7 @@ checkfilenm <- function(fn, outfolder=NULL, ext=NULL,
   }
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
 	overwrite=FALSE, ext=NULL, baseonly=FALSE, noext=FALSE,
@@ -198,7 +198,7 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   return(outfilenm)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 addcommas <- function(vars, ALIAS=NULL, sepchar=",", quotes=FALSE, paren=FALSE){
   ## DESCRIPTION:
@@ -240,7 +240,7 @@ addcommas <- function(vars, ALIAS=NULL, sepchar=",", quotes=FALSE, paren=FALSE){
   return(newvars)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 pastevars <- function(vars1, vars2, sep=",") {
   if (is.null(vars1) && is.null(vars2)) {
@@ -254,7 +254,7 @@ pastevars <- function(vars1, vars2, sep=",") {
   }
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 stopQ <- function() {
   opt <- options(show.error.messages = FALSE)
@@ -262,14 +262,14 @@ stopQ <- function() {
   stop()
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 removecols <- function (x, vars) {
   ## DESCRIPTION: Removes columns by name from data frame
   x[,which(!names(x) %in% vars)]
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 DT_NAto0 <- function (DT, cols, changeto=0) {
   ## DESCRIPTION: Change NA values to 0 values in data.table
@@ -302,7 +302,7 @@ DT_NAto0 <- function (DT, cols, changeto=0) {
   return(data.table(DT))
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 changeNULL <- function(x, xvar, changeto=NULL){
   ## DESCRIPTION: changes NULL values to the value of changeto
@@ -333,7 +333,7 @@ changeNULL <- function(x, xvar, changeto=NULL){
   return(x)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getdups <- function(cx, cuniqueid="PLT_CN", varnm, fun) {
   ## DESCRIPTION: FUNCTION TO GET DUPLICATE PLOTS
@@ -344,12 +344,12 @@ getdups <- function(cx, cuniqueid="PLT_CN", varnm, fun) {
   return(conddups)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getlistparam <- function(lst)
   paste0("list(",toString(paste(names(lst), lst, sep="=")),")")
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getnm <- function (xvar, group=FALSE) {
   ## DESCRIPTION: creates a name variable from a code variable.
@@ -381,7 +381,7 @@ getnm <- function (xvar, group=FALSE) {
   return(xnames)
 }
 
-#' @rdname checks_description
+#' @rdname checks_desc
 #' @export
 checknm <- function(nm, nmlst) {
   ## if nm already exists in nmlst, change nm to nm_*
@@ -394,7 +394,7 @@ checknm <- function(nm, nmlst) {
   return(nm)
 }
 
-#' @rdname checks_description
+#' @rdname checks_desc
 #' @export
 check.namedlist <- function(xlst, checknms=NULL, modetype="numeric") {
   # xlst		String. Name of list.
@@ -420,7 +420,7 @@ check.namedlist <- function(xlst, checknms=NULL, modetype="numeric") {
     stop(xlst, " must be ", modetype)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 capfirst <- function(x, allwords=FALSE){
   ## DESCRIPTION: Internal function to capitalize first character.
@@ -442,7 +442,7 @@ capfirst <- function(x, allwords=FALSE){
   return(x)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 nbrdecimals <- function(x) {
 #  if ((x %% 1) != 0) {
@@ -457,7 +457,7 @@ nbrdecimals <- function(x) {
   return(n)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 nbrdigits <- function(x) {
   ## DESCRIPTION: get max number of digits in front of decimal point
@@ -466,7 +466,7 @@ nbrdigits <- function(x) {
   max(nchar(sapply(strsplit(as.character(x), "\\."), "[[", 1)), na.rm=TRUE)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getfilter <- function(att, val, syntax="R") {
 ## DESCRIPTION: create filter string from att and val
@@ -482,7 +482,7 @@ getfilter <- function(att, val, syntax="R") {
   return(filter)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 filter2qry <- function(filt, layernm) {
   if (grepl("==", filt)) {
@@ -495,7 +495,7 @@ filter2qry <- function(filt, layernm) {
   paste("select * from", layernm, "where", part2)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 wraptitle <- function(x, len=10) {
   sapply(x, function(y) paste(strwrap(y, len),
@@ -508,13 +508,13 @@ wraptitle <- function(x, len=10) {
 #   return(x)
 # }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 xtabf <- function(x, y, levels) {
   table(factor(x, levels=levels), factor(y, levels=levels))
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 recodelut <- function(lut, minvar="min", maxvar="max", classvar="class") {
   ## DESCRIPTION: converts lut with min/max values for continuous data to a
@@ -527,7 +527,7 @@ recodelut <- function(lut, minvar="min", maxvar="max", classvar="class") {
   return(lut2)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 findnm <- function(x, xvect, returnNULL=FALSE) {
   test <- grepl(x, xvect, ignore.case=TRUE)
@@ -549,7 +549,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
   }
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
   ## DESCRIPTION: checks if table exists in list of database tables

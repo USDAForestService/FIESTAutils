@@ -65,25 +65,25 @@ DEFAULT_NODATA = list('Byte'= 255, 'UInt16'= 65535, 'Int16'= -32767,
 						'Float32'= 3.402823466E+38,
 						'Float64'= .Machine$double.xmax)
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getGDALDataTypeName <- function(GDT_number) {
 	GDT_NAMES[GDT_number+1]
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getDefaultNodata <- function(GDT_name) {
 	DEFAULT_NODATA[[GDT_name]]
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getOffset <- function(coord, origin, gt_pixel_size) {
 	(coord-origin)/gt_pixel_size
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getGDALformat <- function(file) {
 # GDAL format code from file extension for common output formats
@@ -101,13 +101,13 @@ getGDALformat <- function(file) {
 	return(NULL)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 basename.NoExt <- function(filepath) {
 	sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 Mode <- function(x, na.rm=FALSE) {
 	#Ties handled as first-appearing value
@@ -116,7 +116,7 @@ Mode <- function(x, na.rm=FALSE) {
 	ux[which.max(tabulate(match(x, ux)))]
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 Modes <- function(x, na.rm=FALSE) {
 	if(na.rm) x = na.omit(x)
@@ -125,7 +125,7 @@ Modes <- function(x, na.rm=FALSE) {
 	ux[tab == max(tab)]
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 northness <- function(asp_deg) {
 	#transform aspect degrees to northness
@@ -134,7 +134,7 @@ northness <- function(asp_deg) {
 	cos(asp_deg*pi/180)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 eastness <- function(asp_deg) {
 	#transform aspect degrees to eastness
@@ -143,7 +143,7 @@ eastness <- function(asp_deg) {
 	sin(asp_deg*pi/180)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 roughness <- function(x, na.rm=FALSE, asInt=TRUE) {
 	# a terrain variability parameter
@@ -154,7 +154,7 @@ roughness <- function(x, na.rm=FALSE, asInt=TRUE) {
 	ifelse(asInt, round(r), r)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 TRI <- function(x, na.rm=FALSE, asInt=TRUE) {
 	# terrain ruggedness index
@@ -167,7 +167,7 @@ TRI <- function(x, na.rm=FALSE, asInt=TRUE) {
 	ifelse(asInt, round(i), i)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 TPI <- function(x, na.rm=FALSE, asInt=TRUE) {
 	# topographic position index
@@ -184,7 +184,7 @@ TPI <- function(x, na.rm=FALSE, asInt=TRUE) {
 	ifelse(asInt, round(i), i)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 							windowsize=1, statistic=NULL, na.rm=TRUE) {
@@ -337,7 +337,7 @@ getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 	return(pixelValue)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 .getPixelValue <- function(pt, rasterfile, ds, ...) {
 	if (!missing(rasterfile)) {
@@ -358,7 +358,7 @@ getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 	}
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 						interpolate=FALSE, windowsize=1, statistic=NULL, na.rm=TRUE,
@@ -441,7 +441,7 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 	return(df.out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=NULL,
 							interpolate=FALSE, windowsizes=NULL, statistics=NULL, na.rm=TRUE,
@@ -495,7 +495,7 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 	return(df.out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 rasterInfo <- function(srcfile) {
 
@@ -543,7 +543,7 @@ rasterInfo <- function(srcfile) {
 	return(ri)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 							s_srs=NULL, of=NULL, ot=NULL,
@@ -616,7 +616,7 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 rasterFromRaster <- function(srcfile, dstfile, fmt=NULL, nbands=NULL,
 								dtName=NULL, options=NULL, init=NULL,
@@ -689,7 +689,7 @@ rasterFromRaster <- function(srcfile, dstfile, fmt=NULL, nbands=NULL,
 	return(dstfile)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 								dtName="Int16", options=NULL, init=NULL,
@@ -762,7 +762,7 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 	return(dstfile)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 	# dsn, layer - a polygon layer (non-overlapping polygons assumed)
@@ -816,7 +816,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 	invisible()
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 polygonizeRaster <- function(rasterfile, maskfile=character(0), options=character(0)) {
 
@@ -849,7 +849,7 @@ polygonizeRaster <- function(rasterfile, maskfile=character(0), options=characte
 	return( sf::st_as_sf(x, sf_column_name="geometry") )
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 				srcfile, src_band=NULL,
@@ -1007,7 +1007,7 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	invisible(dstfile)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 						dstfile=tempfile("rastcalc", fileext=".img"),
@@ -1164,7 +1164,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 	invisible(dstfile)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 					dstfile=NULL, fmt=NULL, dtName="UInt32", options=NULL) {
@@ -1266,7 +1266,7 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 	return(df_out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 #Recode a raster by values in a lookup table
@@ -1313,7 +1313,7 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 	invisible(dstfile)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 pixelCount <- function(rasterfile) {
 #Convenience function to get pixel counts from one raster using rasterCombine
@@ -1327,7 +1327,7 @@ pixelCount <- function(rasterfile) {
 	return(out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 						fmt=NULL, dtName=NULL, options=NULL,
@@ -1443,7 +1443,7 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 	invisible(dstfile)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 						rasterfile, band = 1, lut=NULL, pixelfun=NULL,
@@ -1587,7 +1587,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	return(zone.stats)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 zonalMean <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 						rasterfile, band = 1,
@@ -1599,7 +1599,7 @@ zonalMean <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	return(zone.stats[,1:3])
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 						rasterfile, band=1, aggfun=NULL, lut=NULL,
@@ -1686,7 +1686,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	return(df_out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 zonalMajority <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 							rasterfile, band = 1, lut=NULL, ...) {
@@ -1695,7 +1695,7 @@ zonalMajority <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 							aggfun = max, lut=lut, ...) )
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 zonalMinority <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 							rasterfile, band = 1, lut=NULL, ...) {
@@ -1704,7 +1704,7 @@ zonalMinority <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 							aggfun = min, lut=lut, ...) )
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 							rasterfile, band = 1, lut=NULL, ...) {
@@ -1717,7 +1717,7 @@ zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 	return(df_out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 ptCsvToVRT <- function(csvfile, layer_srs, xfield="Lon", yfield="Lat", readvrt=TRUE) {
 # csvfile - full path to a point csv file, first row containing field names

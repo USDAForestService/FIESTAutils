@@ -11,7 +11,7 @@
 ## layerFromRasterExtent
 ## vectorTranslate
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 ptdata2sf <- function(ptdata, crs, coords=c(2,3), asSpatial=FALSE, stringsAsFactors=FALSE) {
 # Convert a point dataframe containing id, x, y columns to sf spatial layer
@@ -26,7 +26,7 @@ ptdata2sf <- function(ptdata, crs, coords=c(2,3), asSpatial=FALSE, stringsAsFact
 	}
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 sf2ptdata <- function(ptlayer, id_fld=1, stringsAsFactors=FALSE) {
 # Convert sf spatial layer to a point dataframe containing id, x, y columns
@@ -40,7 +40,7 @@ sf2ptdata <- function(ptlayer, id_fld=1, stringsAsFactors=FALSE) {
 						stringsAsFactors=stringsAsFactors))
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 layerIntersection <- function(layer1, layer2, asSpatial=FALSE, dropLowerDimGeom=TRUE,
 						stringsAsFactors=FALSE) {
@@ -77,7 +77,7 @@ layerIntersection <- function(layer1, layer2, asSpatial=FALSE, dropLowerDimGeom=
 	}
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 layerUnion <- function(layer1, layer2, asSpatial=FALSE, dropLowerDimGeom=TRUE,
 						sfColName="geometry", stringsAsFactors=FALSE) {
@@ -131,7 +131,7 @@ layerUnion <- function(layer1, layer2, asSpatial=FALSE, dropLowerDimGeom=TRUE,
 	}
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 tabulateIntersections <- function(layer1, layer1fld, layer2, layer2fld=NULL,
 									stringsAsFactors=FALSE, withUnits=FALSE) {
@@ -189,7 +189,7 @@ tabulateIntersections <- function(layer1, layer1fld, layer2, layer2fld=NULL,
 	return(out)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 selectByIntersects <- function(layer1, layer2, overlapThreshold=0,
 						thresholdAsPct=TRUE, asSpatial=FALSE, stringsAsFactors=FALSE) {
@@ -242,7 +242,7 @@ selectByIntersects <- function(layer1, layer2, overlapThreshold=0,
 	}
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 layerFromRasterExtent <- function(rasterfile, asSpatial=FALSE) {
 	ri = rasterInfo(rasterfile)
@@ -262,7 +262,7 @@ layerFromRasterExtent <- function(rasterfile, asSpatial=FALSE) {
 	}
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 vectorTranslate <- function(src_dsn, dst_dsn, dst_fmt="ESRI Shapefile",
 							src_layer=NULL, dst_layer=NULL,

@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getfunnm <- function(x){
   if(length(grep(".Primitive", deparse(x))) > 0){

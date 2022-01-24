@@ -11,7 +11,7 @@
 # pcheck.spatial - checks or gets Vector layer from file name or spatial object
 # pcheck.params - function to check input list parameters
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.logical <- function (var2check, varnm=NULL, title=NULL, first="YES",
 	gui=FALSE, stopifnull=FALSE) {
@@ -38,7 +38,7 @@ pcheck.logical <- function (var2check, varnm=NULL, title=NULL, first="YES",
   return(var2check)
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.unique <- function(tab, uniqueid, gui=FALSE, tabnm=NULL,
 	warn=NULL, stopifnull=FALSE, stopifinvalid=TRUE, multiple=FALSE, ...){
@@ -58,7 +58,7 @@ pcheck.unique <- function(tab, uniqueid, gui=FALSE, tabnm=NULL,
   return(tab)
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=NULL,
 	warn=NULL, stopifnull=FALSE, stopifinvalid=TRUE, multiple=FALSE, ...){
@@ -127,7 +127,7 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
   return(var2check)
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
   if (is.null(dsn)) {
@@ -154,7 +154,7 @@ pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
   }
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
 	caption=NULL, returnsf=TRUE, factors=FALSE, returnDT=TRUE, warn=NULL,
@@ -378,7 +378,7 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
   }
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.outfolder <- function(outfolder, default=getwd(), gui=FALSE) {
   if (is.null(outfolder)) {
@@ -404,7 +404,7 @@ pcheck.outfolder <- function(outfolder, default=getwd(), gui=FALSE) {
   return(normalizePath(outfolder))
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.states <- function (states, statereturn="MEANING", gui=FALSE, RS=NULL,
 	stopifnull=FALSE, ...) {
@@ -489,7 +489,7 @@ pcheck.states <- function (states, statereturn="MEANING", gui=FALSE, RS=NULL,
   return(states2return)
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
 	stopifnull=FALSE, gui=FALSE, list.items=NULL){
@@ -570,7 +570,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
   return(objx)
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 	outfn.pre=NULL, outfn.date=FALSE, overwrite_dsn=FALSE,
@@ -697,7 +697,7 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 	add_layer=add_layer, append_layer=append_layer, outfn.date=outfn.date))
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.colors <- function(colorlst, n) {
 
@@ -722,7 +722,7 @@ pcheck.colors <- function(colorlst, n) {
    return(colorlst)
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.areaunits <- function(unitarea, areavar, areaunits, metric=FALSE) {
   ## Description: check areaunits for conversions
@@ -757,7 +757,7 @@ pcheck.areaunits <- function(unitarea, areavar, areaunits, metric=FALSE) {
   return(list(unitarea=unitarea, areavar=areavar, outunits=outunits))
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
 	caption=NULL, stopifnull=FALSE, gui=FALSE, polyfix=FALSE, asSpatial=FALSE,
@@ -1035,7 +1035,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
   }
 }
 
-#' @rdname pcheck_description
+#' @rdname pcheck_desc
 #' @export
 pcheck.params <- function(input.params, strata_opts=NULL,
 			unit_opts=NULL, table_opts=NULL, title_opts=NULL,

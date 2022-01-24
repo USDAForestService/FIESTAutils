@@ -8,14 +8,14 @@
 # gregEN.select
 # preds.select
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getext <- function(x) {
   xbasename <- basename(x)
   strsplit(xbasename, paste0(basename.NoExt(xbasename), "."))[[1]][2]
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getfilter <- function(att, val, syntax="R") {
 ## DESCRIPTION: create filter string from att and val
@@ -31,7 +31,7 @@ getfilter <- function(att, val, syntax="R") {
   return(filter)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 filter2qry <- function(filt, layernm) {
   if (grepl("==", filt)) {
@@ -44,7 +44,7 @@ filter2qry <- function(filt, layernm) {
   paste("select * from", layernm, "where", part2)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 recodelut <- function(lut, minvar="min", maxvar="max", classvar="class") {
   ## DESCRIPTION: converts lut with min/max values for continuous data to a
@@ -57,7 +57,7 @@ recodelut <- function(lut, minvar="min", maxvar="max", classvar="class") {
   return(lut2)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 strat.pivot <- function(x, strvar, unitvars, strwtvar="Prop", strat.levels=NULL) {
   ## DESCRIPTION: translates strata table from spGetAuxiliary() to spGetStrata() format
@@ -81,7 +81,7 @@ strat.pivot <- function(x, strvar, unitvars, strwtvar="Prop", strat.levels=NULL)
   return(strlut)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 makedummy <- function(dat, auxlut, predfac){
   ## DESCRIPTION: make dummy variables for a list of factors (predfac)
@@ -128,7 +128,7 @@ makedummy <- function(dat, auxlut, predfac){
   return(list(dat=dat, auxlut=auxlut, facnames=facnames))
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 preds.standardize <- function(plt, aux, prednames) {
   ## DESCRIPTION: standardize predictors in plt and aux tables
@@ -150,7 +150,7 @@ preds.standardize <- function(plt, aux, prednames) {
   return(list(plt=plt, aux=aux))
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 gregEN.select <- function(y, x_sample, x_pop, N, alpha=0.5, returncoef=FALSE) {
 
@@ -180,7 +180,7 @@ gregEN.select <- function(y, x_sample, x_pop, N, alpha=0.5, returncoef=FALSE) {
   }
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 preds.select <- function(y, plt, aux, prednames) {
 

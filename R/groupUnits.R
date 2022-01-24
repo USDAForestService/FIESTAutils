@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 groupUnits <- function(tabest, domain, esttype="AREA", estncol="estn",
 	estncol.var="estn.var", estdcol="estd", estdcol.var="estd.var",

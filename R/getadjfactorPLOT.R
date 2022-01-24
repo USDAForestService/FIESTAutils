@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_CN",
 	tuniqueid="PLT_CN", condid="CONDID", checkNA=TRUE, areawt="CONDPROP_UNADJ",

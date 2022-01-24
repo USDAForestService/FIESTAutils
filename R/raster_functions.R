@@ -5,7 +5,7 @@
 ## checkrast.longlat
 
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
 	stopifnull=FALSE, gui=TRUE, quiet=FALSE){
@@ -139,7 +139,7 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
   return(rastfnlst)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 areacalc.pixel <- function(rastfn, unit="ACRES", rast.NODATA=NULL, na.rm=TRUE) {
 
@@ -196,7 +196,7 @@ areacalc.pixel <- function(rastfn, unit="ACRES", rast.NODATA=NULL, na.rm=TRUE) {
   return(pixelarea)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 aspect_transform <- function(df, asp) {
 ## DESCRIPTION: Transform aspect, in degrees to northing and easting units
@@ -213,7 +213,7 @@ aspect_transform <- function(df, asp) {
      return(df)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 spPlotRastcl <- function(rastcl, bks=NULL, col.bks=NULL, col.palette=NULL, ext=NULL,
 	labels=NULL, ...){
@@ -269,7 +269,7 @@ spPlotRastcl <- function(rastcl, bks=NULL, col.bks=NULL, col.palette=NULL, ext=N
 	axis.args=list(at=labpts, labels=labels), breaks=bks, ...)
 }
 
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 checkrast.longlat <- function(rastfn, dstfile=NULL, nolonglat=TRUE, crs.default=NULL) {
   ##################################################################################

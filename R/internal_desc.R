@@ -16,5 +16,5 @@
 #'
 #' @keywords
 #' internal
-#' @name internal_desciption
+#' @name internal_desc
 NULL

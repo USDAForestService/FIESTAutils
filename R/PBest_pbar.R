@@ -1,4 +1,4 @@
-#' @rdname estimation_desciption
+#' @rdname estimation_desc
 #' @export
 PBest.pbar <- function(dom.prop, uniqueid, domain, strtype="post", stratalut, strunitvars,
 	unitvars, strvar){

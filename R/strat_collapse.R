@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 strat.collapse <- function(stratacnt, errtab, pltstratx, minplotnum.unit=10,
 	minplotnum.strat=2, unitarea, areavar, unitvar, unitvar2=NULL, strvar,

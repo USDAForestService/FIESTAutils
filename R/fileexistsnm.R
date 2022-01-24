@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 fileexistsnm <- function(outfolder, basenm, ext){
   ## DESCRIPTION: Internal function to check if file exists..

@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 wtcalc.unit <- function(wtLUT, strvar, unit, unitvar, acrevar){
   ## DESCRIPTION: Calculates weights (proportions) of strata by estimation unit

@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname internal_desc
 #' @export
 addCI <- function(x, estnm, senm=NULL, conf.level=c(99, 95, 68), gainloss=FALSE){
   ## DESCRIPTION: calculate left and right tails of confidence interval
