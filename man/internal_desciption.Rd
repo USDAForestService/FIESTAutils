@@ -524,7 +524,8 @@ SAest(
   savesteps = FALSE,
   stepfolder = NULL,
   prior = NULL,
-  modelselect = TRUE
+  modelselect = TRUE,
+  multest = TRUE
 )
 
 SAest.dom(
@@ -544,7 +545,8 @@ SAest.dom(
   savesteps = FALSE,
   stepfolder = NULL,
   prior = NULL,
-  modelselect = TRUE
+  modelselect = TRUE,
+  multest = TRUE
 )
 
 SAest.large(
@@ -563,7 +565,8 @@ SAest.large(
   savesteps = FALSE,
   stepfolder = NULL,
   prior = NULL,
-  modelselect = TRUE
+  modelselect = TRUE,
+  multest = TRUE
 )
 
 addCI(x, estnm, senm = NULL, conf.level = c(99, 95, 68), gainloss = FALSE)
