@@ -29,7 +29,7 @@ getext <- function(x) {
   strsplit(xbasename, paste0(basename.NoExt(xbasename), "."))[[1]][2]
 }
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 checkfilenm <- function(fn, outfolder=NULL, ext=NULL,
 	stopifnull=FALSE) {
@@ -381,7 +381,7 @@ getnm <- function (xvar, group=FALSE) {
   return(xnames)
 }
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 checknm <- function(nm, nmlst) {
   ## if nm already exists in nmlst, change nm to nm_*
@@ -394,7 +394,7 @@ checknm <- function(nm, nmlst) {
   return(nm)
 }
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 check.namedlist <- function(xlst, checknms=NULL, modetype="numeric") {
   # xlst		String. Name of list.

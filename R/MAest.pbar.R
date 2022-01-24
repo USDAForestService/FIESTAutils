@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.ht <- function(y, N, FIA=TRUE, getweights=FALSE) {
 
@@ -31,7 +31,7 @@ MAest.ht <- function(y, N, FIA=TRUE, getweights=FALSE) {
   return(returnlst)
 }
 
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.ps <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE, getweights=FALSE) {
 
@@ -93,7 +93,7 @@ MAest.ps <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE, getweig
   return(returnlst)
 }
 
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
 			modelselect=FALSE, getweights=FALSE) {
@@ -190,7 +190,7 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
   return(returnlst)
 }
 
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.ratio <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE) {
 
@@ -253,7 +253,7 @@ MAest.ratio <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE) {
   return(returnlst)
 }
 
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.gregEN <- function(y, N, x_sample, x_pop, FIA=TRUE, model="linear",
 		save4testing=TRUE, getweights=FALSE) {
@@ -334,7 +334,7 @@ MAest.gregEN <- function(y, N, x_sample, x_pop, FIA=TRUE, model="linear",
 ########################################################################
 ## Get estimates
 ########################################################################
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, unitlut=NULL,
 	pltassgn, esttype="ACRES", MAmethod, strvar=NULL, prednames=NULL,
@@ -415,7 +415,7 @@ MAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, unitlut=NULL,
 ########################################################################
 ## By domain
 ########################################################################
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.dom <- function(dom, dat, cuniqueid, unitlut, pltassgn, esttype, MAmethod,
 		strvar=NULL, prednames=NULL, domain, N, response=NULL, FIA=TRUE,
@@ -461,7 +461,7 @@ MAest.dom <- function(dom, dat, cuniqueid, unitlut, pltassgn, esttype, MAmethod,
 ########################################################################
 ## By estimation unit
 ########################################################################
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 MAest.unit <- function(unit, dat, cuniqueid, unitlut, unitvar,
 		esttype, MAmethod="HT", strvar=NULL, prednames=NULL,

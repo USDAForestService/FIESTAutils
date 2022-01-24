@@ -1,4 +1,4 @@
-#' @rdname internal_desciption
+#' @rdname estimation_desciption
 #' @export
 GBest.pbar <- function(sumyn="CONDPROP_ADJ", ysum, sumyd=NULL, esttype="AREA",
  	ratiotype="PERACRE", stratalut, uniqueid, unitvar, strvar=NULL, domain){

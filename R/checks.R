@@ -3,7 +3,7 @@
 ## check.matchclass
 ## check.matchval
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 check.numeric <- function(x) {
   ## DESCRIPTION: check if vector x is numeric. If not, change to numeric.
@@ -32,7 +32,7 @@ check.numeric <- function(x) {
 #  return(x)
 #}
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	stopifinvalid=TRUE, removeinvalid=FALSE, returnvar=FALSE, xvect=FALSE){
@@ -120,7 +120,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   return(statement)
 }
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2txt=NULL) {
   ## Description: check that the class of matchcol in tab2 matches class in tab1
@@ -251,7 +251,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
   return(list(tab1=tab1, tab2=tab2))
 }
 
-#' @rdname internal_desciption
+#' @rdname checks_description
 #' @export
 check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NULL,
 	gui=FALSE, stopifmiss=FALSE, subsetrows=FALSE) {
