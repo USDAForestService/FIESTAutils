@@ -971,10 +971,10 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
 
-dat=dat.large
-dunitlut=dunitlut.large
-pltassgn=pltassgn.large
-dom=doms[i]
+#dat=dat.large
+#dunitlut=dunitlut.large
+#pltassgn=pltassgn.large
+#dom=doms[i]
 
   estlst <- lapply(doms, SAest.dom,
 			        dat=dat.large, cuniqueid=cuniqueid, pltassgn=pltassgn.large,
