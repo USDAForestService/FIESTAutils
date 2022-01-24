@@ -1,4 +1,4 @@
-#' @rdname internal_desc
+#' @rdname write2_desc
 #' @export
 write2csv <- function(layer, outfile=NULL, outfolder=NULL, outfilenm=NULL,
 	outfn.pre=NULL, outfn.date=FALSE, overwrite=FALSE, tabtitle=NULL,

@@ -1,4 +1,4 @@
-#' @rdname internal_desc
+#' @rdname write2_desc
 #' @export
 write2gdb <- function(layer, gdbfn, out_name=NULL, overwrite=FALSE){
   ###################################################################################

@@ -15,7 +15,7 @@
 
 
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 polyfix.sf <- function(x) {
   # any bad polys?
@@ -40,7 +40,7 @@ polyfix.sf <- function(x) {
   return(x)
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 build.prj4str <- function(prj, datum=NULL, ellps=NULL, zone=NULL, zoneS=FALSE,
 	aea.param="USGS", gui=FALSE) {
@@ -115,7 +115,7 @@ build.prj4str <- function(prj, datum=NULL, ellps=NULL, zone=NULL, zoneS=FALSE,
   return(prj4str)
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 trunc10shp <- function(x) {
 
@@ -159,7 +159,7 @@ trunc10shp <- function(x) {
   return(list(shp=x, newnms=newnms))
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 getEPSG <- function(prj=NULL, datum=NULL, zone=NULL) {
 
@@ -183,7 +183,7 @@ getEPSG <- function(prj=NULL, datum=NULL, zone=NULL) {
   return(lut)
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 check.extents <- function(bbox1, bbox2, showext=FALSE, layer1nm=NULL,
 	layer2nm=NULL, stopifnotin=FALSE, quiet=FALSE) {
@@ -248,7 +248,7 @@ check.extents <- function(bbox1, bbox2, showext=FALSE, layer1nm=NULL,
   }
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 getprjatt <- function(prj4str, prjatt, stopifnull=FALSE) {
 
@@ -278,7 +278,7 @@ getprjatt <- function(prj4str, prjatt, stopifnull=FALSE) {
   return(att.val)
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 areacalc.poly <- function(polyv, polyv_dsn=NULL, areaprj="aea", zone=NULL,
 	unit="ACRES", areavar=NULL) {
@@ -376,7 +376,7 @@ areacalc.poly <- function(polyv, polyv_dsn=NULL, areaprj="aea", zone=NULL,
 #      file=paste0(dirname(xfn), "/", basename.NoExt(xfn), ".prj"))
 #}
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 checksf.longlat <- function(x, nolonglat=TRUE, crs.default=NULL) {
   ##################################################################################
@@ -408,7 +408,7 @@ checksf.longlat <- function(x, nolonglat=TRUE, crs.default=NULL) {
   return(x)
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 crsCompare <- function(x, ycrs=NULL, x.crs=NULL, nolonglat=FALSE,
 	checkonly=FALSE, crs.default=NULL){
@@ -508,7 +508,7 @@ crsCompare <- function(x, ycrs=NULL, x.crs=NULL, nolonglat=FALSE,
   }
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 sf_dissolve <- function(sflayer, col=NULL, areacalc=TRUE) {
   if (is.null(col)) {
@@ -526,7 +526,7 @@ sf_dissolve <- function(sflayer, col=NULL, areacalc=TRUE) {
   return(sf::st_cast(sfd))
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 closest_poly <- function(x.centroid, ypoly, ypoly.att=NULL, nbr=NULL, returnsf=TRUE) {
   ## DESCRIPTION: Get polygon(s) in y closest to x (centroid or polygon)
@@ -552,7 +552,7 @@ closest_poly <- function(x.centroid, ypoly, ypoly.att=NULL, nbr=NULL, returnsf=T
   }
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 getIntersect <- function(layer1, layer2, layer1.unique, layer2fld, overlapThreshold=0) {
 
@@ -574,7 +574,7 @@ getIntersect <- function(layer1, layer2, layer1.unique, layer2fld, overlapThresh
   return (layer1.int)
 }
 
-#' @rdname internal_desc
+#' @rdname spatial_desc
 #' @export
 clip.othertables <- function(inids, othertabnms, othertabs=NULL, uniqueid="PLT_CN",
 	savedata=FALSE, outfn.pre=NULL, outfolder=NULL, out_fmt="csv",
