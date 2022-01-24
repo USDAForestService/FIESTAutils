@@ -539,7 +539,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     ## note: the variables selected can change depending on the order in original formula (fmla)
     fmla.dom.unit <- stats::as.formula(paste(yn, paste(predselect.unit, collapse= "+"), sep="~"))
 
-
     ### unit-level - JoSAE estimates               
     if (multest || SApackage == "JoSAE") {
       ## NOTE: changed prednames=prednames.select to prednames
@@ -558,18 +557,24 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       if (is.null(unit.JoSAE.obj)) {
         unit.JoSAE <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]], 
                                NBRPLT=dunitlut.dom$n.total, 
-                               DIR=NA, DIR.se=NA, 
                                JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA, 
                                JU.EBLUP=NA, JU.EBLUP.se.1=NA)
         setnames(unit.JoSAE, "DOMAIN", dunitvar)
       } else {
         ## subset dataframe before returning
+#        unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", "n.i.sample",
+#                         yn, "sample.se", "Synth",
+#                         "GREG", "GREG.se",
+#                         "EBLUP","EBLUP.se.1")]
+#        names(unit.JoSAE) <- c("DOMAIN", "NBRPLT", "DIR", "DIR.se", "JU.Synth", "JU.GREG",
+#                      "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
+
         unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", "n.i.sample",
-                         yn, "sample.se", "Synth",
-                         "GREG", "GREG.se",
+                         "Synth", "GREG", "GREG.se",
                          "EBLUP","EBLUP.se.1")]
-        names(unit.JoSAE) <- c("DOMAIN", "NBRPLT", "DIR", "DIR.se", "JU.Synth", "JU.GREG",
+        names(unit.JoSAE) <- c("DOMAIN", "NBRPLT", "JU.Synth", "JU.GREG",
                       "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
+
       }  
 
       if (!is.null(est)) {
@@ -579,6 +584,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       }
       SAobjlst$unit.JoSAE.obj <- unit.JoSAE.obj
     }
+
     ## unit-level - hbsae estimates               
     if (multest || SApackage == "hbsae") {
       unit.hbsae.obj <- tryCatch(SAest.unit(fmla.dom.unit=fmla.dom.unit, 
@@ -872,26 +878,30 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 		SAobjlst=SAobjlst)
 
   if (modelselect) {
-    if (multest && SAmethod == "area") {
+    if (multest || SAmethod == "area") {
       predselect.areadt <- rbindlist(list(predselect.areadt,
 		data.frame(t(predselect.area.coef))), fill=TRUE)
     }
-    if (multest && SAmethod == "unit") {
+    if (multest || SAmethod == "unit") {
       predselect.unitdt <- rbindlist(list(predselect.unitdt,
 		data.frame(t(predselect.unit.coef))), fill=TRUE)
     }
   } else {
-    if (multest && SAmethod == "area") {
+    if (multest || SAmethod == "area") {
       preds.area <- data.frame(t(ifelse(names(predselect.areadt) %in% predselect.area, 1, 0)))
       setnames(preds.area, names(predselect.areadt))
       predselect.areadt <- rbindlist(list(predselect.areadt, preds.area), fill=TRUE)
     }
-    if (multest && SAmethod == "unit") {
+    if (multest || SAmethod == "unit") {
       preds.unit <- data.frame(t(ifelse(names(predselect.unitdt) %in% predselect.unit, 1, 0)))
       setnames(preds.unit, names(predselect.unitdt))
       predselect.unitdt <- rbindlist(list(predselect.unitdt, preds.unit), fill=TRUE)
     }
   }
+
+  returnlst$predselect.area <- predselect.areadt
+  returnlst$predselect.unit <- predselect.unitdt
+
   return(returnlst)
 }
 
@@ -920,7 +930,7 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
     return(list(domest, predselect.unit=NULL, predselect.area=NULL, dunitlut.dom=NULL))
   }
 
-#yn=response
+yn=response
 
   ## Apply function to each dom
   domest <- SAest(yn=response,
@@ -971,10 +981,10 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
 
-#dat=dat.large
-#dunitlut=dunitlut.large
-#pltassgn=pltassgn.large
-#dom=doms[i]
+dat=dat.large
+dunitlut=dunitlut.large
+pltassgn=pltassgn.large
+dom=doms[i]
 
   estlst <- lapply(doms, SAest.dom,
 			        dat=dat.large, cuniqueid=cuniqueid, pltassgn=pltassgn.large,
@@ -1037,6 +1047,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   return(list(est.large=est.large,
 			predselect.unit=predselect.unit,
 			predselect.area=predselect.area,
-			pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom))
+			pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom,
+			SAobjlst.dom=SAobjlst.dom))
 }
 
