@@ -126,7 +126,7 @@ getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_
   vars2remove <- c(varsumlst, cadjfacnm)
   vars2remove <- vars2remove[vars2remove %in% names(condx)]
   if (length(vars2remove) > 0) {
-    condx[, (c(varsumlst, cadjfacnm)) := NULL]
+    condx[, (vars2remove) := NULL]
   }
 
   adjfacdata <- list(condx = condx)
