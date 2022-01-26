@@ -275,7 +275,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 
   setorderv(x, ordervars)
   setcolorder(x, c(xnames, names(x)[!names(x) %in% xnames]))
-  return(x)
+  return(data.table(x))
 }
 
 

@@ -70,6 +70,6 @@ groupUnits <- function(tabest, domain, esttype="AREA", estncol="estn",
 #  tabgrp[is.na(tabgrp)] <- 0
 #  setkeyv(tabgrp, domain)
 
-  return(tabgrp[order(tabgrp[[domain]]),])
+  return(data.table(tabgrp[order(tabgrp[[domain]]),]))
 }
 

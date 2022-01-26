@@ -281,9 +281,9 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
         return(NULL)
       } else {
         if (returnDT) {
-          if (!"data.table" %in% class(tab)) tab <- data.table(tab)
+          tab <- data.table(tab)
         } else {
-          if ("data.table" %in% class(tab)) tab <- setDF(tab)
+          tab <- data.frame(tab)
         }
         return(tab)
       }
