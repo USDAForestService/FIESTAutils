@@ -223,6 +223,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       x[is.na(x)] <- 0
 
     } else {
+
       xchk <- check.matchclass(uniquex, x, xvar)
       uniquex <- xchk$tab1
       x <- xchk$tab2

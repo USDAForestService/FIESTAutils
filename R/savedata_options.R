@@ -6,7 +6,8 @@
 #' 
 #' @param outfolder String. The outfolder to write files to. If NULL, files are
 #' written to working directory, or if gui=TRUE, a window to browse.
-#' @param out_fmt String. Format for output tables ('sqlite', 'gpkg', 'csv', 'gdb').
+#' @param out_fmt String. Format for output tables ('csv', 'sqlite', 'gpkg', 'gdb').
+#' @param out_spfmt String. Format for output spatial ('shp', sqlite', 'gpkg', 'gdb').
 #' @param out_dsn String. Data source name for output. If extension is
 #' not included, out_fmt is used. Use full path if outfolder=NULL.
 #' @param out_layer outlayer.
@@ -40,6 +41,7 @@
 
 savedata_options <- function(outfolder = NULL, 
                              out_fmt = "csv", 
+                             outsp_fmt = "shp", 
                              out_dsn = NULL, 
                              out_layer = NULL, 
                              outfn.pre = NULL, 

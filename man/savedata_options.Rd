@@ -7,6 +7,7 @@
 savedata_options(
   outfolder = NULL,
   out_fmt = "csv",
+  outsp_fmt = "shp",
   out_dsn = NULL,
   out_layer = NULL,
   outfn.pre = NULL,
@@ -26,7 +27,7 @@ savedata_options(
 \item{outfolder}{String. The outfolder to write files to. If NULL, files are
 written to working directory, or if gui=TRUE, a window to browse.}
 
-\item{out_fmt}{String. Format for output tables ('sqlite', 'gpkg', 'csv', 'gdb').}
+\item{out_fmt}{String. Format for output tables ('csv', 'sqlite', 'gpkg', 'gdb').}
 
 \item{out_dsn}{String. Data source name for output. If extension is
 not included, out_fmt is used. Use full path if outfolder=NULL.}
@@ -62,6 +63,8 @@ files (if *_fmt = 'csv') or *_dsn layers (if *_fmt != 'csv".}
 \item{layer.pre}{Layer prefix.}
 
 \item{...}{For extendibility.}
+
+\item{out_spfmt}{String. Format for output spatial ('shp', sqlite', 'gpkg', 'gdb').}
 }
 \value{
 A list of user-supplied parameters and parameter values for saving data.
