@@ -15,7 +15,7 @@ getRefcodes <- function(xvar){
     if (grepl("PREV_", xvar)) {
       xvar <- sub("PREV_", "", xvar)
     }
-    if (!xvar %in% ref_codes[["VARIABLE"]]) {
+    if (!xvar %in% FIESTAutils::ref_codes[["VARIABLE"]]) {
       return(NULL)
     }
   } else {
@@ -35,7 +35,7 @@ getRefcodes <- function(xvar){
       TRTCD3 = 'TRTCD',
     )
   }
-  return(ref_codes[ref_codes$VARIABLE == xvar,
+  return(FIESTAutils::ref_codes[FIESTAutils::ref_codes$VARIABLE == xvar,
 		c("VALUE", "MEANING", "GROUPCD", "GROUPNM")])
 
 }
