@@ -948,7 +948,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
       if (ext.dsn == "gdb" && !is.null(chkarc)) {
         tabS4 <- arcgisbinding::arc.open(paste0(dsn, "/", layer))
         if (!is.na(sql)) {
-          sql <- check.logic(names(tabS4@fields), sql, xvect=TRUE)
+          sql <- check.logic(names(tabS4@fields), sql, xvect=TRUE, syntax="sql")
           tab <- tryCatch(arcgisbinding::arc.select(tabS4, where_clause=sql),
 				error=function(err) {
 					message(err, "\n")

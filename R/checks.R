@@ -35,7 +35,7 @@ check.numeric <- function(x) {
 #' @rdname checks_desc
 #' @export
 check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
-	stopifinvalid=TRUE, removeinvalid=FALSE, returnvar=FALSE, xvect=FALSE){
+	stopifinvalid=TRUE, removeinvalid=FALSE, returnvar=FALSE, xvect=FALSE, syntax="R"){
   ## DESCRIPTION: checks logical statement
   ## ARGUMENTS"
   ## x 	- data frame to check column names
@@ -49,11 +49,20 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   ## 	    	Note: an example is if using statement for trees and seedlings:
   ##		"STATUSCD == 1 & SPCD = 475". Since there is no STATUSCD == 1 in
   ##		the seedling table, it is removed from logical statement.
+  ## syntax - syntax of query ('R' or 'sql')
 
   if (is.null(statement)) return(NULL)
 
   ## Define potential characters in logical statement
-  logic.chars <- c("==", "<=", ">=", "%in%", "<", ">", "!=", "is.na", "is.null")
+  if (syntax == "R") {
+    equalsign <- "=="
+    equalother <- "="
+    logic.chars <- c(equalsign, "<=", ">=", "%in%", "<", ">", "!=", "is.na", "is.null")
+  } else if (syntax == "sql") {
+    equalsign <- "="
+    equalother <- "=="
+    logic.chars <- c(equalsign, "<=", ">=", "in", "<", ">", "<>", "is.na", "is.null")
+  }
 
   ## Set warning response
   filternm <- ifelse(!is.null(filternm), filternm, "filter")
@@ -69,9 +78,9 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   if (statement != "NONE") {
     if (!any(unlist(sapply(logic.chars,
 		function(x, statement){grep(x, statement)}, statement)))) {
-      if (grepl("=", statement) && sum(gregexpr("==", statement)>0) == 0) {
-        message("must be R syntax.. changing '=' to '==' ")
-        statement <- gsub("=", "==", statement)
+      if (grepl(equalother, statement) && sum(gregexpr(equalsign, statement)>0) == 0) {
+        message("must be R syntax.. changing ", equalother, " to ", equalsign)
+        statement <- gsub(equalother, equalsign, statement)
       }
     }
     if (grepl("&&", statement)) {
