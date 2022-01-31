@@ -938,7 +938,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
       chkarc <- NULL
       if (ext.dsn == "gdb") {
         if ("arcgisbinding" %in% rownames(utils::installed.packages())) {
-          chkarc <- tryCatch(arc.check_product(),
+          chkarc <- tryCatch(arcgisbinding::arc.check_product(),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
