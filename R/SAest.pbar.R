@@ -389,6 +389,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   }
   if (multest || SAmethod == "area") {
     predselect.areadt <- dunitlut[FALSE, prednames, with=FALSE, drop=FALSE]
+    maxpreds <- length(unique(dunitlut.dom[[dunitvar]])) - 2
 
     ## Variable selection for area and unit-level estimators
     if (modelselect) {
@@ -397,10 +398,35 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
                             prednames=prednames))
       predselect.area <- predselect.arealst$preds.enet
       predselect.area.coef <- predselect.arealst$preds.coef
+
+      ## Check number of predictors... must be n-2 less than number of dunits
+      if (sum(predselect.area.coef > 0) > maxpreds) {
+        maxtxt <- ifelse(maxpreds == 1, "1 predictor", paste(maxpreds, "predictors"))
+        warning("can only use ", maxtxt, " (number of domain units - 2)")
+        prednames <- names(sort(predselect.area.coef, decreasing=TRUE)[1:maxpreds])
+      }
     } else {
+      ## Check number of predictors... must be n-2 less than number of dunits
+      if (length(prednames) > maxpreds) {
+        maxtxt <- ifelse(maxpreds == 1, "1 predictor", paste(maxpreds, "predictors"))
+        warning("can only use ", maxtxt, " (number of domain units - 2)")
+        prednames <- prednames[1:maxpreds]
+      }
       predselect.area <- prednames
     }
   }
+
+
+    # NOTE: still need to check for equivalent unit-level issue. Much less common though
+    ## Check number of predictors... must be n-2 less than number of dunits
+    ########################################################################
+#    if (SAmethod == "area") {
+#      maxpreds <- length(unique(dunitlut[[dunitvar]])) - 2
+#      if (length(prednames) > maxpreds) {
+#        maxtxt <- ifelse(maxpreds == 1, "1 predictor", paste(maxpreds, "predictors"))
+#        stop("can only use ", maxtxt, " (number of domain units - 2)")
+#     }
+#    }
 
   if (length(predselect.area) > 0 || length(predselect.unit) > 0) {
     if (showsteps || savesteps) {

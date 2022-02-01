@@ -114,7 +114,7 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
     if (sum(sapply(rastfnlst, file.exists) == FALSE) > 0) {
        notexist <- rastfnlst[sapply(rastfnlst, file.exists) == FALSE]
        message("invalid rastnm in rastmlst:")
-       print(paste(unlist(notexist), collapse=", "))
+       message(paste(unlist(notexist), collapse=", "))
     }
   }
 
