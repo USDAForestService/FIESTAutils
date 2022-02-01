@@ -388,22 +388,26 @@ checksf.longlat <- function(x, nolonglat=TRUE, crs.default=NULL) {
   ##################################################################################
   crs.albersUS <- 5070
 
-  if (canCoerce(x, "sf"))
+  if (canCoerce(x, "sf")) {
     x <- sf::st_as_sf(x, stringsAsFactors=FALSE)
+  }
 
   ## Define default coordinate System
-  if (is.null(crs.default))
+  if (is.null(crs.default)) {
     crs.default <- crs.albersUS
+  }
   crs.default <- sf::st_crs(crs.default)
   prj4str.default <- crs.default$proj4string
 
   ## Check if projection defined
-  if (is.na(sf::st_crs(x))) stop("no projection defined")
-
+  if (is.na(sf::st_crs(x))) {
+    stop("no projection defined")
+  }
 
   ## Reproject coordinate system
-  if (sf::st_is_longlat(x) && nolonglat)
+  if (sf::st_is_longlat(x) && nolonglat) {
     x <- sf::st_transform(x, crs.default, quiet=TRUE)
+  }
 
   return(x)
 }
