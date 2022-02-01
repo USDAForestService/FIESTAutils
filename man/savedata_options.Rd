@@ -9,7 +9,7 @@ savedata_options(
   out_fmt = "csv",
   outsp_fmt = "shp",
   out_dsn = NULL,
-  out_layer = NULL,
+  out_layer = "outdat",
   outfn.pre = NULL,
   outfn.date = FALSE,
   addtitle = TRUE,

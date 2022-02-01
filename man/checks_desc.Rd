@@ -21,7 +21,8 @@ check.logic(
   stopifinvalid = TRUE,
   removeinvalid = FALSE,
   returnvar = FALSE,
-  xvect = FALSE
+  xvect = FALSE,
+  syntax = "R"
 )
 
 check.matchclass(
