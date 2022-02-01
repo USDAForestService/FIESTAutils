@@ -780,11 +780,11 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
 
   ## Check for installed packages
   if (!is.null(fmt)) {
-    if (fmt == "gdb") {
-      if (!"arcgisbinding" %in% rownames(utils::installed.packages())) {
-        message("importing spatial layers from *gdb requires package arcgisbinding")
-      }
-    }
+#    if (fmt == "gdb") {
+#      if (!"arcgisbinding" %in% rownames(utils::installed.packages())) {
+#        message("importing spatial layers from *gdb requires package arcgisbinding")
+#      }
+#    }
   }
   fmtlst <- c("shp", "sqlite", "gpkg", "gdb")
   stringsAsFactors <- FALSE
@@ -932,73 +932,89 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
     }
   }
   geomtype <- layerlst$geomtype[layerlst$name == layer][[1]]
-
+ 
   if (!is.na(geomtype)) {
     if (!checkonly) {
       chkarc <- NULL
       if (ext.dsn == "gdb") {
-        if ("arcgisbinding" %in% rownames(utils::installed.packages())) {
-          chkarc <- tryCatch(arcgisbinding::arc.check_product(),
-				error=function(err) {
-					message(err, "\n")
-					return(NULL)
-				} )
-        }
-      }
-      if (ext.dsn == "gdb" && !is.null(chkarc)) {
-        tabS4 <- arcgisbinding::arc.open(paste0(dsn, "/", layer))
-        if (!is.na(sql)) {
-          sql <- check.logic(names(tabS4@fields), sql, xvect=TRUE, syntax="sql")
-          tab <- tryCatch(arcgisbinding::arc.select(tabS4, where_clause=sql),
-				error=function(err) {
-					message(err, "\n")
-					return(NULL)
-				} )
-        } else {
-          tab <- tryCatch(arcgisbinding::arc.select(tabS4),
-				error=function(err) {
-					message(err, "\n")
-					return(NULL)
-				} )
-        }
-        if (!is.null(tab)) {
-          return(tab)
-        } else {
-          stop(layer, " is invalid")
-        }
-      } else {
+#        if ("arcgisbinding" %in% rownames(utils::installed.packages())) {
+#          chkarc <- tryCatch(arcgisbinding::arc.check_product(),
+#				error=function(err) {
+#					message(err, "\n")
+#					return(NULL)
+#				} )
+#        }
+#      }
+#      if (ext.dsn == "gdb" && !is.null(chkarc)) {
+#        tabS4 <- arcgisbinding::arc.open(paste0(dsn, "/", layer))
+#        if (!is.na(sql)) {
+#          sql <- check.logic(names(tabS4@fields), sql, xvect=TRUE, syntax="sql")
+#          tab <- tryCatch(arcgisbinding::arc.select(tabS4, where_clause=sql),
+#				error=function(err) {
+#					message(err, "\n")
+#					return(NULL)
+#				} )
+#        } else {
+#          tab <- tryCatch(arcgisbinding::arc.select(tabS4),
+#				error=function(err) {
+#					message(err, "\n")
+#					return(NULL)
+#				} )
+#        }
+#        if (!is.null(tab)) {
+#          return(tab)
+#        } else {
+#          stop(layer, " is invalid")
+#        }
+#      } else {
         #message("sql query not used")
-        return(suppressWarnings(sf::st_read(dsn=dsn, layer=layer,
-				stringsAsFactors=stringsAsFactors, quiet=TRUE)))
+
+        if (!is.na(sql)) {
+          sflayer <- tryCatch(suppressWarnings(sf::st_read(dsn=dsn, layer=layer, 
+				query=paste0("select * from ", layer, " where ", sql),
+				stringsAsFactors=stringsAsFactors, quiet=TRUE)),
+				error=function(err) {
+					message(err, "\n")
+					return(NULL)
+				} )
+        } else {
+          sflayer <- tryCatch(sf::st_read(dsn=dsn, layer=layer,
+				stringsAsFactors=stringsAsFactors, quiet=TRUE),
+				error=function(err) {
+					message(err, "\n")
+					return(NULL)
+				} )
+        }
+        return(sflayer)
       }
     } else {
       return(list(dsn=dsn, layer=layer))
     }
   } else {
-    if (ext.dsn == "gdb" && !is.null(sql) && !is.na(sql) &&
-		"arcgisbinding" %in% rownames(utils::installed.packages())) {
-      arcgisbinding::arc.check_product()
-
-      tabS4 <- arcgisbinding::arc.open(paste0(dsn, "/", layer))
-      if (!is.na(sql) && !is.null(sql)) {
-        sql <- check.logic(names(tabS4@fields), sql, xvect=TRUE)
-        tab <- tryCatch(arcgisbinding::arc.select(tabS4, where_clause=sql),
-				error=function(err) {
-					message(err, "\n")
-					return(NULL)
-				} )
-        if (is.null(tab)) {
-          stop(layer, " is invalid")
-        }
-        splayer <- arcgisbinding::arc.data2sf(tab)
-      } else {
-        splayer <- suppressWarnings(sf::st_read(dsn=dsn, layer=layer,
-				stringsAsFactors=stringsAsFactors, quiet=TRUE))
-      }
-    } else {
+#    if (ext.dsn == "gdb" && !is.null(sql) && !is.na(sql) &&
+#		"arcgisbinding" %in% rownames(utils::installed.packages())) {
+#      arcgisbinding::arc.check_product()
+#
+#      tabS4 <- arcgisbinding::arc.open(paste0(dsn, "/", layer))
+#      if (!is.na(sql) && !is.null(sql)) {
+#        sql <- check.logic(names(tabS4@fields), sql, xvect=TRUE)
+#        tab <- tryCatch(arcgisbinding::arc.select(tabS4, where_clause=sql),
+#				error=function(err) {
+#					message(err, "\n")
+#					return(NULL)
+#				} )
+#        if (is.null(tab)) {
+#          stop(layer, " is invalid")
+#        }
+#        splayer <- arcgisbinding::arc.data2sf(tab)
+#      } else {
+#        splayer <- suppressWarnings(sf::st_read(dsn=dsn, layer=layer,
+#				stringsAsFactors=stringsAsFactors, quiet=TRUE))
+#      }
+#    } else {
       splayer <- suppressWarnings(sf::st_read(dsn=dsn, layer=layer,
 				stringsAsFactors=stringsAsFactors, quiet=TRUE))
-    }
+#    }
   }
 
   if ("sf" %in% class(splayer)) {
