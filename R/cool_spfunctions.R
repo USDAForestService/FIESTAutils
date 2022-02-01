@@ -152,7 +152,7 @@ preds.standardize <- function(plt, aux, prednames) {
 
 #' @rdname internal_desc
 #' @export
-gregEN.select <- function(y, x_sample, x_pop, N, alpha=0.5, returncoef=FALSE) {
+gregEN.select <- function(y, x_sample, x_pop, N, alpha=0.5, returncoef=FALSE, cvfolds=10) {
 
   ## select predictor variables from Elastic Net procedure
   mod <- tryCatch(suppressMessages(mase::gregElasticNet(y=y,
@@ -160,7 +160,7 @@ gregEN.select <- function(y, x_sample, x_pop, N, alpha=0.5, returncoef=FALSE) {
 		xpop=x_pop, pi = NULL, alpha = 0.5,
   		model = "linear", pi2 = NULL, var_est = FALSE,
   		datatype = "means", N = N,
-  		lambda = "lambda.min", cvfolds = 10)),
+  		lambda = "lambda.min", cvfolds = cvfolds)),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
@@ -182,7 +182,7 @@ gregEN.select <- function(y, x_sample, x_pop, N, alpha=0.5, returncoef=FALSE) {
 
 #' @rdname internal_desc
 #' @export
-preds.select <- function(y, plt, aux, prednames) {
+preds.select <- function(y, plt, auxlut, prednames, cvfolds=10) {
 
   ## Description: Variable selection using area-level Elastic net, where
   ##		y values are mean values (i.e., Small Area y values).
@@ -190,22 +190,22 @@ preds.select <- function(y, plt, aux, prednames) {
   prednames.select <- prednames
 
   plt <- setDT(plt)
-  aux <- setDT(aux)
+  auxlut <- setDT(auxlut)
 
-  if (!"npixels" %in% names(aux)) {
+  if (!"npixels" %in% names(auxlut)) {
     stop("need npixels in auxiliary lut")
   }
-  N <- sum(aux$npixels)
-  x_pop <- aux[, lapply(.SD, mean), .SDcols=prednames]
+  N <- sum(auxlut$npixels)
+  x_pop <- auxlut[, lapply(.SD, mean), .SDcols=prednames]
 
-  plt <- setDF(plt)
-  x_pop <- setDF(x_pop)
+  plt <- data.frame(plt)
+  x_pop <- data.frame(x_pop)
   x_sample <- plt[, prednames, drop=FALSE]
   y <- plt[[y]]
 
   ## Variable selection using mase:gregElasticNet()
   preds.coef <- tryCatch(gregEN.select(y=y, x_sample=x_sample, x_pop=x_pop,
-		N=N, alpha=0.5, returncoef=TRUE),
+		N=N, alpha=0.5, returncoef=TRUE, cvfolds=cvfolds),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
@@ -222,7 +222,7 @@ preds.select <- function(y, plt, aux, prednames) {
     ## alpha=0, indicates no variable selection
 
     preds.coef <- tryCatch(gregEN.select(y=y, x_sample=x_sample, x_pop=x_pop,
-		N=N, alpha=0.2, returncoef=TRUE),
+		N=N, alpha=0.2, returncoef=TRUE, cvfolds=cvfolds),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)

@@ -372,50 +372,129 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 		pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom))
   }
 
-  ## define empty data tables for storing selected predictors
-  if (multest || SAmethod == "unit") {
-    predselect.unitdt <- dunitlut[FALSE, prednames, with=FALSE, drop=FALSE]
+  ## Variable selection for area and unit-level estimators
+  ## Check number of predictors... must be n-1 less than number of dunits
+  ## using variable selection - mase::gregElasticNet.
 
-    ## Variable selection for area and unit-level estimators
+  if (multest || SAmethod == "unit") {
+    predselect.unitdt <- dunitlut.dom[FALSE, prednames, with=FALSE, drop=FALSE]
+
+    ## Define number of maximum predictors for unit-level models
+    maxpreds.unit <- nrow(pltdat.dom) - 2
+
+    ## Variable selection unit-level estimators
     if (modelselect) {
+
+      ## Define number of maximum predictors for unit-level model selection (n-1)
+      maxpreds.unit.modselect <- nrow(pltdat.dom) - 1
+
+      ## Check number of predictors using correlation with response
+      ## (n-1 less than number of plots)
+      if (length(prednames) > maxpreds.unit.modselect) {
+        warning("number of predictors is greater than number of domains... ", 
+			"subsetting based on correlation coefficients")
+        prednames.cor <- names(sort(abs(cor(pltdat.dom[[yn]], 
+				pltdat.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
+        prednames <- prednames.cor[1:maxpreds.modselect]
+      }
+
+      ## Define number cvfolds for area-level model selection
+      cvfolds <- ifelse(nrow(pltdat.dom) <= 40, round(nrow(pltdat.dom)/4), 10)
+
+      ## Select predictors for unit-level models using elastic net via mase
       predselect.unitlst <- suppressMessages(preds.select(y=yn,
                             plt=pltdat.dom, aux=dunitlut.dom, 
-                            prednames=prednames))
+                            prednames=prednames, cvfolds=cvfolds))
       predselect.unit <- predselect.unitlst$preds.enet
       predselect.unit.coef <- predselect.unitlst$preds.coef
+
+      ## Get number of predictors with elastic net coefficients greater than 0
+      predselect.unit.coef.absgt0 <- predselect.unit[abs(predselect.unit.coef) > 0]
+
+      ## Check number of predictors... must be n-2 less than number of dunits
+      ## because of the area random effect term
+      if (length(predselect.unit.coef.absgt0) > maxpreds.unit) {
+        warning("number of predictors must be n-2 less than number of domains... ", 
+			"subsetting base on model-selection coefficients")
+        prednames.unit <- names(sort(abs(predselect.unit.coef), decreasing=TRUE)[1:maxpreds.unit])
+      } else {
+        prednames.unit <- predselect.unit.coef.absgt0
+      }
     } else {
-      predselect.unit <- prednames
+
+      ## Check number of predictors using correlation with response
+      ## (n-1 less than number of plots)
+      if (length(prednames) > maxpreds.unit) {
+        warning("number of predictors must be n-2 less than number of domains... ", 
+			"subsetting base on correlation coefficients")
+        prednames.cor <- names(sort(abs(cor(pltdat.dom[[yn]], 
+				pltdat.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
+        prednames <- prednames.cor[1:maxpreds.unit]
+      } else {
+        predselect.unit <- prednames
+      }
     } 
   }
   if (multest || SAmethod == "area") {
-    predselect.areadt <- dunitlut[FALSE, prednames, with=FALSE, drop=FALSE]
-    maxpreds <- length(unique(dunitlut.dom[[dunitvar]])) - 2
+    predselect.areadt <- dunitlut.dom[FALSE, prednames, with=FALSE, drop=FALSE]
+
+    ## Define number of maximum predictors for area-level models
+    maxpreds.area <- length(unique(dunitlut.dom[[dunitvar]])) - 2
 
     ## Variable selection for area and unit-level estimators
     if (modelselect) {
+
+      ## Define number of maximum predictors for area-level model selection (n-1)
+      maxpreds.area.modselect <- length(unique(dunitlut.dom[[dunitvar]])) - 1
+
+      ## Check number of predictors using correlation with response
+      ## (n-1 less than number of plots)
+      if (length(prednames) > maxpreds.area.modselect) {
+        warning("number of predictors is greater than number of domains... ", 
+			"subsetting based on correlation coefficients")
+        prednames.cor <- names(sort(abs(cor(dunitlut.dom[[yn]], 
+				dunitlut.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
+        prednames <- prednames.cor[1:maxpreds.modselect]
+      }
+
+      ## Define number cvfolds for area-level model selection
+      cvfolds <- ifelse(nrow(dunitlut.dom) <= 40, round(nrow(dunitlut.dom)/4), 10)
+
+      ## Select predictors for area-level models using elastic net via mase
       predselect.arealst <- suppressMessages(preds.select(y=yn,
-                            plt=dunitlut.dom, aux=dunitlut.dom, 
-                            prednames=prednames))
+                            plt=dunitlut.dom, auxlut=dunitlut.dom, 
+                            prednames=prednames, cvfolds=cvfolds))
       predselect.area <- predselect.arealst$preds.enet
       predselect.area.coef <- predselect.arealst$preds.coef
 
+      ## Get number of predictors with elastic net coefficients greater than 0
+      predselect.area.coef.absgt0 <- predselect.area[abs(predselect.area.coef) > 0]
+
       ## Check number of predictors... must be n-2 less than number of dunits
-      if (sum(predselect.area.coef > 0) > maxpreds) {
-        maxtxt <- ifelse(maxpreds == 1, "1 predictor", paste(maxpreds, "predictors"))
-        warning("can only use ", maxtxt, " (number of domain units - 2)")
-        prednames <- names(sort(predselect.area.coef, decreasing=TRUE)[1:maxpreds])
+      ## because of the area random effect term
+      if (length(predselect.area.coef.absgt0) > maxpreds.area) {
+        warning("number of predictors must be n-2 less than number of domains... ", 
+			"subsetting base on model-selection coefficients")
+        prednames.area <- names(sort(abs(predselect.area.coef), decreasing=TRUE)[1:maxpreds.area])
+
+      } else {
+        prednames.area <- predselect.unit.coef.absgt0
       }
+
     } else {
-      ## Check number of predictors... must be n-2 less than number of dunits
-      if (length(prednames) > maxpreds) {
-        maxtxt <- ifelse(maxpreds == 1, "1 predictor", paste(maxpreds, "predictors"))
-        warning("can only use ", maxtxt, " (number of domain units - 2)")
-        prednames <- prednames[1:maxpreds]
+      ## Check number of predictors using correlation with response
+      ## (n-1 less than number of plots)
+      if (length(prednames) > maxpreds.area) {
+        warning("number of predictors must be n-2 less than number of domains... ", 
+			"subsetting base on correlation coefficients")
+        prednames.cor <- names(sort(abs(cor(dunitlut.dom[[yn]], 
+				dunitlut.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
+        prednames <- prednames.cor[1:maxpreds.area]
+      } else {
+        predselect.area <- prednames
       }
-      predselect.area <- prednames
     }
   }
-
 
     # NOTE: still need to check for equivalent unit-level issue. Much less common though
     ## Check number of predictors... must be n-2 less than number of dunits
@@ -555,8 +634,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   nm.var <- paste0(yn, ".var")
   dunitlut.dom$DIR <- dunitlut.dom[[yn]]
   dunitlut.dom$DIR.se <- sqrt(dunitlut.dom[[nm.var]] / dunitlut.dom$n.total)
-  est <- dunitlut.dom[,c("DOMAIN", "DIR", "DIR.se")]  
-
+  est <- dunitlut.dom[,c("DOMAIN", "n.total", "DIR", "DIR.se")]  
+  setnames(est, "n.total", "NBRPLT")
 
   if (length(predselect.unit) > 0) {
     message("using following predictors for unit-level models...", toString(predselect.unit))
@@ -580,9 +659,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 					message(err, "\n")
 					return(NULL)
 				} )
+
       if (is.null(unit.JoSAE.obj)) {
         unit.JoSAE <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]], 
-                               NBRPLT=dunitlut.dom$n.total, 
                                JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA, 
                                JU.EBLUP=NA, JU.EBLUP.se.1=NA)
         setnames(unit.JoSAE, "DOMAIN", dunitvar)
@@ -595,10 +674,10 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 #        names(unit.JoSAE) <- c("DOMAIN", "NBRPLT", "DIR", "DIR.se", "JU.Synth", "JU.GREG",
 #                      "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
 
-        unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", "n.i.sample",
+        unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", 
                          "Synth", "GREG", "GREG.se",
                          "EBLUP","EBLUP.se.1")]
-        names(unit.JoSAE) <- c("DOMAIN", "NBRPLT", "JU.Synth", "JU.GREG",
+        names(unit.JoSAE) <- c("DOMAIN", "JU.Synth", "JU.GREG",
                       "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
 
       }  
@@ -635,11 +714,11 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
           hbsaeU = unit.hbsae.obj$est,
           hbsaeU.se = sqrt(unit.hbsae.obj$mse)
         )
-        unit.hbsae <- merge(unit.hbsae, dunitlut.dom[, c(dunitvar, "n.total")],
-                   by.x="DOMAIN", by.y=dunitvar)
-        names(unit.hbsae)[names(unit.hbsae) == "DOMAIN"] <- dunitvar
-        names(unit.hbsae)[names(unit.hbsae) == "n.total"] <- "NBRPLT"
-        unit.hbsae <- unit.hbsae[, c(dunitvar, "NBRPLT", "hbsaeU", "hbsaeU.se")]
+        #unit.hbsae <- merge(unit.hbsae, dunitlut.dom[, c(dunitvar, "n.total"), with=FALSE],
+        #           by.x="DOMAIN", by.y=dunitvar)
+        #names(unit.hbsae)[names(unit.hbsae) == "DOMAIN"] <- dunitvar
+        #names(unit.hbsae)[names(unit.hbsae) == "n.total"] <- "NBRPLT"
+        unit.hbsae <- unit.hbsae[, c(dunitvar, "hbsaeU", "hbsaeU.se")]
       } 
 
       ## Merge estimates
@@ -678,7 +757,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       }
     }   
   }
-
+ 
   if (length(predselect.area) > 0) {
     message("using following predictors for area-level models...", toString(predselect.unit))
 
@@ -1014,7 +1093,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 
   estlst <- lapply(doms, SAest.dom,
 			        dat=dat.large, cuniqueid=cuniqueid, pltassgn=pltassgn.large,
-     			    dunitlut=dunitlut.large, dunitvar=dunitvar,
+     			    	   dunitlut=dunitlut.large, dunitvar=dunitvar,
 			        SApackage=SApackage, SAmethod=SAmethod, prednames=prednames,
 			        domain=domain, response=response, largebnd.val=largebnd.val,
 			        showsteps=showsteps, savesteps=savesteps, stepfolder=stepfolder,
