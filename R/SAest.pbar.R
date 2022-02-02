@@ -395,7 +395,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 			"subsetting based on correlation coefficients")
         prednames.cor <- names(sort(abs(cor(pltdat.dom[[yn]], 
 				pltdat.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
-        prednames <- prednames.cor[1:maxpreds.modselect]
+        prednames <- prednames.cor[1:maxpreds.unit.modselect]
       }
 
       ## Define number cvfolds for area-level model selection
@@ -403,7 +403,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
       ## Select predictors for unit-level models using elastic net via mase
       predselect.unitlst <- suppressMessages(preds.select(y=yn,
-                            plt=pltdat.dom, aux=dunitlut.dom, 
+                            plt=pltdat.dom, auxlut=dunitlut.dom, 
                             prednames=prednames, cvfolds=cvfolds))
       predselect.unit <- predselect.unitlst$preds.enet
       predselect.unit.coef <- predselect.unitlst$preds.coef
@@ -454,7 +454,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 			"subsetting based on correlation coefficients")
         prednames.cor <- names(sort(abs(cor(dunitlut.dom[[yn]], 
 				dunitlut.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
-        prednames <- prednames.cor[1:maxpreds.modselect]
+        prednames <- prednames.cor[1:maxpreds.area.modselect]
       }
 
       ## Define number cvfolds for area-level model selection
