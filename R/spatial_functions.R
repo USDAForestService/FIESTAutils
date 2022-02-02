@@ -186,7 +186,7 @@ getEPSG <- function(prj=NULL, datum=NULL, zone=NULL) {
 
 
 #' @rdname spatial_desc
-#' @export
+#' @export merge.extents
 merge.extents <- function(layer1, layer2) {
   ## DESCRIPTION: merges 2 extents
   return(append(sf::st_as_sfc(sf::st_bbox(layer1)), sf::st_as_sfc(sf::st_bbox(layer2))))
