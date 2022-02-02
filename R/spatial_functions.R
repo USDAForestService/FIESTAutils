@@ -2,6 +2,7 @@
 ## build.prj4str	- builds PROJ.4 projections string from input parameters
 ## trunc10shp - truncates all variables in Spatial object to 10 characters of less
 ## getESPG - gets table of ESPG codes, filtering with input parameters
+## merge.extents - merge extents of 2 spatial layers
 ## check.extents - check extents of 2 spatial layers.
 ## getprjatt - gets the desired attribute from the proj4string.
 ## areacalc.poly - calculates area of polygons and appends to polygon attribute table.
@@ -181,6 +182,14 @@ getEPSG <- function(prj=NULL, datum=NULL, zone=NULL) {
     lut <- lut[grep(paste0("+zone=", zone), lut$prj4), c("code", "prj4")]
 
   return(lut)
+}
+
+
+#' @rdname spatial_desc
+#' @export
+merge.extents <- function(layer1, layer2) {
+  ## DESCRIPTION: merges 2 extents
+  return(append(sf::st_as_sfc(sf::st_bbox(layer1)), sf::st_as_sfc(sf::st_bbox(layer2))))
 }
 
 #' @rdname spatial_desc

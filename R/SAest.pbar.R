@@ -682,11 +682,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
       }  
 
-      if (!is.null(est)) {
-        est <- merge(est, unit.JoSAE, by=dunitvar)
-      } else {
-        est <- unit.JoSAE
-      }
+      est <- merge(est, unit.JoSAE, by=dunitvar)
       SAobjlst$unit.JoSAE.obj <- unit.JoSAE.obj
     }
 
@@ -705,7 +701,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 				} )
       if (is.null(unit.hbsae.obj)) {
         unit.hbsae <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]], 
-                               NBRPLT=dunitlut.dom$n.total, 
                                hbsaeU=NA, hbsaeU.se=NA)
         setnames(unit.hbsae, "DOMAIN", dunitvar)
       } else {
@@ -722,11 +717,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       } 
 
       ## Merge estimates
-      if (!is.null(est)) {
-        est <- merge(est, unit.hbsae[, c(dunitvar, "hbsaeU", "hbsaeU.se")], by=dunitvar)
-      } else {
-        est <- unit.hbsae
-      }
+      est <- merge(est, unit.hbsae[, c(dunitvar, "hbsaeU", "hbsaeU.se")], by=dunitvar)
       SAobjlst$unit.hbsae.obj <- unit.hbsae.obj
   
       rm(unit.JoSAE)
@@ -740,8 +731,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       est <- data.frame(est, JU.Synth=NA, 
                       JU.GREG=NA, JU.GREG.se=NA, 
                       JU.EBLUP=NA, JU.EBLUP.se.1=NA, 
-                      hbsaeU=NA, hbsaeU.se=NA, 
-                      NBRPLT=dunitlut.dom$n.total)
+                      hbsaeU=NA, hbsaeU.se=NA)
       setnames(est, "DOMAIN", dunitvar)
 
     } else {
@@ -753,7 +743,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         } else if (SApackage == "hbsae") {
           est <- data.frame(est, hbsaeU=NA, hbsaeU.se=NA)
         }
-        est <- data.frame(est, NBRplt=dunitlut.dom$n.total)
       }
     }   
   }
@@ -794,8 +783,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 #                               NBRPLT=dunitlut.dom$n.total,
 #                               DIR=NA, DIR.se=NA, JFH=NA, JFH.se=NA,
 #                               JA.synth=NA, JA.synth.se=NA)
+        area.JoSAE.obj <- NULL
         area.JoSAE <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]],
-                               NBRPLT=dunitlut.dom$n.total,
+#                               NBRPLT=dunitlut.dom$n.total,
                                JFH=NA, JFH.se=NA,
                                JA.synth=NA, JA.synth.se=NA)
         setnames(area.JoSAE, "DOMAIN", dunitvar)
@@ -810,13 +800,13 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         ## To add space to messages
         cat("\n")
       
-        area.JoSAE <- merge(area.JoSAE, area.JoSAE.al[, c("domain.id", "n.i")],
-                   by.x="DOMAIN", by.y="domain.id")
-        names(area.JoSAE)[names(area.JoSAE) == "DOMAIN"] <- dunitvar
-        names(area.JoSAE)[names(area.JoSAE) == "n.i"] <- "NBRPLT"
+#        area.JoSAE <- merge(area.JoSAE, area.JoSAE.al[, c("domain.id", "n.i")],
+#                   by.x="DOMAIN", by.y="domain.id")
+#        names(area.JoSAE)[names(area.JoSAE) == "DOMAIN"] <- dunitvar
+#        names(area.JoSAE)[names(area.JoSAE) == "n.i"] <- "NBRPLT"
 #        area.JoSAE <- area.JoSAE[, c(dunitvar, "NBRPLT", "DIR", "DIR.se", "JFH", "JFH.se",
 #                     "JA.synth", "JA.synth.se")]
-        area.JoSAE <- area.JoSAE[, c(dunitvar, "NBRPLT", "JFH", "JFH.se",
+        area.JoSAE <- area.JoSAE[, c(dunitvar, "JFH", "JFH.se",
                      "JA.synth", "JA.synth.se")]
  
      
@@ -824,7 +814,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 #          est.NA <- data.table(dunitlut.NA[[dunitvar]], NBRPLT=dunitlut.NA$n.total,
 #                             DIR=NA, DIR.se=NA,
 #                             JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
-          est.NA <- data.table(dunitlut.NA[[dunitvar]], NBRPLT=dunitlut.NA$n.total,
+          est.NA <- data.table(dunitlut.NA[[dunitvar]], 
                              JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
 
           setnames(est.NA, "V1", dunitvar)
@@ -855,24 +845,26 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 				} )
       if (is.null(area.sae.obj)) {
         area.sae <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]],
-                             NBRPLT=dunitlut.dom$n.total, saeA=NA, saeA.se=NA)
+                             saeA=NA, saeA.se=NA)
         setnames(area.sae, "DOMAIN", dunitvar)
       } else {
       
-        area.sae <- data.frame(
-          DOMAIN = dunitlut.area[[dunitvar]],
-          saeA = area.sae.obj$est$eblup[,1],
-          saeA.se = sqrt(area.sae.obj$mse)
-        )
-      
-        area.sae <- merge(area.sae, dunitlut.area[, c(dunitvar, "n.total")],
-                   by.x="DOMAIN", by.y=dunitvar)
-        names(area.sae)[names(area.sae) == "DOMAIN"] <- dunitvar
-        names(area.sae)[names(area.sae) == "n.total"] <- "NBRPLT"
-        area.sae <- area.sae[, c(dunitvar, "NBRPLT", "saeA", "saeA.se")]
-      
+        if (is.na(area.sae.obj$est$eblup)) {
+          area.sae <- data.frame(
+            DOMAIN = dunitlut.area[[dunitvar]],
+            saeA = rep(NA, length(dunitlut.area[[dunitvar]])),
+            saeA.se = rep(NA, length(dunitlut.area[[dunitvar]]))
+          )
+        } else {
+          area.sae <- data.frame(
+            DOMAIN = dunitlut.area[[dunitvar]],
+            saeA = area.sae.obj$est$eblup[,1],
+            saeA.se = sqrt(area.sae.obj$mse)
+          )
+        }
+            
         if (nrow(dunitlut.NA) > 0) {
-          est.NA <- data.table(dunitlut.NA[[dunitvar]], NBRPLT=dunitlut.NA$n.total,
+          est.NA <- data.table(dunitlut.NA[[dunitvar]], 
                              saeA=NA, saeA.se=NA)
           setnames(est.NA, "V1", dunitvar)
           area.sae <- rbindlist(list(area.sae, est.NA))
@@ -904,7 +896,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 				} )
       if (is.null(area.hbsae.obj)) {
         area.hbsae <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]],
-		    NBRPLT=dunitlut.dom$n.total,
 		    hbsaeA=NA, hbsaeA.se=NA)
         setnames(area.hbsae, "DOMAIN", dunitvar)
       } else {
@@ -915,14 +906,11 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
           hbsaeA.se = sqrt(area.hbsae.obj$mse)
         )
       
-        area.hbsae <- merge(area.hbsae, dunitlut.area[, c(dunitvar, "n.total")],
-                   by.x="DOMAIN", by.y=dunitvar)
         names(area.hbsae)[names(area.hbsae) == "DOMAIN"] <- dunitvar
-        names(area.hbsae)[names(area.hbsae) == "n.total"] <- "NBRPLT"
-        area.hbsae <- area.hbsae[, c(dunitvar, "NBRPLT", "hbsaeA", "hbsaeA.se")]
+        area.hbsae <- area.hbsae[, c(dunitvar, "hbsaeA", "hbsaeA.se")]
       
         if (nrow(dunitlut.NA) > 0) {
-          est.NA <- data.table(dunitlut.NA[[dunitvar]], NBRPLT=dunitlut.NA$n.total,
+          est.NA <- data.table(dunitlut.NA[[dunitvar]], 
                              hbsaeA=NA, hbsaeA.se=NA)
           setnames(est.NA, "V1", dunitvar)
           area.hbsae <- rbindlist(list(area.hbsae, est.NA))
@@ -1023,7 +1011,9 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
 
   ## Subset tomdat to domain=dom
   dat.dom <- dat[dat[[domain]] == dom,]
-
+  if (domain != "TOTAL") {
+    print(dom)
+  }
 
   if (nrow(dat.dom) == 0 || sum(!is.na(dat.dom[[domain]])) == 0) {
     domest <- data.table(dom, matrix(c(0, rep(NA,17)), 1, 18), 0, 1)
@@ -1116,6 +1106,10 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 				do.call(rbind, estlst)[,"pltdat.dom"]))
     dunitlut.dom <- data.table(largebnd.val, do.call(rbind,
 				do.call(rbind, estlst)[,"dunitlut.dom"]))
+
+    SAobjlst.dom <- do.call(rbind,
+				do.call(rbind, estlst)[,"SAobjlst"])
+
   } else {
 
     #print(head(do.call(rbind, estlst)[,"est"]$est))
