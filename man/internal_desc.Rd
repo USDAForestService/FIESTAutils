@@ -243,9 +243,17 @@ makedummy(dat, auxlut, predfac)
 
 preds.standardize(plt, aux, prednames)
 
-gregEN.select(y, x_sample, x_pop, N, alpha = 0.5, returncoef = FALSE)
+gregEN.select(
+  y,
+  x_sample,
+  x_pop,
+  N,
+  alpha = 0.5,
+  returncoef = FALSE,
+  cvfolds = 10
+)
 
-preds.select(y, plt, aux, prednames)
+preds.select(y, plt, auxlut, prednames, cvfolds = 10)
 
 fileexistsnm(outfolder, basenm, ext)
 

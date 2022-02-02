@@ -849,7 +849,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         setnames(area.sae, "DOMAIN", dunitvar)
       } else {
       
-        if (is.na(area.sae.obj$est$eblup)) {
+        if (length(area.sae.obj$est$eblup) == 1 && is.na(area.sae.obj$est$eblup)) {
           area.sae <- data.frame(
             DOMAIN = dunitlut.area[[dunitvar]],
             saeA = rep(NA, length(dunitlut.area[[dunitvar]])),
@@ -1076,9 +1076,9 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
 
-#dat=dat.large
-#dunitlut=dunitlut.large
-#pltassgn=pltassgn.large
+dat=dat.large
+dunitlut=dunitlut.large
+pltassgn=pltassgn.large
 #dom=doms[i]
 
   estlst <- lapply(doms, SAest.dom,
