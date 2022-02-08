@@ -6,7 +6,7 @@
 \alias{build.prj4str}
 \alias{trunc10shp}
 \alias{getEPSG}
-\alias{merge.extents}
+\alias{merge_extents}
 \alias{check.extents}
 \alias{getprjatt}
 \alias{areacalc.poly}
@@ -34,7 +34,7 @@ trunc10shp(x)
 
 getEPSG(prj = NULL, datum = NULL, zone = NULL)
 
-\method{merge}{extents}(layer1, layer2)
+merge_extents(layer1, layer2)
 
 check.extents(
   bbox1,
