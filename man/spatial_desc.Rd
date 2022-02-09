@@ -16,6 +16,7 @@
 \alias{closest_poly}
 \alias{getIntersect}
 \alias{clip.othertables}
+\alias{check.area}
 \title{Spatial Data Functions}
 \usage{
 polyfix.sf(x)
@@ -87,6 +88,15 @@ clip.othertables(
   outfn.date = FALSE,
   overwrite_layer = FALSE,
   gui = FALSE
+)
+
+check.area(
+  bnd,
+  bnd_dsn,
+  bnd.filter = NULL,
+  bnd.att = NULL,
+  areaunits = "acres",
+  min.area = 6000
 )
 }
 \description{

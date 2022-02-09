@@ -325,7 +325,7 @@ areacalc.poly <- function(polyv, polyv_dsn=NULL, areaprj="aea", zone=NULL,
   }
 
   ## Calculate area
-  polyv[["AREA_GIS"]] <- sf::st_area(polyv)
+  polyv[["AREA_TMP"]] <- sf::st_area(polyv)
 
   ## Get polygon units
 #  polyv.units <- unique(units(polyv[["AREA_GIS"]])$numerator)
@@ -341,30 +341,37 @@ areacalc.poly <- function(polyv, polyv_dsn=NULL, areaprj="aea", zone=NULL,
 
   ## Convert square meters to area unit
 #  if (units == "ACRES") {
-#    polyv[["ACRES_GIS"]] <- round(polyv[["AREA_GIS"]] * cfactor.ac, 6)
+#    polyv[["ACRES_GIS"]] <- round(polyv[["AREA_TMP"]] * cfactor.ac, 6)
 #    areavar <- "ACRES_GIS"
 #  } else if (units == "HECTARES") {
-#    polyv[["HECTARES_GIS"]] <- round(polyv[["AREA_GIS"]] * cfactor.ha, 6)
+#    polyv[["HECTARES_GIS"]] <- round(polyv[["AREA_TMP"]] * cfactor.ha, 6)
 #    areavar <- "HECTARES_GIS"
 #  } else {
 #    areavar <- "SQMETERS_GIS"
 #  }
 
   if (unit == "ACRES") {
-    polyv[["ACRES_GIS"]] <- units::set_units(x=polyv[["AREA_GIS"]], value=acre)
+    polyv[["ACRES_GIS"]] <- units::set_units(x=polyv[["AREA_TMP"]], value=acre)
+    areanm <- "ACRES_GIS"
   } else if (unit == "HECTARES") {
-    polyv[["HECTARES_GIS"]] <- units::set_units(x=polyv[["AREA_GIS"]], value=hectare)
-    areavar <- "HECTARES_GIS"
+    polyv[["HECTARES_GIS"]] <- units::set_units(x=polyv[["AREA_TMP"]], value=hectare)
+    areanm <- "HECTARES_GIS"
   } else if (unit == "SQKM") {
-    polyv[["SQKM_GIS"]] <- units::set_units(x=polyv[["AREA_GIS"]], value=km^2)
-    areavar <- "SQKM_GIS"
+    polyv[["SQKM_GIS"]] <- units::set_units(x=polyv[["AREA_TMP"]], value=km^2)
+    areanm <- "SQKM_GIS"
   } else {
-    polyv[["SQMETERS_GIS"]] <- polyv[["AREA_GIS"]]
-    areavar <- "SQMETERS_GIS"
+    polyv[["SQMETERS_GIS"]] <- polyv[["AREA_TMP"]]
+    areanm <- "SQMETERS_GIS"
   }
 
-  if (isll)
+  if (isll) {
     polyv <- sf::st_transform(polyv, crs.longlat, quiet=TRUE)
+  }
+
+  if (!is.null(areavar)) {
+    names(polyv)[names(polyv) == areanm] <- areavar
+  }
+  polyv[["AREA_TMP"]] <- NULL
 
   return(units::drop_units(polyv))
 }
@@ -716,4 +723,49 @@ clip.othertables <- function(inids, othertabnms, othertabs=NULL, uniqueid="PLT_C
   }
   return(intablst)
 }
+
+
+#' @rdname spatial_desc
+#' @export
+check.area <- function(bnd, bnd_dsn, bnd.filter=NULL, bnd.att=NULL, 
+	areaunits="acres", min.area=6000) {
+
+  ## check areaunits
+  areaunitslst <- c("acres", "hectares", "sqmeters") 
+  areaunits <- pcheck.varchar(var2check=areaunits, varnm="areaunits", 
+	gui=gui, checklst=areaunitslst, caption="Area units?", stopifnull=TRUE)
+  areaunits <- toupper(areaunits)
+
+  ## Check bnd
+  bndx <- pcheck.spatial(layer=bnd, dsn=bnd_dsn, gui=gui, 
+	caption="Area of interest?")
+
+
+  ## bnd.filter
+  bndx <- datFilter(bndx, xfilter=bnd.filter)$xf
+
+  ## Calculate area
+  areavar <- "AREA_TEST"
+  bndx <- areacalc.poly(bndx, unit=areaunits)
+
+  if (!is.null(bnd.att)) {
+    ## Aggregate area to bnd.att
+    bndarea <- aggregate(bndx[[areavar]], list(bndx[[bnd.att]]), sum)
+    names(bndarea) <- c(bnd.att, areavar)
+  } else {
+    bndarea <- data.frame(1, sum(bndx[[areavar]]))
+    names(bndarea) <- c("ONEATT", areavar)
+  }
+
+  bndarea$TEST <- bndarea[[areavar]] < min.area
+  pctless <- sum(bndarea$TEST) / nrow(bndarea)
+
+  if (pctless > .50) {
+    warning("more than half of domain units are less than ", 
+				min.area, " ", tolower(areaunits), "\n", 
+				"...consider using FIESTA Small Area module")
+
+  }
+}
+
 
