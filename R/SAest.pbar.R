@@ -326,38 +326,40 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   ## Check if all plots are zero
   if (sum(pltdat.dom[[yn]]) == 0) {
     message(yn, " has all 0 values... returning NULL")
+
     if (multest) {
-      est <- data.table(dunitlut.dom[[dunitvar]], AOI=dunitlut.dom$AOI,
+      est <- data.table(dunitlut.dom[[dunitvar]], 
+		NBRPLT=dunitlut.dom$n.total, 
 		DIR=NA, DIR.se=NA, JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
 		JU.EBLUP=NA, JU.EBLUP.se.1=NA, 
 		hbsaeU=NA, hbsaeU.se=NA, 
+		JFH=NA, JFH.se=NA,
 		JA.synth=NA, JA.synth.se=NA, 
 		saeA=NA, saeA.se=NA, 
-		hbsaeA=NA, hbsaeA.se=NA, NBRPLT=dunitlut.dom$n.total)
+		hbsaeA=NA, hbsaeA.se=NA)
       setnames(est, "V1", dunitvar)
 
     } else {
-      est <- data.table(dunitlut.dom[[dunitvar]], DIR=NA, DIR.se=NA)
+      est <- data.table(dunitlut.dom[[dunitvar]], NBRPLT=dunitlut.dom$n.total, 
+			DIR=NA, DIR.se=NA)
       setnames(est, "V1", dunitvar)
 
       if (SAmethod == "unit") {
         if (SApackage == "JoSAE") {
-          est <- data.table(est, JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
-			JU.EBLUP=NA, JU.EBLUP.se.1=NA, NBRPLT=dunitlut.dom$n.total)
+          est <- data.table(est, 
+			JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
+			JU.EBLUP=NA, JU.EBLUP.se.1=NA)
         } else if (SApackage == "hbsae") {
-          est <- data.table(est, hbsaeU=NA, hbsaeU.se=NA, 
-			NBRPLT=dunitlut.dom$n.total)
+          est <- data.table(est, hbsaeU=NA, hbsaeU.se=NA)
         }
       } else if (SAmethod == "area") {
         if (SApackage == "JoSAE") {
-          est <- data.table(est, JA.synth=NA, JA.synth.se=NA, 
-			NBRPLT=dunitlut.dom$n.total)
+          est <- data.table(est, 
+			JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
         } else if (SApackage == "sae") {
-          est <- data.table(est, sae=NA, sae.se=NA, 
-			NBRPLT=dunitlut.dom$n.total)
+          est <- data.table(est, sae=NA, sae.se=NA)
         } else if (SApackage == "hbsae") {
-          est <- data.table(est, hbsae=NA, hbsae.se=NA, 
-			NBRPLT=dunitlut.dom$n.total)
+          est <- data.table(est, hbsae=NA, hbsae.se=NA)
         }
       }
     }
@@ -368,8 +370,30 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     if (!"AOI" %in% names(est) && "AOI" %in% names(dunitlut.dom)) {
       est <- merge(est, dunitlut.dom[, c("DOMAIN", "AOI")], by="DOMAIN")
     }
-    return(list(est=est, predselect.unit=NULL, predselect.area=NULL,
-		pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom))
+
+    dunitlut.dom$DIR <- NA
+    dunitlut.dom$DIR.se <- NA
+
+    if (!"AOI" %in% names(pltdat.dom)) {
+      pltdat.dom <- merge(pltdat.dom, dunitlut.dom[, c("DOMAIN", "AOI")], by="DOMAIN")
+    }
+
+    returnlst <- list(est=est, pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom)
+
+    if (multest || SAmethod == "unit") {
+      predselect.unit <- data.table(matrix(0, 1, length(prednames)))
+      names(predselect.unit) <- prednames
+      returnlst$predselect.unit <- predselect.unit
+    }
+    if (multest || SAmethod == "area") {
+      predselect.area <- data.table(matrix(0, 1, length(prednames)))
+      names(predselect.area) <- prednames
+      returnlst$predselect.area <- predselect.area
+    }
+    returnlst$SAobjlst <- NA
+
+
+    return(returnlst)
   }
 
   ## Variable selection for area and unit-level estimators
@@ -967,34 +991,42 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
   gc()
 
-  returnlst <- list(est=est, pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom,
-		SAobjlst=SAobjlst)
+  returnlst <- list(est=est, pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom)
 
   if (modelselect) {
-    if (multest || SAmethod == "area") {
-      predselect.areadt <- rbindlist(list(predselect.areadt,
-		data.frame(t(predselect.area.coef))), fill=TRUE)
-      returnlst$predselect.area <- predselect.areadt
-    }
     if (multest || SAmethod == "unit") {
       predselect.unitdt <- rbindlist(list(predselect.unitdt,
 		data.frame(t(predselect.unit.coef))), fill=TRUE)
       returnlst$predselect.unit <- predselect.unitdt
+    } else {
+      returnlst$predselect.unit <- NULL
     }
-  } else {
     if (multest || SAmethod == "area") {
-      preds.area <- data.frame(t(ifelse(names(predselect.areadt) %in% predselect.area, 1, 0)))
-      setnames(preds.area, names(predselect.areadt))
-      predselect.areadt <- rbindlist(list(predselect.areadt, preds.area), fill=TRUE)
+      predselect.areadt <- rbindlist(list(predselect.areadt,
+		data.frame(t(predselect.area.coef))), fill=TRUE)
       returnlst$predselect.area <- predselect.areadt
-    }
+    } else {
+      returnlst$predselect.area <- NULL
+    }     
+  } else {
     if (multest || SAmethod == "unit") {
       preds.unit <- data.frame(t(ifelse(names(predselect.unitdt) %in% predselect.unit, 1, 0)))
       setnames(preds.unit, names(predselect.unitdt))
       predselect.unitdt <- rbindlist(list(predselect.unitdt, preds.unit), fill=TRUE)
       returnlst$predselect.unit <- predselect.unitdt
-    }
+    } else {
+      returnlst$predselect.unit <- NULL
+    }     
+    if (multest || SAmethod == "area") {
+      preds.area <- data.frame(t(ifelse(names(predselect.areadt) %in% predselect.area, 1, 0)))
+      setnames(preds.area, names(predselect.areadt))
+      predselect.areadt <- rbindlist(list(predselect.areadt, preds.area), fill=TRUE)
+      returnlst$predselect.area <- predselect.areadt
+    } else {
+      returnlst$predselect.area <- NULL
+    }     
   }
+  returnlst$SAobjlst <- SAobjlst
 
   return(returnlst)
 }
@@ -1095,20 +1127,23 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 				do.call(rbind, do.call(rbind, estlst)[,"est"]))
     setnames(est.large, "largebnd", largebnd.unique)
 
-    predselect.unit <- data.table(largebnd=largebnd.val,
-				do.call(rbind, do.call(rbind, estlst)[,"predselect.unit"]))
-    setnames(predselect.unit, "largebnd", largebnd.unique)
-
-    predselect.area <- data.table(largebnd=largebnd.val,
-				do.call(rbind, do.call(rbind, estlst)[,"predselect.area"]))
-    setnames(predselect.area, "largebnd", largebnd.unique)
-
     pltdat.dom <- data.table(largebnd.val, do.call(rbind,
 				do.call(rbind, estlst)[,"pltdat.dom"]))
     dunitlut.dom <- data.table(largebnd.val, do.call(rbind,
 				do.call(rbind, estlst)[,"dunitlut.dom"]))
 
-    SAobjlst.dom <- do.call(rbind,
+    if (multest || SAmethod == "unit") {
+      predselect.unit <- data.table(largebnd=largebnd.val,
+				do.call(rbind, do.call(rbind, estlst)[,"predselect.unit"]))
+      setnames(predselect.unit, "largebnd", largebnd.unique)
+    }
+    if (multest || SAmethod == "area") {
+      predselect.area <- data.table(largebnd=largebnd.val,
+				do.call(rbind, do.call(rbind, estlst)[,"predselect.area"]))
+      setnames(predselect.area, "largebnd", largebnd.unique)
+    }
+
+    SAobjlst.dom <- do.call(list,
 				do.call(rbind, estlst)[,"SAobjlst"])
 
   } else {
@@ -1118,14 +1153,6 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 				do.call(rbind, estlst)[,"est"]$est)
     setnames(est.large, "largebnd", largebnd.unique)
 
-    predselect.unit <- data.table(largebnd=largebnd.val,
-				do.call(rbind, estlst)[,"predselect.unit"]$predselect.unit)
-    setnames(predselect.unit, "largebnd", largebnd.unique)
-
-    predselect.area <- data.table(largebnd=largebnd.val,
-				do.call(rbind, estlst)[,"predselect.area"]$predselect.area)
-    setnames(predselect.area, "largebnd", largebnd.unique)
-
     pltdat.dom <- data.table(largebnd=largebnd.val,
 				do.call(rbind, estlst)[,"pltdat.dom"]$pltdat.dom)
     setnames(pltdat.dom, "largebnd", largebnd.unique)
@@ -1133,6 +1160,18 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
     dunitlut.dom <- data.table(largebnd=largebnd.val,
 				do.call(rbind, estlst)[,"dunitlut.dom"]$dunitlut.dom)
     setnames(dunitlut.dom, "largebnd", largebnd.unique)
+
+    if (multest || SAmethod == "unit") {
+      predselect.unit <- data.table(largebnd=largebnd.val,
+				do.call(rbind, estlst)[,"predselect.unit"]$predselect.unit)
+      setnames(predselect.unit, "largebnd", largebnd.unique)
+    }
+
+    if (multest || SAmethod == "area") {
+      predselect.area <- data.table(largebnd=largebnd.val,
+				do.call(rbind, estlst)[,"predselect.area"]$predselect.area)
+      setnames(predselect.area, "largebnd", largebnd.unique)
+    }
     
     SAobjlst.dom <- do.call(rbind, estlst)[,"SAobjlst"]$SAobjlst
   }
@@ -1141,13 +1180,20 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   setkeyv(setDT(pltdat.dom), dunitvar)
   setkeyv(setDT(dunitlut.dom), dunitvar)
 
-  rm(estlst)
+  #rm(estlst)
   gc()
 
-  return(list(est.large=est.large,
-			predselect.unit=predselect.unit,
-			predselect.area=predselect.area,
-			pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom,
-			SAobjlst.dom=SAobjlst.dom))
+  returnlst <- list(est.large=est.large,
+			pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom)
+
+  if (multest || SAmethod == "unit") {
+    returnlst$predselect.unit <- predselect.unit
+  }
+  if (multest || SAmethod == "area") {
+    returnlst$predselect.area <- predselect.area
+  }
+  returnlst$SAobjlst.dom <- SAobjlst.dom
+
+  return(returnlst)
 }
 
