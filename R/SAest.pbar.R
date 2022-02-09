@@ -478,7 +478,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         prednames.area <- names(sort(abs(predselect.area.coef), decreasing=TRUE)[1:maxpreds.area])
 
       } else {
-        prednames.area <- predselect.unit.coef.absgt0
+        prednames.area <- predselect.area.coef.absgt0
       }
 
     } else {
@@ -974,26 +974,27 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     if (multest || SAmethod == "area") {
       predselect.areadt <- rbindlist(list(predselect.areadt,
 		data.frame(t(predselect.area.coef))), fill=TRUE)
+      returnlst$predselect.area <- predselect.areadt
     }
     if (multest || SAmethod == "unit") {
       predselect.unitdt <- rbindlist(list(predselect.unitdt,
 		data.frame(t(predselect.unit.coef))), fill=TRUE)
+      returnlst$predselect.unit <- predselect.unitdt
     }
   } else {
     if (multest || SAmethod == "area") {
       preds.area <- data.frame(t(ifelse(names(predselect.areadt) %in% predselect.area, 1, 0)))
       setnames(preds.area, names(predselect.areadt))
       predselect.areadt <- rbindlist(list(predselect.areadt, preds.area), fill=TRUE)
+      returnlst$predselect.area <- predselect.areadt
     }
     if (multest || SAmethod == "unit") {
       preds.unit <- data.frame(t(ifelse(names(predselect.unitdt) %in% predselect.unit, 1, 0)))
       setnames(preds.unit, names(predselect.unitdt))
       predselect.unitdt <- rbindlist(list(predselect.unitdt, preds.unit), fill=TRUE)
+      returnlst$predselect.unit <- predselect.unitdt
     }
   }
-
-  returnlst$predselect.area <- predselect.areadt
-  returnlst$predselect.unit <- predselect.unitdt
 
   return(returnlst)
 }
@@ -1076,9 +1077,9 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
 
-dat=dat.large
-dunitlut=dunitlut.large
-pltassgn=pltassgn.large
+#dat=dat.large
+#dunitlut=dunitlut.large
+#pltassgn=pltassgn.large
 #dom=doms[i]
 
   estlst <- lapply(doms, SAest.dom,
