@@ -13,7 +13,7 @@
 ## closest_poly - get polygon of y with closest polygon to x (slower than centroid)
 ## getIntersect - get intersection of layer1 with layer2
 ## clip.othertables
-
+## check.area
 
 
 #' @rdname spatial_desc
@@ -727,7 +727,7 @@ clip.othertables <- function(inids, othertabnms, othertabs=NULL, uniqueid="PLT_C
 
 #' @rdname spatial_desc
 #' @export
-check.area <- function(bnd, bnd_dsn, bnd.filter=NULL, bnd.att=NULL, 
+check.area <- function(bnd, bnd_dsn, bnd.att=NULL, 
 	areaunits="acres", min.area=6000) {
 
   ## check areaunits
@@ -740,9 +740,6 @@ check.area <- function(bnd, bnd_dsn, bnd.filter=NULL, bnd.att=NULL,
   bndx <- pcheck.spatial(layer=bnd, dsn=bnd_dsn, gui=gui, 
 	caption="Area of interest?")
 
-
-  ## bnd.filter
-  bndx <- datFilter(bndx, xfilter=bnd.filter)$xf
 
   ## Calculate area
   areavar <- "AREA_TEST"
