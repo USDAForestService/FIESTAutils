@@ -90,14 +90,7 @@ clip.othertables(
   gui = FALSE
 )
 
-check.area(
-  bnd,
-  bnd_dsn,
-  bnd.filter = NULL,
-  bnd.att = NULL,
-  areaunits = "acres",
-  min.area = 6000
-)
+check.area(bnd, bnd_dsn, bnd.att = NULL, areaunits = "acres", min.area = 6000)
 }
 \description{
 These functions allow for analysis and manipulation of spatial data. Tasks

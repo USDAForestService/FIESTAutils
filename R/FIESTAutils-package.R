@@ -203,24 +203,3 @@ NULL
 #' ORDER BY bp.STATECD, bp.COUNTYCD, bp_old.PLOT_FIADB"
 #' @keywords datasets
 NULL
-
-
-
-#' FIA data. Condition-level data from FIA public database.
-#' 
-#' FIA condition-level data for the state of Wyoming, inventory years 2011-2012
-#' and was downloaded Sept 8, 2017 from FIADB_1.7.0.00.
-#' 
-#' 
-#' @name WYcond
-#' @docType data
-#' @format A dataframe with 26 columns and 6710 rows.
-#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
-#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
-#' Forest Inventory and Analysis Database: Database Description and Users
-#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
-#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
-#' manual_5-1-2_p2_07_2012.pdf)
-#' @source FIA Database.
-#' @keywords datasets
-NULL
