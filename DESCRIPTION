@@ -1,8 +1,8 @@
 Package: FIESTAutils
 Type: Package
 Title: Utility Functions and Spatial Tools for FIESTA and FIESTAnalysis
-Version: 0.1.0
-Date: 2022-01-13
+Version: 0.2.0
+Date: 2022-02-15
 Authors@R:
     c(person(given = "Tracey",
              family = "Frescino",
