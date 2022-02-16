@@ -1,6 +1,6 @@
 Package: FIESTAutils
 Type: Package
-Title: Utility Functions and Spatial Tools for FIESTA and FIESTAnalysis
+Title: Utility Functions for Forest Inventory Estimation and Analysis
 Version: 0.2.0
 Date: 2022-02-15
 Authors@R:
@@ -16,8 +16,11 @@ Authors@R:
              family = "White",
              role = c("aut", "cre"),
              email = "graysonwhite13@gmail.com"))
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: The FIESTAutils R package provides tools for data wrangling,
+    spatial data analysis, statistical modeling (including direct,
+    model-assisted, photo-based, and small area tools), and USDA Forest Service 
+    data base tools. These tools are aimed to help Foresters, Analysts, and
+    Scientists extract and perform analyses on USDA Forest Service data.
 Depends:
     R (>= 3.5.0)
 Imports:
