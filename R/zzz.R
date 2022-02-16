@@ -5,3 +5,4 @@ utils::globalVariables(names(formals(title_options)[1:(length(formals(title_opti
 utils::globalVariables(names(formals(unit_options)[1:(length(formals(unit_options))-1)]))
 utils::globalVariables(names(formals(multest_options)[1:(length(formals(multest_options))-1)]))
 utils::globalVariables(names(formals(spMakeSpatial_options)[1:(length(formals(spMakeSpatial_options))-1)]))
+utils::globalVariables(".cl_ds")

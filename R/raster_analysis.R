@@ -981,7 +981,8 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	clip_gt = c(clip_xmin, cellsizeX, 0, clip_ymax, 0, cellsizeY)
 
 	if (is.null(src_band)) {
-		nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
+		#nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
+		nbands = ri$nbands
 		src_band = 1:nbands
 	}
 	else {
@@ -1539,39 +1540,39 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	}
 	
 	if(raster_zones) {
-		# using zonal raster...
-		# TODO: this is not complete
-		rs_list = list()
+		# # using zonal raster...
+		# # TODO: not complete
+		# rs_list = list()
 		
-		updateRunningStats <- function(x) {
-			zoneid = as.character(x[1])
-			invisible( rs_list[[zoneid]]$update(x[2]) )
-		}
+		# updateRunningStats <- function(x) {
+			# zoneid = as.character(x[1])
+			# invisible( rs_list[[zoneid]]$update(x[2]) )
+		# }
 		
-		rowdata = matrix(NA_real_, nrow = 2, ncol = ncols)
+		# rowdata = matrix(NA_real_, nrow = 2, ncol = ncols)
 		
-		process_row <- function(row) {
-			# read the zonal raster
-			rowdata[1,] = rgdal::getRasterData(zone_ds, band=1, 
-										offset=c(row,0), 
-										region.dim=c(1,ncols), 
-										as.is=TRUE)
-			# read the data raster
-			rowdata[2,] = rgdal::getRasterData(ds, band=band, 
-										offset=c(row,0), 
-										region.dim=c(1,ncols), 
-										as.is=TRUE)
+		# process_row <- function(row) {
+			# # read the zonal raster
+			# rowdata[1,] = rgdal::getRasterData(zone_ds, band=1, 
+										# offset=c(row,0), 
+										# region.dim=c(1,ncols), 
+										# as.is=TRUE)
+			# # read the data raster
+			# rowdata[2,] = rgdal::getRasterData(ds, band=band, 
+										# offset=c(row,0), 
+										# region.dim=c(1,ncols), 
+										# as.is=TRUE)
 										
-			# update running stats
-			apply(rowdata, c(2), updateRunningStats)
-			setTxtProgressBar(pb, row+1)
-			return()
-		}
-		pb <- txtProgressBar(min=0, max=nrows)
-		lapply(0:(nrows-1), process_row)
-		close(pb)		
+			# # update running stats
+			# apply(rowdata, c(2), updateRunningStats)
+			# setTxtProgressBar(pb, row+1)
+			# return()
+		# }
+		# pb <- txtProgressBar(min=0, max=nrows)
+		# lapply(0:(nrows-1), process_row)
+		# close(pb)		
 		
-		zoneid = names(rs_list)
+		# zoneid = names(rs_list)
 
 	}
 	else {
@@ -1717,6 +1718,9 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 		setTxtProgressBar(pb, i)
 	}
 	close(pb)
+	
+	# for CRAN check only:
+	count = NULL
 	
 	df_out = tbl$asDataFrame()
 	tbl <- NULL
