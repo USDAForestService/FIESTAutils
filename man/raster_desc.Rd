@@ -6,6 +6,11 @@
 \alias{getDefaultNodata}
 \alias{getOffset}
 \alias{getGDALformat}
+\alias{getRasterYSize}
+\alias{getRasterXSize}
+\alias{getRasterCount}
+\alias{getGeoTransform}
+\alias{getRasterBandInfo}
 \alias{basename.NoExt}
 \alias{Mode}
 \alias{Modes}
@@ -23,7 +28,6 @@
 \alias{rasterFromRaster}
 \alias{rasterFromVectorExtent}
 \alias{rasterizePolygons}
-\alias{polygonizeRaster}
 \alias{clipRaster}
 \alias{rasterCalc}
 \alias{rasterCombine}
@@ -53,6 +57,16 @@ getOffset(coord, origin, gt_pixel_size)
 
 getGDALformat(file)
 
+getRasterYSize(ds)
+
+getRasterXSize(ds)
+
+getRasterCount(ds)
+
+getGeoTransform(ds)
+
+getRasterBandInfo(ds, b = 1)
+
 basename.NoExt(filepath)
 
 Mode(x, na.rm = FALSE)
@@ -72,6 +86,7 @@ TPI(x, na.rm = FALSE, asInt = TRUE)
 getPixelValue(
   pt,
   ds,
+  ri,
   band = 1,
   interpolate = FALSE,
   windowsize = 1,
@@ -147,8 +162,6 @@ rasterFromVectorExtent(
 )
 
 rasterizePolygons(dsn, layer, burn_value, rasterfile, src = NULL)
-
-polygonizeRaster(rasterfile, maskfile = character(0), options = character(0))
 
 clipRaster(
   dsn = NULL,

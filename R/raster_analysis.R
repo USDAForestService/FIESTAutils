@@ -1,5 +1,5 @@
 # functions for raster data
-# Chris Toney, christoney at fs.fed.us
+# Chris Toney, chris.toney at usda.gov
 
 # depends on packages rgdal, Rcpp, sf
 # package xml2 is required for GDAL Virtual Raster (VRT) manipulation
@@ -17,12 +17,15 @@
 #sourceCpp("r_running_stats.cpp")
 #source("Iraster_analysis.R")
 
-#TODO: functions with raster output overwrite silently, make this an argument
-
 ## getGDALDataTypeName
 ## getDefaultNodata
 ## getOffset
 ## getGDALformat
+## getRasterYSize
+## getRasterXSize
+## getRasterCount
+## getGeoTransform
+## getRasterBandInfo
 ## basename.NoExt
 ## Mode
 ## Modes
@@ -40,7 +43,6 @@
 ## rasterFromRaster
 ## rasterFromVectorExtent
 ## rasterizePolygons
-## polygonizeRaster
 ## clipRaster
 ## rasterCalc
 ## rasterCombine
@@ -59,10 +61,10 @@
 GDT_NAMES <- c('Unknown', 'Byte', 'UInt16', 'Int16', 'UInt32',
 				'Int32', 'Float32', 'Float64', 'CInt16', 'CInt32',
 				'CFloat32', 'CFloat64')
-
+				
 DEFAULT_NODATA = list('Byte'= 255, 'UInt16'= 65535, 'Int16'= -32767,
-						'UInt32'= 4294967293, 'Int32'= -2147483647,
-						'Float32'= 3.402823466E+38,
+						'UInt32'= 4294967293, 'Int32'= -2147483647, 
+						'Float32'= 3.402823466E+38, 
 						'Float64'= .Machine$double.xmax)
 
 #' @rdname raster_desc
@@ -97,8 +99,69 @@ getGDALformat <- function(file) {
 	if (endsWith(file, ".vrt")) {
 		return("VRT")
 	}
-
+	
 	return(NULL)
+}
+
+#' @rdname raster_desc
+#' @export
+getRasterYSize <- function(ds) {
+	fname <- rgdal::getDescription(ds)
+	gi <- rgdal::GDALinfo(fname, silent=TRUE, returnStats=FALSE)
+	return(gi[[1]])
+}
+
+#' @rdname raster_desc
+#' @export
+getRasterXSize <- function(ds) {
+	fname <- rgdal::getDescription(ds)
+	gi <- rgdal::GDALinfo(fname, silent=TRUE, returnStats=FALSE)
+	return(gi[[2]])
+}
+
+#' @rdname raster_desc
+#' @export
+getRasterCount <- function(ds) {
+	fname <- rgdal::getDescription(ds)
+	gi <- rgdal::GDALinfo(fname, silent=TRUE, returnStats=FALSE)
+	return(gi[[3]])
+}
+
+#' @rdname raster_desc
+#' @export
+getGeoTransform <- function(ds) {
+	fname <- rgdal::getDescription(ds)
+	gi <- rgdal::GDALinfo(fname, silent=TRUE, returnStats=FALSE)
+	gt <- vector(mode="numeric", length=6)
+	gt[1] <- gi[[4]] # ul x
+	gt[2] <- gi[[6]] # pixel width
+	gt[3] <- gi[[8]] # row rotation (zero for north-up raster)
+	ysign <- attr(gi, "ysign")
+	gt[4] <- gi[[5]] - ysign * gi[[7]] * gi[[1]] # ul y
+	gt[5] <- gi[[9]] # column rotation (zero for north-up raster)
+	gt[6] <- gi[[7]] * ysign # pixel height (negative value for a north-up image)
+	if (ysign > 0) {
+		warning("raster is not north-up, verify positive y-scale", call.=FALSE)
+	}
+	if (any(gt[c(3,5)] != 0.0)) {
+		warning("rotated raster not supported", call.=FALSE)
+	}
+	return(gt)
+}
+
+#' @rdname raster_desc
+#' @export
+getRasterBandInfo <- function(ds, b=1) {
+	fname <- rgdal::getDescription(ds)
+	gi <- rgdal::GDALinfo(fname, silent=TRUE, returnStats=FALSE)
+	df <- attr(gi, "df")
+	# dataframe of band records with five variables:
+	# .. $GDType
+	# .. $hasNoDataValue
+	# .. $NoDataValue
+	# .. $blockSize1
+	# .. $blockSize2
+	return(df[b,])
 }
 
 #' @rdname raster_desc
@@ -173,7 +236,7 @@ TPI <- function(x, na.rm=FALSE, asInt=TRUE) {
 	# topographic position index
 	# Provides an indication of whether any	particular pixel forms part of a
 	# positive (e.g., crest) or negative (e.g., trough) feature of the
-	# surrounding terrain.
+	# surrounding terrain.	
 	# Calculated as the difference between a central pixel and the mean of its
 	# surrounding cells. The surrounding neighborhood is often defined in terms
 	# of a circle or annulus.
@@ -186,10 +249,11 @@ TPI <- function(x, na.rm=FALSE, asInt=TRUE) {
 
 #' @rdname raster_desc
 #' @export
-getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
+getPixelValue <- function(pt, ds, ri, band=1, interpolate=FALSE,
 							windowsize=1, statistic=NULL, na.rm=TRUE) {
 	# pt - vector containing a single coordinate c(x,y)
 	# ds - GDAL dataset object for the raster
+	# ri - object returned by rasterInfo()
 	# if interpolate is TRUE return an interpolated value for pt
 	# (if TRUE bilinear interpolation is done, windowsize and statistic args ignored)
 	# windowsize - extract a square window of pixels centered on pt
@@ -201,7 +265,7 @@ getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 
 	# getPixelValue() is not normally called directly
 	# see extractPtsFromRaster() and extractPtsFromRasterList() below for typical uses
-
+	
 	if (interpolate) {
 		if (windowsize > 2 || !is.null(statistic)) {
 			warning("interpolate is TRUE, ignoring windowsize and statistic", call.=FALSE)
@@ -213,9 +277,12 @@ getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 	ptX = pt[1]
 	ptY = pt[2]
 
-	nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	#nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ncols
 	ymax = gt[4]
@@ -257,7 +324,7 @@ getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 	}
 
 	#get pixel value(s)
-	a = rgdal::getRasterData(ds, band=band, offset=c(offY,offX),
+	a = rgdal::getRasterData(ds, band=band, offset=c(offY,offX), 
 							region.dim=c(windowsize,windowsize), as.is=TRUE)
 
 	if (interpolate) {
@@ -267,13 +334,13 @@ getPixelValue <- function(pt, ds, band=1, interpolate=FALSE,
 		#center of ll pixel in the window is 0,0
 		x = getOffset(ptX, xmin, cellsizeX) - (offX + 0.5)
 		y = (offY + 1.5) - getOffset(ptY, ymax, cellsizeY)
-
+		
 		#pixel values in the square
 		#0,0: a[1,2]
 		#1,0: a[2,2]
 		#0,1: a[1,1]
 		#1,1: a[2,1]
-		pixelValue = ( a[1,2]*(1-x)*(1-y) + a[2,2]*x*(1-y) +
+		pixelValue = ( a[1,2]*(1-x)*(1-y) + a[2,2]*x*(1-y) + 
 						a[1,1]*(1-x)*y + a[2,1]*x*y )
 	}
 	else if (windowsize==1) {
@@ -365,13 +432,13 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 						ncores=1) {
 	# ptdata is a dataframe with three columns: col1=point id, col2=x, col3=y
 	# see getPixelValue()
-
+	
 	ri = rasterInfo(rasterfile)
 	if (is.null(ri)) {
 		print(rasterfile)
 		stop("open raster failed")
 	}
-
+	
 	if (ncores > 1) {
 		if (!isNamespaceLoaded("parallel")) {
 			stop("ncores > 1 requires 'parallel' namespace")
@@ -384,13 +451,13 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 									 read.only=TRUE, silent=TRUE); NULL})
 		# export functions needed by .getPixelValue
 		parallel::clusterExport(cl, c("getOffset", "getPixelValue", "Mode"))
-	}
+	}	
 	else {
 		ds = rgdal::GDAL.open(rasterfile, read.only=TRUE, silent=TRUE)
 	}
-
+	
 	df.out = data.frame(pid = ptdata[,1])
-
+	
 	if (is.null(var.name)) {
 		var.name = basename.NoExt(rasterfile)
 	}
@@ -409,13 +476,13 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 			this.name = paste0(var.name,"_b",b)
 		}
 		if (ncores > 1) {
-			values = parallel::parApply(cl, ptdata[-1], 1, .getPixelValue, band=b,
-						interpolate=interpolate, windowsize=windowsize,
+			values = parallel::parApply(cl, ptdata[-1], 1, .getPixelValue, ri=ri,
+						band=b, interpolate=interpolate, windowsize=windowsize, 
 						statistic=statistic, na.rm=na.rm)
 		}
 		else {
-			values = apply(ptdata[-1], 1, getPixelValue, ds=ds, band=b,
-						interpolate=interpolate, windowsize=windowsize,
+			values = apply(ptdata[-1], 1, getPixelValue, ds=ds, ri=ri, band=b, 
+						interpolate=interpolate, windowsize=windowsize, 
 						statistic=statistic, na.rm=na.rm)
 		}
 		if (windowsize > 1 && is.null(statistic)) {
@@ -429,7 +496,7 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 			df.out[this.name] = values
 		}
 	}
-
+	
 	if (ncores > 1) {
 		parallel::clusterEvalQ(cl, rgdal::GDAL.close(.cl_ds))
 		parallel::stopCluster(cl)
@@ -453,7 +520,7 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 		print( rasterfiles[which(!file.exists(rasterfiles))] )
 		stop("file not found")
 	}
-
+	
 	nrasters = length(rasterfiles)
 
 	# argument lengths must all be the same
@@ -466,7 +533,7 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 		if (length(var.names) != nrasters) {
 			stop("list of variable names must be same length as raster list")
 		}
-	}
+	}		
 	if (!is.null(windowsizes)) {
 		if (length(windowsizes) != nrasters) {
 			stop("list of window sizes must be same length as raster list")
@@ -486,7 +553,7 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 	df.out = data.frame(pid = ptdata[,1])
 
 	for (n in 1:nrasters) {
-		df.tmp = extractPtsFromRaster(ptdata, rasterfiles[n], band=bands[n], var.name=var.names[n],
+		df.tmp = extractPtsFromRaster(ptdata, rasterfiles[n], band=bands[n], var.name=var.names[n], 
 					interpolate=interpolate, windowsize=windowsizes[n], statistic=statistics[n], na.rm=na.rm,
 					ncores=ncores)
 		df.out = merge(df.out, df.tmp)
@@ -498,21 +565,24 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 #' @rdname raster_desc
 #' @export
 rasterInfo <- function(srcfile) {
-
+	
 	src_ds <- tryCatch(
 		rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE),
-
+		
 		error=function(err) {
 			print(err)
 			return(NULL)
 		}
 	)
 	if (is.null(src_ds)) return(NULL)
-
+	
 	ri = list()
-	ri$xsize = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
-	ri$ysize = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
+	#ri$xsize = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
+	ri$xsize = getRasterXSize(src_ds)
+	#ri$ysize = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
+	ri$ysize = getRasterYSize(src_ds)
+	#gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
+	gt = getGeoTransform(src_ds)
 	ri$geotransform = gt
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ri$xsize
@@ -520,24 +590,17 @@ rasterInfo <- function(srcfile) {
 	ymin = ymax + gt[6] * ri$ysize
 	ri$bbox = c(xmin,ymin,xmax,ymax)
 	ri$cellsize = c(gt[2], -gt[6])
-	#ri$crs = .Call("RGDAL_GetProjectionRef", src_ds, PACKAGE="rgdal")
 	ri$crs = rgdal::getProjectionRef(src_ds)
-	ri$nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
+	#ri$nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
+	ri$nbands = getRasterCount(src_ds)
 	ri$datatype = c()
 	ri$has_nodata_value = c()
 	ri$nodata_value = c()
 	for (b in 1:ri$nbands) {
-		band = rgdal::getRasterBand(src_ds, b)
-		dtNum = .Call("RGDAL_GetBandType", band, PACKAGE="rgdal")
-		ri$datatype = c(ri$datatype, getGDALDataTypeName(dtNum))
-		nodata_value = .Call("RGDAL_GetNoDataValue", band, PACKAGE="rgdal")
-		if (is.null(nodata_value)) {
-			ri$has_nodata_value = c(ri$has_nodata_value, FALSE)
-		}
-		else {
-			ri$has_nodata_value = c(ri$has_nodata_value, TRUE)
-		}
-		ri$nodata_value = c(ri$nodata_value, nodata_value)
+		bandinfo = getRasterBandInfo(src_ds, b)
+		ri$datatype = c(ri$datatype, bandinfo$GDType)
+		ri$nodata_value = c(ri$nodata_value, bandinfo$NoDataValue)
+		ri$has_nodata_value = c(ri$has_nodata_value, bandinfo$hasNoDataValue)
 	}
 	rgdal::GDAL.close(src_ds)
 	return(ri)
@@ -547,7 +610,7 @@ rasterInfo <- function(srcfile) {
 #' @export
 reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 							s_srs=NULL, of=NULL, ot=NULL,
-							te=NULL, tr=NULL, r=NULL,
+							te=NULL, tr=NULL, r=NULL, 
 							dstnodata=NULL, co=NULL, addOptions=NULL) {
 
 # Wrapper of the sf interface to GDAL utils with arguments for common options.
@@ -557,7 +620,7 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 # For example, target resolution: tr=c(30,30)
 # Arguments will be coerced to character.
 
-#t_srs: <srs def> target spatial reference. EPSG:code, PROJ.4 declaration, or
+#t_srs: <srs def> target spatial reference. EPSG:code, PROJ.4 declaration, or 
 #	.prj file containing WKT. For example, PROJ.4:
 #	t_srs = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 #s_srs: <srs def> source spatial reference. Normally read from the source file.
@@ -566,17 +629,17 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 #ot: <type> Force an output data type (i.e., Byte, Int16, ...)
 #te: <xmin ymin xmax ymax> georeferenced extents of output file to be created.
 #tr: <xres> <yres> output file resolution (in target georeferenced units)
-#r: <resampling_method> Available methods are: near (the default), bilinear,
+#r: <resampling_method> Available methods are: near (the default), bilinear, 
 #	cubic, cubicspline, lanczos, average, mode, min, max, med, q1, q3
-#dstnodata: <value> Set nodata values for output raster. New files will be
+#dstnodata: <value> Set nodata values for output raster. New files will be 
 #	initialized to this value and if possible the nodata value will be recorded
-#	in the output file. Use a value of None to ensure that nodata is not
-#	defined. If this argument is not used then nodata values will be copied
+#	in the output file. Use a value of None to ensure that nodata is not 
+#	defined. If this argument is not used then nodata values will be copied 
 #	from the source.
-#co: <NAME=VALUE> Format-specific creation options
+#co: <NAME=VALUE> Format-specific creation options 
 #	(e.g., enable compression, see format driver documentation at www.gdal.org)
-#addOptions: additional options. See gdalwarp documentation. Pass additional
-#	options as a character vector of command-line switches and their values,
+#addOptions: additional options. See gdalwarp documentation. Pass additional 
+#	options as a character vector of command-line switches and their values, 
 #	for example, addOptions=c("-multi","-wo","NUM_THREADS=ALL_CPUS")
 
 
@@ -611,7 +674,7 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
     opt = c(opt, "-ovr", "NONE")
 	opt = c(opt, addOptions)
 	#print(opt)
-
+	
 	return(sf::gdal_utils(util="warp", source=srcfile, destination=dstfile, options=opt))
 
 }
@@ -626,45 +689,47 @@ rasterFromRaster <- function(srcfile, dstfile, fmt=NULL, nbands=NULL,
 # optionally change the format, number of bands, data type
 # optinally pass driver-specific dataset creation options to GDAL
 # optinally initialize to a value
-
+	
 	if (is.null(fmt)) {
 		fmt = getGDALformat(dstfile)
 		if (is.null(fmt)) {
 			stop("Use fmt argument to specify a GDAL raster format code.")
 		}
 	}
-
+	
+	ri = rasterInfo(srcfile)
 	src_ds = rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE)
 	if (is.null(nbands)) {
-		nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
+		nbands = ri$nbands
 	}
-	nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
-	#xmin = gt[1]
-	#xmax = xmin + gt[2] * ncols
-	#ymax = gt[4]
-	#ymin = ymax + gt[6] * nrows
-	#cellsize = gt[2] #assuming square pixels
+	#nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	if (is.null(dtName)) {
-		b = rgdal::getRasterBand(src_ds)
-		dtNum = .Call("RGDAL_GetBandType", b, PACKAGE="rgdal")
-		dtName = getGDALDataTypeName(dtNum)
+		# b = rgdal::getRasterBand(src_ds)
+		# dtNum = .Call("RGDAL_GetBandType", b, PACKAGE="rgdal")
+		# dtName = getGDALDataTypeName(dtNum)
+		dtName = ri$datatype[1]
 	}
-	#srs = .Call("RGDAL_GetProjectionRef", src_ds, PACKAGE="rgdal")
 	srs = rgdal::getProjectionRef(src_ds)
 	rgdal::GDAL.close(src_ds)
 
 	drv = new("GDALDriver", fmt)
 	dst_ds <- new("GDALTransientDataset", driver=drv, rows=nrows, cols=ncols, bands=nbands, type=dtName, options=options)
-	.Call("RGDAL_SetGeoTransform", dst_ds, gt, PACKAGE="rgdal")
-	.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+	#.Call("RGDAL_SetGeoTransform", dst_ds, gt, PACKAGE="rgdal")
+	rgdal::GDALcall(dst_ds, "SetGeoTransform", gt)
+	#.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+	rgdal::GDALcall(dst_ds, "SetProject", srs)
 	if(!is.null(dstnodata)) {
 		for (b in 1:nbands) {
 			band = rgdal::getRasterBand(dst_ds, b)
 			ret <- tryCatch(
-				.Call("RGDAL_SetNoDataValue", band, dstnodata, PACKAGE="rgdal"),
-
+				#.Call("RGDAL_SetNoDataValue", band, dstnodata, PACKAGE="rgdal"),
+				rgdal::GDALcall(band, "SetNoDataValue", dstnodata),
+				
 				error=function(err) {
 					print(err)
 				}
@@ -708,36 +773,39 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 	else {
 		stop("Cannot coerce src object to sf.")
 	}
-
+	
 	if (is.null(fmt)) {
 		fmt = getGDALformat(dstfile)
 		if (is.null(fmt)) {
 			stop("Use fmt argument to specify a GDAL raster format code.")
 		}
 	}
-
+	
 	ext = as.numeric(sf::st_bbox(src))
 	srs = sf::st_crs(src)$proj4string
 	src = NULL
-
+	
 	xmin = ext[1] - res
 	ncols = ceiling((ext[3] - xmin) / res)
 	xmax = xmin + res * ncols
 	ymax = ext[4] + res
 	nrows = ceiling((ymax - ext[2]) / res)
-	ymin = ymax - res * nrows
+	ymin = ymax - res * nrows	
 	gt = c(xmin, res, 0, ymax, 0, -res)
 
 	drv = new("GDALDriver", fmt)
 	dst_ds <- new("GDALTransientDataset", driver=drv, rows=nrows, cols=ncols, bands=nbands, type=dtName, options=options)
-	.Call("RGDAL_SetGeoTransform", dst_ds, gt, PACKAGE="rgdal")
-	.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+	#.Call("RGDAL_SetGeoTransform", dst_ds, gt, PACKAGE="rgdal")
+	rgdal::GDALcall(dst_ds, "SetGeoTransform", gt)
+	#.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+	rgdal::GDALcall(dst_ds, "SetProject", srs)
 	if(!is.null(dstnodata)) {
 		for (b in 1:nbands) {
 			band = rgdal::getRasterBand(dst_ds, b)
 			ret <- tryCatch(
-				.Call("RGDAL_SetNoDataValue", band, dstnodata, PACKAGE="rgdal"),
-
+				#.Call("RGDAL_SetNoDataValue", band, dstnodata, PACKAGE="rgdal"),
+				rgdal::GDALcall(band, "SetNoDataValue", dstnodata),
+				
 				error=function(err) {
 					print(err)
 				}
@@ -769,10 +837,14 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 	# burn_value - an integer, or field name from layer (integer attribute)
 	# rasterfile - existing raster for output, make with rasterFromRaster()
 
+	ri = rasterInfo(rasterfile)
 	ds = rgdal::GDAL.open(rasterfile, read.only=FALSE, silent=TRUE)
-	nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	#nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ncols
 	ymax = gt[4]
@@ -786,7 +858,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 			src = sf::as_Spatial(src)
 		}
 	}
-
+	
 	burn_this = burn_value
 
 	# write function for the C++ rasterizer
@@ -795,7 +867,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 		rgdal::putRasterData(ds, a, band=1, offset=c(yoff,xoff1))
 		return()
 	}
-
+	
 	pb <- txtProgressBar(min=0, max=length(src))
 	for (i in 1:length(src)) {
 		if (!is.numeric(burn_value)) {
@@ -812,47 +884,14 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 	close(pb)
 	src <- NULL
 	rgdal::GDAL.close(ds)
-
+	
 	invisible()
 }
 
 #' @rdname raster_desc
 #' @export
-polygonizeRaster <- function(rasterfile, maskfile=character(0), options=character(0)) {
-
-# GDALPolygonize via the Rcpp wrapper in package sf:
-#Rcpp::List CPL_polygonize(Rcpp::CharacterVector raster, Rcpp::CharacterVector mask_name,
-#		Rcpp::CharacterVector raster_driver,
-#		Rcpp::CharacterVector vector_driver, Rcpp::CharacterVector vector_dsn,
-#		Rcpp::CharacterVector options, Rcpp::IntegerVector iPixValField,
-#		Rcpp::CharacterVector contour_options, bool use_contours = false,
-#		bool use_integer = true)
-
-# rasterfile - thematic raster to polygonize based on adjacent pixels with same value
-# maskfile - pixel value 0 masked out from polygonizing, nonzero values included
-#	(maskfile can be same as rasterfile)
-# options - "8CONNECTED=8" (4-connectedness is the default)
-# returns an sf polygon layer with attribute "Value"
-# see gdal.org/api/gdal_alg.html and gdal.org/programs/gdal_polygonize.html
-
-	fmt = getGDALformat(rasterfile)
-	vector_fmt = "ESRI Shapefile"
-	dsn = tempfile("raster", fileext=".shp")
-	fld_idx = 0
-
-	print("Polygonizing...")
-	x = .Call('_sf_CPL_polygonize', PACKAGE = 'sf', rasterfile, maskfile,
-			fmt, vector_fmt, dsn, options, fld_idx, character(0), F, T)
-	geom = x[2]
-	x = as.data.frame(x[-2], stringsAsFactors = F)
-	x[["geometry"]] = sf::st_sfc(geom[[1]], crs = attr(geom[[1]], "crs"))
-	return( sf::st_as_sf(x, sf_column_name="geometry") )
-}
-
-#' @rdname raster_desc
-#' @export
-clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
-				srcfile, src_band=NULL,
+clipRaster <- function(dsn=NULL, layer=NULL, src=NULL, 
+				srcfile, src_band=NULL, 
 				dstfile, fmt=NULL, options=NULL, init=0,
 				maskByPolygons=TRUE) {
 # Clip a larger raster to the extent of polygon layer.
@@ -902,12 +941,16 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	if (!is.null(init) && !maskByPolygons) {
 		message("init value ignored when maskByPolygons=FALSE")
 	}
-
-	#open the source raster
+	
+	#open the source raster	
+	ri = rasterInfo(srcfile)
 	src_ds = rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE)
-	nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
+	#nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ncols
 	ymax = gt[4]
@@ -946,34 +989,37 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	}
 
 	b = rgdal::getRasterBand(src_ds)
-	dtNum = .Call("RGDAL_GetBandType", b, PACKAGE="rgdal")
-	dtName = getGDALDataTypeName(dtNum)
-
+	# dtNum = .Call("RGDAL_GetBandType", b, PACKAGE="rgdal")
+	# dtName = getGDALDataTypeName(dtNum)
+	dtName = ri$datatype[1]
+	
 	#srs = .Call("RGDAL_GetProjectionRef", src_ds, PACKAGE="rgdal")
 	srs = rgdal::getProjectionRef(src_ds)
 
 	#create dst raster file
 	drv = new("GDALDriver", fmt)
-	dst_ds <- new("GDALTransientDataset", driver=drv, rows=clip_nrows,
+	dst_ds <- new("GDALTransientDataset", driver=drv, rows=clip_nrows, 
 				cols=clip_ncols, bands=nbands, type=dtName, options=options)
-	.Call("RGDAL_SetGeoTransform", dst_ds, clip_gt, PACKAGE="rgdal")
-	.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+	#.Call("RGDAL_SetGeoTransform", dst_ds, clip_gt, PACKAGE="rgdal")
+	rgdal::GDALcall(dst_ds, "SetGeoTransform", clip_gt)
+	#.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+	rgdal::GDALcall(dst_ds, "SetProject", srs)
 	rgdal::saveDataset(dst_ds, dstfile, options=options)
 	rgdal::GDAL.close(dst_ds)
 	dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
-
+	
 	#raster io function for the C++ rasterizer
 	writeRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
 		for (b in 1:nbands) {
-			a = rgdal::getRasterData(src_ds, band=src_band[b],
-									offset=c(yoff+ymaxOff,xoff1+xminOff),
-									region.dim=c(1,(xoff2-xoff1)+1),
+			a = rgdal::getRasterData(src_ds, band=src_band[b], 
+									offset=c(yoff+ymaxOff,xoff1+xminOff), 
+									region.dim=c(1,(xoff2-xoff1)+1), 
 									as.is=TRUE)
 			rgdal::putRasterData(dst_ds, a, band=b, offset=c(yoff,xoff1))
 		}
 		return()
 	}
-
+	
 	if (maskByPolygons) {
 		print("Initializing destination raster...")
 		a <- array(init, dim=c(clip_ncols, 1))
@@ -999,11 +1045,11 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 		lapply(c(0:(clip_nrows-1)), writeRaster, xoff1=0, xoff2=clip_ncols-1, 0)
 	}
 	print(paste("clipRaster output written to:", dstfile))
-
+	
 	src <- NULL
 	rgdal::GDAL.close(src_ds)
 	rgdal::GDAL.close(dst_ds)
-
+	
 	invisible(dstfile)
 }
 
@@ -1014,7 +1060,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 						fmt=NULL, dtName="Int16", options=NULL,
 						nodata_value=NULL, setRasterNodataValue=FALSE,
 						usePixelLonLat=FALSE) {
-
+						
 #Raster calculator
 #Evaluate an R expression for each pixel in a raster layer or stack of layers.
 
@@ -1023,7 +1069,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 #Variable names default to "A" (layer 1), "B" (layer 2), ..., but
 #can be set in var.names.
 
-#To refer to specific bands in a multi-band file, repeat the file name in
+#To refer to specific bands in a multi-band file, repeat the file name in 
 #rasterfiles and specify corresponding band numbers in bands, along with
 #optional variable names in var.names, for example,
 #rasterfiles=c("file.img", "file.img"), bands=c(3,4), var.names=c("b3", "b4")
@@ -1049,14 +1095,14 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 #usePixelLonLat = pixelX and pixelY will be inverse projected to geographic
 #coordinates and available as "pixelLon" and "pixelLat" in calc expression.
 
-
+	
 	calc_expr = parse(text=calc)
 
 	if ( !all(file.exists(rasterfiles)) ) {
 		print( rasterfiles[which(!file.exists(rasterfiles))] )
 		stop("file not found")
 	}
-
+	
 	nrasters = length(rasterfiles)
 
 	if (!is.null(bands)) {
@@ -1067,7 +1113,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 	else {
 		bands = rep(1, nrasters)
 	}
-
+	
 	if (!is.null(var.names)) {
 		if (length(var.names) != nrasters) {
 			stop("list of variable names must be same length as raster list")
@@ -1076,21 +1122,21 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 	else {
 		var.names=LETTERS[1:nrasters]
 	}
-
+	
 	if (is.null(fmt)) {
 		fmt = getGDALformat(dstfile)
 		if (is.null(fmt)) {
 			stop("Use fmt argument to specify a GDAL raster format code.")
 		}
 	}
-
+	
 	if (is.null(nodata_value)) {
 		nodata_value = getDefaultNodata(dtName)
 		if (is.null(nodata_value)) {
 			stop("Invalid output data type (dtName).")
 		}
 	}
-
+	
 	# use first raster as reference
 	ref = rasterInfo(rasterfiles[1])
 	if(is.null(ref)) stop(paste("Could not read raster info:", rasterfiles[1]))
@@ -1100,7 +1146,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 	cellsizeY = ref$cellsize[2]
 	xmin = ref$bbox[1]
 	ymax = ref$bbox[4]
-
+	
 	if(nrasters > 1) {
 		for(r in rasterfiles) {
 			ri = rasterInfo(r)
@@ -1111,47 +1157,47 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 			}
 		}
 	}
-
+	
 	#create the output raster
 	dstnodata = NULL
 	if(setRasterNodataValue) dstnodata = nodata_value
 	rasterFromRaster(rasterfiles[1], dstfile, fmt=fmt, nbands=1, dtName=dtName,
 						options=options, dstnodata=dstnodata)
 	dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
-
+	
 	# list of GDAL dataset objects for each raster
 	gd_list <- list()
 	for (r in 1:nrasters) {
 		gd_list[[r]] <- rgdal::GDAL.open(rasterfiles[r], read.only=TRUE, silent=FALSE)
 	}
-
+	
 	x = seq(from=xmin+(cellsizeX/2), by=cellsizeX, length.out=ncols)
 	assign("pixelX", x)
-
+	
 	process_row <- function(row) {
 		y = rep(ymax-(cellsizeY/2)-(cellsizeY*row), ncols)
 		assign("pixelY", y)
-
+		
 		if(usePixelLonLat) {
 			lonlat = rgdal::project(cbind(x,y), ref$crs, inv=TRUE)
 			assign("pixelLon", lonlat[,1])
 			assign("pixelLat", lonlat[,2])
 		}
-
+		
 		for (r in 1:nrasters) {
-			inrow = rgdal::getRasterData(gd_list[[r]], band=bands[r],
+			inrow = rgdal::getRasterData(gd_list[[r]], band=bands[r], 
 					offset=c(row,0), region.dim=c(1,ncols), as.is=TRUE)
 			assign(var.names[r], inrow)
 		}
-
+		
 		outrow = eval(calc_expr)
 		outrow = ifelse(is.na(outrow), nodata_value, outrow)
 		rgdal::putRasterData(dst_ds, outrow, band=1, offset=c(row,0))
-
+		
 		setTxtProgressBar(pb, row+1)
 		return()
 	}
-
+	
 	print(paste("Calculating from", nrasters, "input layers..."))
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
@@ -1160,13 +1206,13 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 	print(paste("Output written to:", dstfile))
 	rgdal::GDAL.close(dst_ds)
 	lapply(gd_list, rgdal::GDAL.close)
-
+	
 	invisible(dstfile)
 }
 
 #' @rdname raster_desc
 #' @export
-rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
+rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL, 
 					dstfile=NULL, fmt=NULL, dtName="UInt32", options=NULL) {
 # find and count unique combinations of pixel values across a set of thematic rasters
 # returns a data frame of combination ID, count, var1, var2, ...
@@ -1181,7 +1227,7 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 			stop("Use fmt argument to specify a GDAL raster format code.")
 		}
 	}
-
+	
 	nrasters = length(rasterfiles)
 	if (is.null(var.names)) {
 		var.names = vapply(1:nrasters, function(n) paste0("v",n), "v#")
@@ -1189,24 +1235,23 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 	if (is.null(bands)) {
 		bands = rep(1,nrasters)
 	}
-
+	
 	raster_lut <- data.frame(rasterfiles,var.names,bands,check.names=FALSE,stringsAsFactors=FALSE)
 
 	# open first raster and get extent, cell size, srs
+	ri = rasterInfo(raster_lut[1,1])
 	ds = rgdal::GDAL.open(raster_lut[1,1], read.only=TRUE, silent=TRUE)
-	nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
-	#xmin = gt[1]
-	#xmax = xmin + gt[2] * ncols
-	#ymax = gt[4]
-	#ymin = ymax + gt[6] * nrows
+	#nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	cellsize = gt[2] #assuming square pixels
-	#srs = .Call("RGDAL_GetProjectionRef", ds, PACKAGE="rgdal")
 	srs = rgdal::getProjectionRef(ds)
 	rgdal::GDAL.close(ds)
 
-	# list of GDAL dataset objects for each raster
+	# list of GDAL dataset objects for each raster	
 	gd_list <- list()
 	for (r in 1:nrasters) {
 		gd_list[[as.character(raster_lut[r,2])]] <- rgdal::GDAL.open(raster_lut[r,1], read.only=TRUE, silent=FALSE)
@@ -1216,8 +1261,10 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 		# create an output raster for combination ids
 		drv = new("GDALDriver", fmt)
 		dst_ds <- new("GDALTransientDataset", driver=drv, rows=nrows, cols=ncols, bands=1, type=dtName, options=options)
-		.Call("RGDAL_SetGeoTransform", dst_ds, gt, PACKAGE="rgdal")
-		.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+		#.Call("RGDAL_SetGeoTransform", dst_ds, gt, PACKAGE="rgdal")
+		rgdal::GDALcall(dst_ds, "SetGeoTransform", gt)
+		#.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
+		rgdal::GDALcall(dst_ds, "SetProject", srs)
 		rgdal::saveDataset(dst_ds, dstfile, options=options)
 		rgdal::GDAL.close(dst_ds)
 		dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
@@ -1227,13 +1274,13 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 	tbl = new(CmbTable, keyLen=nrasters, varNames=var.names)
 
 	rowdata = matrix(NA_integer_, nrow = nrasters, ncol = ncols)
-
+	
 	process_row <- function(row) {
 		for (r in 1:nrasters) {
 			b <- raster_lut[r,3]
-			rowdata[r,] = as.integer(rgdal::getRasterData(gd_list[[r]], band=b,
-										offset=c(row,0),
-										region.dim=c(1,ncols),
+			rowdata[r,] = as.integer(rgdal::getRasterData(gd_list[[r]], band=b, 
+										offset=c(row,0), 
+										region.dim=c(1,ncols), 
 										as.is=TRUE))
 		}
 		row_cmbid = tbl$updateFromMatrix(rowdata, 1)
@@ -1253,16 +1300,16 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
 	close(pb)
-
+	
 	df_out <- tbl$asDataFrame()
 	tbl <- NULL
-
+	
 	lapply(gd_list, rgdal::GDAL.close)
 	if (!is.null(dstfile)) {
 		print(paste("Combination IDs written to:", dstfile))
 		rgdal::GDAL.close(dst_ds)
 	}
-
+	
 	return(df_out)
 }
 
@@ -1280,19 +1327,22 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 #Raster values not in the lookup table will be brought through unchanged.
 #Raster data assumed to be integer.
 
-	#open the source raster
+	#open the source raster	
+	ri = rasterInfo(srcfile)
 	src_ds = rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE)
-	nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
-
+	#nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	
 	#create the destination raster
 	rasterFromRaster(srcfile, dstfile, nbands=1, ...)
 	dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
-
+	
 	process_row <- function(row) {
-		a = as.integer(rgdal::getRasterData(src_ds, band=srcband,
-						offset=c(row,0),
-						region.dim=c(1,ncols),
+		a = as.integer(rgdal::getRasterData(src_ds, band=srcband, 
+						offset=c(row,0), 
+						region.dim=c(1,ncols), 
 						as.is=TRUE))
 		a2 = lut[,2][match(a, lut[,1])]
 		a2 = ifelse(is.na(a2), a, a2)
@@ -1305,11 +1355,11 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
 	close(pb)
-
+	
 	print(paste("Output written to:", dstfile))
 	rgdal::GDAL.close(dst_ds)
 	rgdal::GDAL.close(src_ds)
-
+	
 	invisible(dstfile)
 }
 
@@ -1346,7 +1396,7 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 		}
 	}
 	nbands = ifelse(is.null(srcband), ref$nbands, 1)
-
+	
 	# kernel info
 	if (!is.matrix(w)) {
 		stop("kernel must be a square matrix with odd-number dimensions.")
@@ -1358,20 +1408,20 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 	if ((kernelsize %% 2) == 0) {
 		stop("kernel must be a square matrix with odd-number dimensions.")
 	}
-
+	
 	N = as.integer( (kernelsize - 1) / 2 )
-
+	
 	if(kernelsize > nrows || kernelsize > ncols) {
 		stop("kernel must be smaller than raster size")
 	}
-
+	
 	#create the output raster
 	dstnodata = NULL
 	if(setRasterNodataValue) dstnodata = nodata_value
 	rasterFromRaster(srcfile, dstfile, fmt=fmt, nbands=nbands, dtName=dtName,
 						options=options, dstnodata=dstnodata)
 	dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
-
+	
 	# source dataset
 	src_ds = rgdal::GDAL.open(srcfile, read.only=TRUE, silent=FALSE)
 
@@ -1380,21 +1430,21 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 	rowdata = matrix(NA_real_, nrow = kernelsize, ncol = ncols+2*N)
 	# define columns of the data region in rowdata (columns inside the raster)
 	rowdata.cols = (1+N):(ncols+N)
-
+	
 	process_row <- function(row) {
 		for (b in 1:nbands) {
 			# start/end row numbers for raster input
 			inrow.start = row-N
 			inrow.end = row+N
-
+			
 			if (row == 0) {
 				# fully populate the input buffer
 				i = 1
 				for (this.row in inrow.start:inrow.end) {
 					if (this.row >= 0) {
 						rowdata[i,rowdata.cols] <<- rgdal::getRasterData(
-										src_ds, band=b,
-										offset=c(this.row,0),
+										src_ds, band=b, 
+										offset=c(this.row,0), 
 										region.dim=c(1,ncols), as.is=T)
 					}
 					i = i+1
@@ -1411,26 +1461,26 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 				}
 				else {
 					rowdata[kernelsize,rowdata.cols] <<- rgdal::getRasterData(
-											src_ds, band=b,
-											offset=c(inrow.end,0),
+											src_ds, band=b, 
+											offset=c(inrow.end,0), 
 											region.dim=c(1,ncols), as.is=T)
 				}
 			}
-
+			
 			# move the kernel across rowdata and apply fun
-			outrow = vapply(1:ncols,
+			outrow = vapply(1:ncols, 
 						function(p, ...) {fun((rowdata[,p:(p+kernelsize-1)] * w), ...)},
 						0, na.rm=na.rm, ...)
 			outrow = ifelse(is.na(outrow), nodata_value, outrow)
-
+			
 			# write a row of output
 			rgdal::putRasterData(dst_ds, outrow, band=b, offset=c(row,0))
-
+			
 			setTxtProgressBar(pb, row+1)
 			return()
 		}
 	}
-
+	
 	print("Calculating focal raster...")
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
@@ -1439,27 +1489,31 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 	print(paste("Output written to:", dstfile))
 	rgdal::GDAL.close(dst_ds)
 	rgdal::GDAL.close(src_ds)
-
+	
 	invisible(dstfile)
 }
 
 #' @rdname raster_desc
 #' @export
-zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
-						rasterfile, band = 1, lut=NULL, pixelfun=NULL,
+zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute, 
+						rasterfile, band = 1, lut=NULL, pixelfun=NULL, 
 						na.rm=TRUE, ignoreValue=NULL, resampling = "nearest") {
 # zoneid, npixels, mean, min, max, sum, sampVar, sampSD, popVar, popSD
 # TODO: raster zones/resampling is not complete yet
 
+	ri = rasterInfo(rasterfile)
 	ds = rgdal::GDAL.open(rasterfile, read.only=TRUE, silent=TRUE)
-	nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	#nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ncols
 	ymax = gt[4]
 	ymin = ymax + gt[6] * nrows
-
+	
 	raster_zones = F
 	if (is.null(src)) {
 		if (is.null(layer)) {
@@ -1470,7 +1524,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 			}
 			else {
 				stop("Could not read dsn as a raster source.")
-			}
+			}	
 		}
 		else {
 			# dsn, layer should be a polygon data source
@@ -1483,31 +1537,31 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 			src = sf::as_Spatial(src)
 		}
 	}
-
+	
 	if(raster_zones) {
 		# using zonal raster...
 		# TODO: this is not complete
 		rs_list = list()
-
+		
 		updateRunningStats <- function(x) {
 			zoneid = as.character(x[1])
 			invisible( rs_list[[zoneid]]$update(x[2]) )
 		}
-
+		
 		rowdata = matrix(NA_real_, nrow = 2, ncol = ncols)
-
+		
 		process_row <- function(row) {
 			# read the zonal raster
-			rowdata[1,] = rgdal::getRasterData(zone_ds, band=1,
-										offset=c(row,0),
-										region.dim=c(1,ncols),
+			rowdata[1,] = rgdal::getRasterData(zone_ds, band=1, 
+										offset=c(row,0), 
+										region.dim=c(1,ncols), 
 										as.is=TRUE)
 			# read the data raster
-			rowdata[2,] = rgdal::getRasterData(ds, band=band,
-										offset=c(row,0),
-										region.dim=c(1,ncols),
+			rowdata[2,] = rgdal::getRasterData(ds, band=band, 
+										offset=c(row,0), 
+										region.dim=c(1,ncols), 
 										as.is=TRUE)
-
+										
 			# update running stats
 			apply(rowdata, c(2), updateRunningStats)
 			setTxtProgressBar(pb, row+1)
@@ -1515,14 +1569,14 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 		}
 		pb <- txtProgressBar(min=0, max=nrows)
 		lapply(0:(nrows-1), process_row)
-		close(pb)
-
+		close(pb)		
+		
 		zoneid = names(rs_list)
 
 	}
 	else {
 		zoneid = unique(as.character(src[[attribute]]))
-
+		
 		# list of RunningStats objects for the zones
 		rs_list = list()
 		for (z in zoneid) {
@@ -1531,8 +1585,8 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
 		# raster io function for RasterizePolygon
 		readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
-			a <- rgdal::getRasterData(ds, band=band, offset=c(yoff,xoff1),
-									region.dim=c(1,(xoff2-xoff1)+1),
+			a <- rgdal::getRasterData(ds, band=band, offset=c(yoff,xoff1), 
+									region.dim=c(1,(xoff2-xoff1)+1), 
 									as.is=TRUE)
 			if (!is.null(ignoreValue)) a = a[a!=ignoreValue]
 			if (!is.null(lut)) {
@@ -1556,7 +1610,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 		}
 		close(pb)
 	}
-
+	
 	npixels = rep(0, length(zoneid))
 	zone.stats = data.frame(zoneid, npixels, stringsAsFactors=FALSE)
 	zone.stats$mean = rep(NA_real_, length(zoneid))
@@ -1589,28 +1643,32 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
 #' @rdname raster_desc
 #' @export
-zonalMean <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
-						rasterfile, band = 1,
+zonalMean <- function(dsn=NULL, layer=NULL, src=NULL, attribute, 
+						rasterfile, band = 1, 
 						lut=NULL, pixelfun=NULL, na.rm=TRUE, ...) {
 
 	zone.stats = zonalStats(dsn=dsn, layer=layer, src=src, attribute=attribute,
-							rasterfile=rasterfile, band=band,
+							rasterfile=rasterfile, band=band, 
 							lut=lut, pixelfun=pixelfun, na.rm=na.rm, ...)
 	return(zone.stats[,1:3])
 }
 
 #' @rdname raster_desc
 #' @export
-zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
+zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute, 
 						rasterfile, band=1, aggfun=NULL, lut=NULL,
 						na.rm=FALSE, ignoreValue=NULL) {
-	# aggfun is an aggregate function applied to the counts by
+	# aggfun is an aggregate function applied to the counts by 
 	# zoneid, like max for majority value
 
+	ri = rasterInfo(rasterfile)
 	ds = rgdal::GDAL.open(rasterfile, read.only=TRUE, silent=TRUE)
-	nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
-	ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
-	gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	#nrows = .Call("RGDAL_GetRasterYSize", ds, PACKAGE="rgdal")
+	nrows = ri$ysize
+	#ncols = .Call("RGDAL_GetRasterXSize", ds, PACKAGE="rgdal")
+	ncols = ri$xsize
+	#gt = .Call("RGDAL_GetGeoTransform", ds, PACKAGE="rgdal")
+	gt = ri$geotransform
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ncols
 	ymax = gt[4]
@@ -1624,9 +1682,9 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 			src = sf::as_Spatial(src)
 		}
 	}
-
+	
 	zoneid = unique(as.character(src[[attribute]]))
-
+	
 	# CmbTable to count the unique combinations
 	tbl = new(CmbTable, keyLen=2, varNames=c("idx","value"))
 
@@ -1635,9 +1693,9 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 		rowlength <- (xoff2-xoff1)+1
 		rowdata <- matrix(NA_integer_, nrow = 2, ncol = rowlength)
 		rowdata[1,] <- rep(burn_value, rowlength)
-		rowdata[2,] <- as.integer(rgdal::getRasterData(ds, band=band,
-									offset=c(yoff,xoff1),
-									region.dim=c(1,rowlength),
+		rowdata[2,] <- as.integer(rgdal::getRasterData(ds, band=band, 
+									offset=c(yoff,xoff1), 
+									region.dim=c(1,rowlength), 
 									as.is=TRUE))
 		if (!is.null(lut)) {
 			a2 = lut[,2][match(rowdata[2,], lut[,1])]
@@ -1659,7 +1717,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 		setTxtProgressBar(pb, i)
 	}
 	close(pb)
-
+	
 	df_out = tbl$asDataFrame()
 	tbl <- NULL
 	df_out$cmbid = NULL
@@ -1676,10 +1734,10 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	else {
 		df_out <- transform(df_out, zoneprop = ave(count, zoneid, FUN = function(x) round(x/sum(x), 9)))
 	}
-
+	
 	src <- NULL
 	rgdal::GDAL.close(ds)
-
+	
 	#return( df_out[with(df_out, order(zoneid, -count)), ] )
 	df_out = df_out[with(df_out, order(zoneid, -count)), ]
 	row.names(df_out) = NULL
@@ -1688,30 +1746,30 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
 #' @rdname raster_desc
 #' @export
-zonalMajority <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
+zonalMajority <- function(dsn=NULL, layer=NULL, src = NULL, attribute, 
 							rasterfile, band = 1, lut=NULL, ...) {
-	return( zonalFreq(dsn=dsn, layer=layer, src=src, attribute=attribute,
-							rasterfile=rasterfile, band=band,
+	return( zonalFreq(dsn=dsn, layer=layer, src=src, attribute=attribute, 
+							rasterfile=rasterfile, band=band, 
 							aggfun = max, lut=lut, ...) )
 }
 
 #' @rdname raster_desc
 #' @export
-zonalMinority <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
+zonalMinority <- function(dsn=NULL, layer=NULL, src = NULL, attribute, 
 							rasterfile, band = 1, lut=NULL, ...) {
-	return( zonalFreq(dsn=dsn, layer=layer, src=src, attribute=attribute,
-							rasterfile=rasterfile, band=band,
+	return( zonalFreq(dsn=dsn, layer=layer, src=src, attribute=attribute, 
+							rasterfile=rasterfile, band=band, 
 							aggfun = min, lut=lut, ...) )
 }
 
 #' @rdname raster_desc
 #' @export
-zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
+zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute, 
 							rasterfile, band = 1, lut=NULL, ...) {
-
-	zf = zonalFreq(dsn=dsn, layer=layer, src=src, attribute=attribute,
+							
+	zf = zonalFreq(dsn=dsn, layer=layer, src=src, attribute=attribute, 
 							rasterfile=rasterfile, band=band, lut=lut, ...)
-
+							
 	df_out =  aggregate(value ~ zoneid, zf, length)
 	colnames(df_out)[2] = "number_of_unique_values"
 	return(df_out)
@@ -1749,13 +1807,13 @@ ptCsvToVRT <- function(csvfile, layer_srs, xfield="Lon", yfield="Lat", readvrt=T
 	writeLines("\t</OGRVRTLayer>", filecon)
 	writeLines("</OGRVRTDataSource>", filecon)
 	close(filecon)
-
+	
 	if (readvrt) {
-		ptdf <- rgdal::readOGR(dsn=vrtfile, layer=basename.NoExt(vrtfile),
+		ptdf <- rgdal::readOGR(dsn=vrtfile, layer=basename.NoExt(vrtfile), 
 								stringsAsFactors=FALSE, verbose=TRUE)
 		# readOGR does not reliably assign the spatial reference for longlat coords other than WGS84.
 		# This may be related to an issue described in the documentation for CRS-class in package sp:
-		# "Note that only "+proj=longlat +ellps=WGS84" is accepted for geographical coordinates,
+		# "Note that only "+proj=longlat +ellps=WGS84" is accepted for geographical coordinates, 
 		# which must be ordered (eastings, northings); the "+ellps=" definition must be given (or
 		# expanded internally from a given "+datum=" value) for recent versions of the PROJ.4 library,
 		# and should be set to an appropriate value."
@@ -1766,47 +1824,14 @@ ptCsvToVRT <- function(csvfile, layer_srs, xfield="Lon", yfield="Lat", readvrt=T
 		}
 		else if (layer_srs=="NAD27") {
 			sp::proj4string(ptdf) <- sp::CRS("+init=epsg:4267")
-		}
+		}	
 	}
 	else {
 		ptdf = NULL
 	}
-
+	
 	return(ptdf)
 }
-
-
-### No longer needed, using sf::st_read: ###
-#readOGRfromSQL <- function(dsn, sql, dialect=NULL, stringsAsFactors=FALSE, ...) {
-## A workaround since rgdal::readOGR does not support SQL query
-## dsn - Full path to a file data source, or a connection string.
-## sql - An SQL statement to execute to generate the desired layer result.
-## dialect - SQL "dialect" to use: currently OGRSQL or SQLITE.
-##			If dialect is not specified, the default dialect of the datasource
-##			will be used. Useful to query a non-SpatiaLite datasource using
-##			SpatiaLite SQL. GDAL must be compiled with SQLite and SpatiaLite.
-## stringsAsFactors - passed to rgdal::readOGR
-## ... additional arguments passed to rgdal::readOGR
-## Returns a Spatial object from rgdal::readOGR.
-
-#	tmpvrt = tempfile("ogrsql", fileext=".vrt")
-#	filecon = file(tmpvrt, "w+")
-#	writeLines("<OGRVRTDataSource>", filecon)
-#	writeLines("\t<OGRVRTLayer name='tmpSrcSQL'>", filecon)
-#	txt = paste0("\t\t<SrcDataSource>", dsn, "</SrcDataSource>")
-#	writeLines(txt, filecon)
-#	if (is.null(dialect)) {
-#		txt = paste0("\t\t<SrcSQL>", sql, "</SrcSQL>")
-#	}
-#	else {
-#		txt = paste0("\t\t<SrcSQL dialect='", dialect, "'>", sql, "</SrcSQL>")
-#	}
-#	writeLines(txt, filecon)
-#	writeLines("\t</OGRVRTLayer>", filecon)
-#	writeLines("</OGRVRTDataSource>", filecon)
-#	close(filecon)
-#	rgdal::readOGR(dsn=tmpvrt, layer='tmpSrcSQL', stringsAsFactors=stringsAsFactors, ...)
-#}
 
 
 #' Write a GDAL virtual raster file (VRT)
@@ -1819,39 +1844,38 @@ ptCsvToVRT <- function(csvfile, layer_srs, xfield="Lon", yfield="Lat", readvrt=T
 #' will have the same coordinate system as the source raster.
 #'
 #' @param srcfile Source raster file name.
-#' @param relativeToVRT Integer. Should \code{srcfile} be interpreted as
+#' @param relativeToVRT Integer. Should \code{srcfile} be interpreted as 
 #' 	relative to the .vrt file (value is 1) or not relative to the .vrt file
-#' 	(value is 0)? If value is 1, the .vrt file is assumed to be in the same
+#' 	(value is 0)? If value is 1, the .vrt file is assumed to be in the same 
 #' 	directory as \code{srcfile} and \code{basename(srcfile)} is used in .vrt.
 #' @param vrtfile Output VRT file name.
 #' @param resolution A numeric vector of length two, with xres, yres. The pixel
 #' size must be expressed in georeferenced units. Both must be positive values.
 #' The source pixel size is used if resolution is not specified.
-#' @param subwindow A numeric vector of length four, with xmin, ymin, xmax and
-#' 	ymax values (e.g., sp::bbox or sf::st_bbox). Selects a subwindow of the
-#'	source raster with corners given in georeferenced coordinates (in the
-#'	source CRS). If not given, the upper left corner of the VRT will be the
-#'	same as source, and the VRT extent will be the same or larger than source
+#' @param subwindow A numeric vector of length four, with xmin, ymin, xmax and 
+#' 	ymax values (e.g., sp::bbox or sf::st_bbox). Selects a subwindow of the 
+#'	source raster with corners given in georeferenced coordinates (in the 
+#'	source CRS). If not given, the upper left corner of the VRT will be the 
+#'	same as source, and the VRT extent will be the same or larger than source 
 #'	depending on resolution.
-#' @param align Logical scalar. If TRUE, the upper left corner of the VRT
-#'	extent will be set to the upper left corner of the source pixel that
-#'	contains subwindow xmin, ymax. The VRT will be pixel-aligned with source
-#'	if the VRT resolution is the same as the source pixel size, otherwise VRT
-#'	extent will be the minimum rectangle that contains subwindow for the given
-#'	pixel size. If FALSE, the VRT upper left corner be exactly subwindow xmin,
-#'	ymax, and the VRT extent will be the minimum rectangle that contains
-#'	subwindow for the given pixel size. If subwindow is not given, the source
+#' @param align Logical scalar. If TRUE, the upper left corner of the VRT 
+#'	extent will be set to the upper left corner of the source pixel that 
+#'	contains subwindow xmin, ymax. The VRT will be pixel-aligned with source 
+#'	if the VRT resolution is the same as the source pixel size, otherwise VRT 
+#'	extent will be the minimum rectangle that contains subwindow for the given 
+#'	pixel size. If FALSE, the VRT upper left corner be exactly subwindow xmin, 
+#'	ymax, and the VRT extent will be the minimum rectangle that contains 
+#'	subwindow for the given pixel size. If subwindow is not given, the source 
 #'	window is the source raster extent in which case align=FALSE has no effect.
 #' @param resampling The resampling method to use if xsize, ysize of the VRT is
 #'	different from the size of the underlying source rectangle (in number of
-#'	pixels). The values allowed are nearest, bilinear, cubic, cubicspline,
+#'	pixels). The values allowed are nearest, bilinear, cubic, cubicspline, 
 #'	lanczos, average and mode.
-#'	@export
-rasterToVRT <- function(srcfile, relativeToVRT=0,
-				vrtfile = tempfile("tmprast", fileext=".vrt"),
-				resolution=NULL,
-				subwindow=NULL,
-				align=TRUE,
+rasterToVRT <- function(srcfile, relativeToVRT=0, 
+				vrtfile = tempfile("tmprast", fileext=".vrt"), 
+				resolution=NULL, 
+				subwindow=NULL, 
+				align=TRUE, 
 				resampling="nearest") {
 
 	if (!isNamespaceLoaded("xml2")) {
@@ -1859,10 +1883,14 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 	}
 
 	#open the source raster
+	src_ri = rasterInfo(srcfile)
 	src_ds = rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE)
-	src_nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
-	src_ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
-	src_gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
+	#src_nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
+	src_nrows = src_ri$ysize
+	#src_ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
+	src_ncols = src_ri$xsize
+	#src_gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
+	src_gt = src_ri$geotransform
 	src_xmin = src_gt[1]
 	src_xmax = src_xmin + src_gt[2] * src_ncols
 	src_ymax = src_gt[4]
@@ -1870,14 +1898,14 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 	src_xres = src_gt[2]
 	src_yres = src_gt[6]
 	#nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
-
+	
 	#save the source raster as a temporary VRT
 	vrt_ds <- rgdal::copyDataset(src_ds, driver="VRT")
 	tmp_vrtfile <- tempfile("src", fileext=".vrt")
 	rgdal::saveDataset(vrt_ds, filename=tmp_vrtfile)
 	rgdal::GDAL.close(vrt_ds)
 	rgdal::GDAL.close(src_ds)
-
+	
 	if (is.null(resolution)) {
 		vrt_xres = src_xres
 		vrt_yres = src_yres
@@ -1894,14 +1922,14 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 	else {
 		#subwindow should be inside the source raster extent
 		#TODO: allow subwindow to be partially outside source raster extent
-		if (subwindow[1] < src_xmin || subwindow[3] > src_xmax ||
+		if (subwindow[1] < src_xmin || subwindow[3] > src_xmax || 
 			subwindow[2] < src_ymin || subwindow[4] > src_ymax) {
 			stop("subwindow is not completely within source raster extent")
 		}
 	}
 	src_xoff = floor(getOffset(subwindow[1], src_xmin, src_xres))
 	src_yoff = floor(getOffset(subwindow[4], src_ymax, src_yres))
-
+	
 	#get vrt geotransform and rectangle sizes
 	if (align) {
 		#lay out the vrt raster so it is aligned with ul corner of ul src pixel
@@ -1923,16 +1951,16 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 
 	#xml for the output vrt file
 	x <- xml2::read_xml(tmp_vrtfile)
-
+	
 	#VRTDataset size
 	xds <- xml2::xml_find_first(x, "/VRTDataset")
 	xml2::xml_attrs(xds) <- c("rasterXSize" = as.character(vrt_ncols),
 							"rasterYSize" = as.character(vrt_nrows))
-
+	
 	#Geotransform
 	xgt <- xml2::xml_find_first(x, "/VRTDataset/GeoTransform")
 	xml2::xml_text(xgt) <- paste(vrt_gt, collapse=", ")
-
+	
 	#SrcRect
 	xpath <- "/VRTDataset/VRTRasterBand/SimpleSource/SrcRect"
 	xsrcrect <- xml2::xml_find_all(x, xpath)
@@ -1940,7 +1968,7 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 								"yOff" = as.character(src_yoff),
 								"xSize" = as.character(srcwin_xsize),
 								"ySize" = as.character(srcwin_ysize))
-
+	
 	#DstRect
 	xpath <- "/VRTDataset/VRTRasterBand/SimpleSource/DstRect"
 	xdstrect <- xml2::xml_find_all(x, xpath)
@@ -1948,14 +1976,14 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 								"yOff" = "0",
 								"xSize" = as.character(vrt_ncols),
 								"ySize" = as.character(vrt_nrows))
-
+	
 	#resample if required
 	if (vrt_ncols != srcwin_xsize || vrt_nrows != srcwin_ysize) {
 		xpath <- "/VRTDataset/VRTRasterBand/SimpleSource"
 		xssrc <- xml2::xml_find_all(x, xpath)
 		xml2::xml_attr(xssrc, "resampling") <- resampling
 	}
-
+	
 	#SourceFilename, relativeToVRT
 	xpath <- "/VRTDataset/VRTRasterBand/SimpleSource/SourceFilename"
 	xfn <- xml2::xml_find_all(x, xpath)
@@ -1968,16 +1996,14 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 		xml2::xml_attr(xfn, "relativeToVRT") <- "0"
 		xml2::xml_text(xfn) <- srcfile
 	}
-
+	
 	# zero-out statistics metadata if present
 	xsrcstats <- xml2::xml_find_all(x, "//MDI[starts-with(@key, 'STATISTICS')]")
 	if (length(xsrcstats) != 0) {
 		xml2::xml_text(xsrcstats) <- rep("0", length(xsrcstats))
 	}
-
+	
 	xml2::write_xml(x, vrtfile)
-
+	
 	invisible(vrtfile)
 }
-
-
