@@ -733,11 +733,11 @@ check.area <- function(bnd, bnd_dsn, bnd.att=NULL,
   ## check areaunits
   areaunitslst <- c("acres", "hectares", "sqmeters") 
   areaunits <- pcheck.varchar(var2check=areaunits, varnm="areaunits", 
-	gui=gui, checklst=areaunitslst, caption="Area units?", stopifnull=TRUE)
+	checklst=areaunitslst, caption="Area units?", stopifnull=TRUE)
   areaunits <- toupper(areaunits)
 
   ## Check bnd
-  bndx <- pcheck.spatial(layer=bnd, dsn=bnd_dsn, gui=gui, 
+  bndx <- pcheck.spatial(layer=bnd, dsn=bnd_dsn, 
 	caption="Area of interest?")
 
 
