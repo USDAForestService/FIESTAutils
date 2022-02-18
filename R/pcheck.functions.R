@@ -579,7 +579,8 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 
   ## Check out_fmt
   ###########################################################
-  out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'gdb', 'shp')
+  #out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'gdb', 'shp')
+  out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'shp')
   out_fmt <- pcheck.varchar(out_fmt, varnm="out_fmt", checklst=out_fmtlst,
 		caption="Out format", gui=gui)
 
@@ -593,11 +594,11 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
     if (!"RSQLite" %in% rownames(installed.packages())) {
       message("RSQLite package is required for exporting to sqlite or gpkg formats")
     }
-  } else if (out_fmt %in% c('gdb')) {
-    if (!"arcgisbinding" %in% rownames(installed.packages())) {
-      message("arcgisbinding package is required for exporting to gdb format")
-    }
-    arcgisbinding::arc.check_product()
+#  } else if (out_fmt %in% c('gdb')) {
+#    if (!"arcgisbinding" %in% rownames(installed.packages())) {
+#      message("arcgisbinding package is required for exporting to gdb format")
+#    }
+#    arcgisbinding::arc.check_product()
   }
 
   ## check outfn.date

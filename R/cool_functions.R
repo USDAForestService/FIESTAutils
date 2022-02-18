@@ -119,10 +119,11 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   } else {
     stop(extfn, " not supported")
   }
-
+ 
   ## Get basename
   outfn.base <- basename.NoExt(outfn)
   outfn.dir <- dirname(outfn)
+
   if (outfn.dir != ".") {
     if (is.null(outfolder)) {
       outfolder <- outfn.dir

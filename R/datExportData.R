@@ -123,11 +123,12 @@ datExportData <- function(dfobj, create_dsn=FALSE,
 		index.unique=index.unique, index=index)
 
   } else if (out_fmt == "gdb") {
-    message(out_layer, " written to ", out_dsn)
-    out_dsn <- DBtestESRIgdb(out_dsn, outfolder=outfolder,
-		overwrite=overwrite_dsn, outfn.date=outfn.date, showlist=FALSE)
-    arcgisbinding::arc.write(file.path(out_dsn, out_layer), dfobj,
-			overwrite=overwrite_layer)
+     stop("cannot write to a geodatabase")
+#    message(out_layer, " written to ", out_dsn)
+#    out_dsn <- DBtestESRIgdb(out_dsn, outfolder=outfolder,
+#		overwrite=overwrite_dsn, outfn.date=outfn.date, showlist=FALSE)
+#    arcgisbinding::arc.write(file.path(out_dsn, out_layer), dfobj,
+#			overwrite=overwrite_layer)
 
   } else if (out_fmt == "csv") {
     write2csv(dfobj, outfolder=outfolder, outfilenm=out_layer,
