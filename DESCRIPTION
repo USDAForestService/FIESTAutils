@@ -36,6 +36,7 @@ Imports:
     Rcpp,
     RColorBrewer,
     rgdal,
+    RPostgreSQL,
     RSQLite,
     sae,
     sf,
@@ -46,7 +47,6 @@ Imports:
     utils,
     xml2
 Suggests:
-    RPostgreSQL,
     knitr
 License: file LICENSE
 Encoding: UTF-8
