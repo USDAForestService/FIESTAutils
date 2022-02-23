@@ -72,7 +72,9 @@ strat.collapse <- function(stratacnt, errtab, pltstratx, minplotnum.unit=10,
   ## If stratcombine=TRUE and unitcombine=TRUE and number of total plots is less
   ## than minplotnum.unit.
   #############################################################################
+  tabprint <- FALSE
   if (unitcombine && any(unique(stratacnt$n.total) < minplotnum.unit)) {
+    tabprint <- TRUE
     message("\ncollapsing estimation units...")
 
     ## Define a variable to restrain collapsing by. Use unitvar2 if exists.
@@ -153,6 +155,8 @@ strat.collapse <- function(stratacnt, errtab, pltstratx, minplotnum.unit=10,
 #		any(unique(unitgrpsum$n.strata) < minplotnum.strat)) {
    if ("n.strata" %in% names(unitgrpsum) &&
 		any(unique(unitgrpsum$n.strata) < 60)) {
+     
+    tabprint <- TRUE
 
     unitgrpsum$strat <- unitgrpsum[[strvar]]
     if (!is.factor(unitgrpsum$strat)) {
@@ -200,11 +204,13 @@ strat.collapse <- function(stratacnt, errtab, pltstratx, minplotnum.unit=10,
   }
 
   ## Print new table
-  msg <- "## new auxlut"
-  message("\n################################### \n",
+  if (tabprint) {
+    msg <- "## new auxlut"
+    message("\n################################### \n",
             msg, "\n###################################")
-  message(paste0(capture.output(strlut), collapse = "\n"))
-
+    message(paste0(capture.output(strlut), collapse = "\n"))
+  }
+  
   returnlst <- list(pltstratx=pltstratx, strlut=strlut, unitvar=unitvar)
   if (!is.null(strvar)) returnlst$strvar <- strvar
   if (stratcombine && !is.null(unitstrgrplut)) {
