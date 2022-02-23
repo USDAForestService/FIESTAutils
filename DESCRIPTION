@@ -16,11 +16,11 @@ Authors@R:
              family = "White",
              role = c("aut", "cre"),
              email = "graysonwhite13@gmail.com"))
-Description: The FIESTAutils R package provides tools for data wrangling,
-    spatial data analysis, statistical modeling (including direct,
-    model-assisted, photo-based, and small area tools), and USDA Forest Service 
-    data base tools. These tools are aimed to help Foresters, Analysts, and
-    Scientists extract and perform analyses on USDA Forest Service data.
+Description: A set of tools for data wrangling, spatial data analysis,
+    statistical modeling (including direct, model-assisted, photo-based, and
+    small area tools), and USDA Forest Service data base tools. These tools are
+    aimed to help Foresters, Analysts, and Scientists extract and perform
+    analyses on USDA Forest Service data.
 Depends:
     R (>= 3.5.0)
 Imports:
