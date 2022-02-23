@@ -7,6 +7,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 struct cmbKey {
 	Rcpp::IntegerVector cmb;
@@ -89,7 +90,8 @@ class CmbTable {
 
 		Rcpp::IntegerVector ivCmbID(cmb_map.size());
 		Rcpp::NumericVector dvCmbCount(cmb_map.size());
-		Rcpp::IntegerVector aVec[nKeyLen]; //array of data vectors
+		//Rcpp::IntegerVector aVec[nKeyLen]; //array of data vectors
+		std::vector<Rcpp::IntegerVector> aVec(nKeyLen);
 		cmbKey key;
 		cmbData cmbdat;
 
