@@ -219,7 +219,7 @@ DBgetfn <- function(tab, invtype, outfn.pre, stabbrlst=NULL, evalid=NULL, qry=FA
     fn <- paste0(fn, "_", paste(stabbrlst, collapse=""))
   if (!is.null(evalid) && length(evalid) > 0 && length(stabbrlst == 1)) {
     if (length((unique(unlist(evalid)))) == 1) {
-      if (class(evalid) == "list") {
+      if (inherits(evalid, what = "list")) {
         evalid <- evalid[[1]][1]
       } else {
         evalid <- evalid[1]

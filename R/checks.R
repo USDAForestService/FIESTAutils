@@ -194,7 +194,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
       v2 <- v
     }
     ## if both classes are factors, check levels
-    if (class(tab1[[v1]]) == "factor" && class(tab2[[v2]]) == "factor") {
+    if (inherits(tab1[[v1]], what = "factor") && inherits(tab2[[v2]], what = "factor")) {
       v1levels <- levels(tab1[[v1]])
       v2levels <- levels(tab2[[v2]])
       if (!identical(v1levels, v2levels)) {
@@ -202,7 +202,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
         if (all(v2levels %in% v1levels))
           levels(tab2[[v2]]) <- v1levels
       }
-    } else if (class(tab1[[v1]]) == "factor") {
+    } else if (inherits(tab1[[v1]], what = "factor")) {
       v1levels <- levels(tab1[[v1]])
       if (all(v1levels %in% tab2[[v2]])) {
         tab2[[v2]] <- factor(tab2[[v2]], levels=levels(tab1[[v1]]))
@@ -210,7 +210,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
         #message("missing factor levels")
         tab2[[v2]] <- factor(tab2[[v2]], levels=levels(tab1[[v1]]))
       }
-    } else if (class(tab2[[v2]]) == "factor") {
+    } else if (inherits(tab2[[v2]], what = "factor")) {
       tab2[[v2]] <- as.character(tab2[[v2]])
     }
 
