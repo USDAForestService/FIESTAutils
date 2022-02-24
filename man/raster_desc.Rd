@@ -45,7 +45,6 @@
 \alias{getrastlst.rgdal}
 \alias{areacalc.pixel}
 \alias{aspect_transform}
-\alias{spPlotRastcl}
 \alias{checkrast.longlat}
 \title{Raster Functions}
 \usage{
@@ -306,16 +305,6 @@ getrastlst.rgdal(
 areacalc.pixel(rastfn, unit = "ACRES", rast.NODATA = NULL, na.rm = TRUE)
 
 aspect_transform(df, asp)
-
-spPlotRastcl(
-  rastcl,
-  bks = NULL,
-  col.bks = NULL,
-  col.palette = NULL,
-  ext = NULL,
-  labels = NULL,
-  ...
-)
 
 checkrast.longlat(rastfn, dstfile = NULL, nolonglat = TRUE, crs.default = NULL)
 }
