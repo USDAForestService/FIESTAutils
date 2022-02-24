@@ -181,11 +181,6 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
     on.exit(options(options.old), add=TRUE)
   }
 
-  ## Check for installed packages
-  if (!"sf" %in% rownames(installed.packages())) {
-    message("importing spatial layers requires package sf")
-  }
-
   ## Adds to file filters to Cran R Filters table.
   if (.Platform$OS.type=="windows") {
     Filters=rbind(Filters,shp=c("Shapefiles (*.shp)", "*.shp"))
@@ -323,9 +318,6 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
       stop("tab is invalid")
     }
     if (tabext %in% c("sqlite", "sqlite3", "db", "db3", "gpkg")) {
-      if (!"RSQLite" %in% rownames(installed.packages())) {
-        message("importing spatial layers requires package RSQLite")
-      }
       dbconn <- DBtestSQLite(tab_dsn, dbconnopen=TRUE, showlist=FALSE)
       tablst <- DBI::dbListTables(dbconn)
       if (!tab %in% tablst) {
@@ -584,23 +576,6 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
   out_fmt <- pcheck.varchar(out_fmt, varnm="out_fmt", checklst=out_fmtlst,
 		caption="Out format", gui=gui)
 
-  ## Check for necessary packages
-  ###########################################################
-  if (out_fmt == "shp") {
-    if (!"sf" %in% rownames(installed.packages())) {
-      message("sf package is required for spExportSpatial")
-    }
-  } else if (out_fmt %in% c('sqlite', 'sqlite3', 'db', 'db3')) {
-    if (!"RSQLite" %in% rownames(installed.packages())) {
-      message("RSQLite package is required for exporting to sqlite or gpkg formats")
-    }
-#  } else if (out_fmt %in% c('gdb')) {
-#    if (!"arcgisbinding" %in% rownames(installed.packages())) {
-#      message("arcgisbinding package is required for exporting to gdb format")
-#    }
-#    arcgisbinding::arc.check_product()
-  }
-
   ## check outfn.date
   outfn.date <- pcheck.logical(outfn.date, varnm="outfn.date",
 		title="outfn.date", first="NO", gui=gui)
@@ -701,10 +676,6 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 #' @rdname pcheck_desc
 #' @export
 pcheck.colors <- function(colorlst, n) {
-
-   if (!"RColorBrewer" %in% rownames(installed.packages())) {
-     message("must install RColorBrewer package")
-   }
 
    ## Check colorlst
    brewerlst <- c("Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3")

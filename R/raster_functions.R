@@ -222,9 +222,6 @@ spPlotRastcl <- function(rastcl, bks=NULL, col.bks=NULL, col.palette=NULL, ext=N
   ##  rastcl	- classified raster
   ##  bks		- raster breaks
 
-  if (!"raster" %in% rownames(installed.packages())) {
-    stop("displaying raster class objects requires package raster")
-  }
   if (class(rastcl) != "RasterLayer") {
     stop("rastcl must be a Rasterlayer")
   }

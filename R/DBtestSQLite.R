@@ -32,14 +32,6 @@ DBtestSQLite <- function(SQLitefn = NULL,
   ## SQLitefn - String. SQLite filename (*.sqlite or *.gpkg)
   ## dbconnopen - Logical. If TRUE, keep connection to database open
   ## gpkg	- Logical. If TRUE, geopackage database.
-
-  if (!"DBI" %in% rownames(installed.packages())) {
-    message("accessing SQLite databases requires package DBI")
-  }
-  if (!"RSQLite" %in% rownames(installed.packages())) {
-    message("accessing SQLite databases requires package RSQLite")
-  }
-
   
   ##################################################################
   ## CHECK PARAMETER NAMES

@@ -277,11 +277,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   predselect.area=predselect.unit <- NULL
   SAobjlst <- list()
 
-  if (modelselect) {
-    if (!"mase" %in% rownames(installed.packages()))
-    stop("variable selection requires package mase")
-  }
-
   ## Merge dat.dom to pltassgn
   pltdat.dom <- dat.dom[pltassgn]
   pltdat.dom[is.na(pltdat.dom[[yn]]), (yn) := 0]

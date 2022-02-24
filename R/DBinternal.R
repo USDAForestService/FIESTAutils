@@ -733,13 +733,6 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
   ## dbconnopen - Logical. If TRUE, keep connection to database open
   ## gpkg	- Logical. If TRUE, geopackage database.
 
-  if (!"DBI" %in% rownames(installed.packages())) {
-    message("accessing SQLite databases requires package DBI")
-  }
-  if (!"RSQLite" %in% rownames(installed.packages())) {
-    message("accessing SQLite databases requires package RSQLite")
-  }
-
   ## Check gpkg
   dbext <- ifelse(gpkg, ".gpkg", ".db")
 
