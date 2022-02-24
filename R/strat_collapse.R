@@ -63,7 +63,7 @@ strat.collapse <- function(stratacnt, errtab, pltstratx, minplotnum.unit=10,
       estunits <- unique(stratacnt[stratacnt$n.total < minplotnum.unit, unitvar, with=FALSE][[1]])
       stop("estimation unit has less than ", minplotnum.unit, " plots",
 		"... remove or combine estimation units")
-      print(paste(estunits, collapse="; "))
+      message(paste(estunits, collapse="; "))
     }
   }
 

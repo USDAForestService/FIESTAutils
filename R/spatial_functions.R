@@ -154,7 +154,7 @@ trunc10shp <- function(x) {
   ## Change name in shp and print changes to screen (Note: NULL at end)
   if (length(newnms > 0)) {
     names(x)[names(x) %in% newnms[["NAMES_gt10"]]] <- newnms[["NEWNAME"]]
-    apply(newnms, 1, function(x) cat("Changed name: ", x[1], "to", x[2], "\n"))
+    apply(newnms, 1, function(x) message(paste("Changed name:", x[1], "to", x[2], "\n")))
   }
 
   return(list(shp=x, newnms=newnms))

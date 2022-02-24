@@ -291,14 +291,14 @@ getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1
 
     onecond[, CONDMETHOD := "CS_CP_CC_SZ_C1"]
     #onecond[is.na(onecond)] <- 0
-
-    cat("\n", "CONDMETHOD added to attribute table: ",
-		"Describes which condition-level variables were used to select 1 condition per plot",
-        	"  CS - the minimum condition status, emphasizing forested conditions",
-        	"  CP - the highest proportion",
-        	"  CC - the greatest live percent canopy cover",
-        	"  SZ - the largest stand size class",
-        	"  C1 - the minimum CONDID", sep="\n", "\n")
+    
+    message("\n", "CONDMETHOD added to attribute table: ", "\n",
+        "Describes which condition-level variables were used to select 1 condition per plot", "\n",
+        "  CS - the minimum condition status, emphasizing forested conditions", "\n",
+        "  CP - the highest proportion", "\n",
+        "  CC - the greatest live percent canopy cover", "\n",
+        "  SZ - the largest stand size class", "\n",
+        "  C1 - the minimum CONDID", "\n")
 
   } else {  ## if condid1 = TRUE
 

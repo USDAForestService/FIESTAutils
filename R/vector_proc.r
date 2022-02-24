@@ -339,8 +339,8 @@ vectorTranslate <- function(src_dsn, dst_dsn, dst_fmt="ESRI Shapefile",
 	opt = c(opt, addOptions)
 	#print(opt)
 
-	print(layers)
-	print(paste0(c("Translating to", dst_fmt, "..."), collapse=" "))
+	message(layers)
+	message(paste0(c("Translating to", dst_fmt, "..."), collapse=" "))
 	return( sf::gdal_utils(util="vectortranslate",
 			source=src_dsn, destination=dst_dsn, options=opt) )
 

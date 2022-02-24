@@ -136,7 +136,7 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
       return(NULL)
     }
     ## To add space to messages
-    cat("\n")
+    message("\n")
 
     #building pieces
     partA <- res$data$samp.agg.X.pop[,c("domain.id","n.i",
@@ -817,7 +817,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         names(area.JoSAE) <- c("DOMAIN", "JFH", "JFH.se",
                       "JA.synth", "JA.synth.se")
         ## To add space to messages
-        cat("\n")
+        message("\n")
       
 #        area.JoSAE <- merge(area.JoSAE, area.JoSAE.al[, c("domain.id", "n.i")],
 #                   by.x="DOMAIN", by.y="domain.id")
@@ -1040,7 +1040,7 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
   ## Subset tomdat to domain=dom
   dat.dom <- dat[dat[[domain]] == dom,]
   if (domain != "TOTAL") {
-    print(dom)
+    message(dom)
   }
 
   if (nrow(dat.dom) == 0 || sum(!is.na(dat.dom[[domain]])) == 0) {
