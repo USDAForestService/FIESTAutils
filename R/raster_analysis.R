@@ -435,7 +435,7 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 	
 	ri = rasterInfo(rasterfile)
 	if (is.null(ri)) {
-		print(rasterfile)
+		message(rasterfile)
 		stop("open raster failed")
 	}
 	
@@ -517,7 +517,7 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 	# allows for specific bands, or specific var.names by band, etc.
 
 	if ( !all(file.exists(rasterfiles)) ) {
-		print( rasterfiles[which(!file.exists(rasterfiles))] )
+		message( rasterfiles[which(!file.exists(rasterfiles))] )
 		stop("file not found")
 	}
 	
@@ -570,7 +570,7 @@ rasterInfo <- function(srcfile) {
 		rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE),
 		
 		error=function(err) {
-			print(err)
+			message(err)
 			return(NULL)
 		}
 	)
@@ -731,7 +731,7 @@ rasterFromRaster <- function(srcfile, dstfile, fmt=NULL, nbands=NULL,
 				rgdal::GDALcall(band, "SetNoDataValue", dstnodata),
 				
 				error=function(err) {
-					print(err)
+					message(err)
 				}
 			)
 		}
@@ -742,7 +742,7 @@ rasterFromRaster <- function(srcfile, dstfile, fmt=NULL, nbands=NULL,
 	if (!is.null(init)) {
 		dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
 		a <- array(init, dim=c(ncols, 1))
-		print("Initializing destination raster...")
+		message("Initializing destination raster...")
 		for (b in 1:nbands) {
 			for (r in 0:(nrows-1)) {
 				rgdal::putRasterData(dst_ds, a, band=b, offset=c(r,0))
@@ -807,7 +807,7 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 				rgdal::GDALcall(band, "SetNoDataValue", dstnodata),
 				
 				error=function(err) {
-					print(err)
+					message(err)
 				}
 			)
 		}
@@ -818,7 +818,7 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 	if (!is.null(init)) {
 		dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
 		a <- array(init, dim=c(ncols, 1))
-		print("Initializing destination raster...")
+		message("Initializing destination raster...")
 		for (b in 1:nbands) {
 			for (r in 0:(nrows-1)) {
 				rgdal::putRasterData(dst_ds, a, band=b, offset=c(r,0))
@@ -1022,14 +1022,14 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	}
 	
 	if (maskByPolygons) {
-		print("Initializing destination raster...")
+		message("Initializing destination raster...")
 		a <- array(init, dim=c(clip_ncols, 1))
 		for (b in 1:nbands) {
 			for (r in 0:(clip_nrows-1)) {
 				rgdal::putRasterData(dst_ds, a, band=b, offset=c(r,0))
 			}
 		}
-		print("Clipping to polygon layer...")
+		message("Clipping to polygon layer...")
 		pb <- txtProgressBar(min=0, max=length(src))
 		for (i in 1:length(src)) {
 			part_sizes = vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
@@ -1042,10 +1042,10 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 		close(pb)
 	}
 	else {
-		print("Clipping to polygon layer extent...")
+		message("Clipping to polygon layer extent...")
 		lapply(c(0:(clip_nrows-1)), writeRaster, xoff1=0, xoff2=clip_ncols-1, 0)
 	}
-	print(paste("clipRaster output written to:", dstfile))
+	message(paste("clipRaster output written to:", dstfile))
 	
 	src <- NULL
 	rgdal::GDAL.close(src_ds)
@@ -1100,7 +1100,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 	calc_expr = parse(text=calc)
 
 	if ( !all(file.exists(rasterfiles)) ) {
-		print( rasterfiles[which(!file.exists(rasterfiles))] )
+		message( rasterfiles[which(!file.exists(rasterfiles))] )
 		stop("file not found")
 	}
 	
@@ -1153,7 +1153,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 			ri = rasterInfo(r)
 			if(is.null(ri)) stop(paste("Raster info failed:", rasterfiles[r]))
 			if(ri$ysize != nrows || ri$xsize != ncols) {
-				print(rasterfiles[r])
+				message(rasterfiles[r])
 				stop("All input rasters must have the same dimensions.")
 			}
 		}
@@ -1199,12 +1199,12 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 		return()
 	}
 	
-	print(paste("Calculating from", nrasters, "input layers..."))
+	message(paste("Calculating from", nrasters, "input layers..."))
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
 	close(pb)
 
-	print(paste("Output written to:", dstfile))
+	message(paste("Output written to:", dstfile))
 	rgdal::GDAL.close(dst_ds)
 	lapply(gd_list, rgdal::GDAL.close)
 	
@@ -1293,10 +1293,10 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 	}
 
 	if(nrasters == 1) {
-		print("Scanning raster...")
+		message("Scanning raster...")
 	}
 	else {
-		print(paste("Combining", nrasters, "input files..."))
+		message(paste("Combining", nrasters, "input files..."))
 	}
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
@@ -1307,7 +1307,7 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 	
 	lapply(gd_list, rgdal::GDAL.close)
 	if (!is.null(dstfile)) {
-		print(paste("Combination IDs written to:", dstfile))
+		message(paste("Combination IDs written to:", dstfile))
 		rgdal::GDAL.close(dst_ds)
 	}
 	
@@ -1352,12 +1352,12 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 		return()
 	}
 
-	print("Recoding...")
+	message("Recoding...")
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
 	close(pb)
 	
-	print(paste("Output written to:", dstfile))
+	message(paste("Output written to:", dstfile))
 	rgdal::GDAL.close(dst_ds)
 	rgdal::GDAL.close(src_ds)
 	
@@ -1482,12 +1482,12 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 		}
 	}
 	
-	print("Calculating focal raster...")
+	message("Calculating focal raster...")
 	pb <- txtProgressBar(min=0, max=nrows)
 	lapply(0:(nrows-1), process_row)
 	close(pb)
 
-	print(paste("Output written to:", dstfile))
+	message(paste("Output written to:", dstfile))
 	rgdal::GDAL.close(dst_ds)
 	rgdal::GDAL.close(src_ds)
 	
