@@ -1,7 +1,6 @@
 ## getrastlst.rgdal - verifies a list of raster or raster files.
 ## areacalc.pixel - calculates area of raster pixels and appends to polygon attribute table.
 ## aspect_transform - transforms aspect, in degrees, to easting and northing units.
-## spPlotRastcl - plot raster discrete classes
 ## checkrast.longlat
 
 
@@ -213,58 +212,6 @@ aspect_transform <- function(df, asp) {
      return(df)
 }
 
-#' @rdname raster_desc
-#' @export
-spPlotRastcl <- function(rastcl, bks=NULL, col.bks=NULL, col.palette=NULL, ext=NULL,
-	labels=NULL, ...){
-  ## DESCRIPTION: Plots a classified raster with legend for breaks.
-  ## ARGUMENTS:
-  ##  rastcl	- classified raster
-  ##  bks		- raster breaks
-
-  if (class(rastcl) != "RasterLayer") {
-    stop("rastcl must be a Rasterlayer")
-  }
-
-  ## Define class breaks of rastcl
-  if (is.null(bks)) {
-    bks <- sort(raster::unique(rastcl, na.last=NA))
-  }
-  if (min(bks) == 0) {
-    bks <- c(-1, bks)
-  } else {
-    bks <- unique(c(0, sort(bks)))
-  }
-  nbrbks <- length(bks)
-
-  ## Define labels for class breaks
-  labpts <- bks[-1] - diff(bks)/2
-
-  ## Check col.palette
-  if (!is.null(col.palette) && !is.function(col.palette))
-    stop("col.palette must be a function")
-
-  ## Define colors for plotting rastcl
-  if (is.null(col.bks)) {
-    if (!is.null(col.palette)) {
-      if (!is.function(col.palette)) {
-        stop("col.palette must be a function")
-      } else {
-        col.bks <- col.palette(nbrbks)
-      }
-    } else {
-      col.bks <- grDevices::terrain.colors(nbrbks)
-    }
-  } else {
-    if (length(col.bks) != nbrbks-1)
-      stop(paste("you must have", nbrbks, "colors defined"))
-  }
-  if (is.null(labels))
-    labels <- as.character(bks[-1])
-
-  plot(rastcl, ext=ext, col=col.bks,
-	axis.args=list(at=labpts, labels=labels), breaks=bks, ...)
-}
 
 #' @rdname raster_desc
 #' @export
