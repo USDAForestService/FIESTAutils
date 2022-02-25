@@ -6,6 +6,9 @@
 #' be extremely efficient and fast. Some are wrappers around these C++ functions
 #' for easier use and integration into other packages. 
 #'
+#' @return 
+#' Spatial data object from `sf`. Used for spatial data analyses.
+#'
 #' @details
 #' These functions carry out raster data analysis.
 #'

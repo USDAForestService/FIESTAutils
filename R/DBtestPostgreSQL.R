@@ -5,6 +5,8 @@
 #' 
 #' @param dbname String. Name of PostgreSQL database.
 #' @param dbconnopen Logical. If TRUE, the dbconn connection is not closed.
+#' @return An S4 object that inherits from DBIConnection via the DBI package. 
+#' For more information, see `help(DBI::dbConnect)`. 
 #' @author Tracey S. Frescino
 #' @keywords data
 #' @export DBtestPostgreSQL

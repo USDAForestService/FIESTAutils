@@ -37,6 +37,10 @@ If FALSE, returns SQLitefn.}
 
 \item{overwrite}{Logical. If TRUE, overwrites data.}
 }
+\value{
+Character string containing the path to the SQLite database of
+interest.
+}
 \description{
 Checks a SQLite database.
 }

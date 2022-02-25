@@ -135,6 +135,11 @@ pcheck.params(
   spMakeSpatial_opts = NULL
 )
 }
+\value{
+List of parameter objects checked by the function. While the `pcheck.*()`
+functions do return a value, they are primarily used for their side effects
+when checking input function parameters.
+}
 \description{
 These functions are used to check parameter inputs.
 }

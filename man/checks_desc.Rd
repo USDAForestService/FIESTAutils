@@ -52,6 +52,10 @@ checknm(nm, nmlst)
 
 check.namedlist(xlst, checknms = NULL, modetype = "numeric")
 }
+\value{
+The object who was checked, with necessary changes made for the object to
+pass the check (i.e. character vector to numeric vector).
+}
 \description{
 Check functions for objects of class numeric, logical statements,
 class matching, value matching, file names, names, and named lists

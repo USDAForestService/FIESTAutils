@@ -14,6 +14,8 @@
 #' @param createnew If TRUE, creates new SQLite database.
 #' @param stopifnull Logical. If TRUE, stops if SQLite database doesn't exist.
 #' @param overwrite Logical. If TRUE, overwrites data.
+#' @return Character string containing the path to the SQLite database of
+#' interest. 
 #' @author Tracey S. Frescino
 #' @keywords data
 #' @export DBtestSQLite

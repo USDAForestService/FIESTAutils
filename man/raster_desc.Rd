@@ -319,6 +319,9 @@ spPlotRastcl(
 
 checkrast.longlat(rastfn, dstfile = NULL, nolonglat = TRUE, crs.default = NULL)
 }
+\value{
+Spatial data object from `sf`. Used for spatial data analyses.
+}
 \description{
 These functions allow for analysis of raster data. Many are written in C++ to
 be extremely efficient and fast. Some are wrappers around these C++ functions

@@ -92,6 +92,9 @@ clip.othertables(
 
 check.area(bnd, bnd_dsn, bnd.att = NULL, areaunits = "acres", min.area = 6000)
 }
+\value{
+Spatial data object from `sf`. Used for spatial data analyses.
+}
 \description{
 These functions allow for analysis and manipulation of spatial data. Tasks
 include but are not limited to analyzing polygons, comparing projections,

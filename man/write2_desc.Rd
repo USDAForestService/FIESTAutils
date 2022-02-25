@@ -35,9 +35,12 @@ write2sqlite(
   index = NULL
 )
 }
+\value{
+No return value, writes data to either a "csv" or "sqlite" file.
+}
 \description{
 These functions allow for data to be written to different formats. Currently,
-supported formats are "csv", "gdb", and "sqlite".
+supported formats are "csv" and "sqlite".
 }
 \details{
 These functions allow for data to be written to different formats.

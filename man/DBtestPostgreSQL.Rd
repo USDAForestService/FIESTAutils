@@ -11,6 +11,10 @@ DBtestPostgreSQL(dbname, dbconnopen = TRUE)
 
 \item{dbconnopen}{Logical. If TRUE, the dbconn connection is not closed.}
 }
+\value{
+An S4 object that inherits from DBIConnection via the DBI package. 
+For more information, see `help(DBI::dbConnect)`.
+}
 \description{
 Checks a SQLite database.
 }
