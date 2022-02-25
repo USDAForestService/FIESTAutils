@@ -32,7 +32,6 @@ Imports:
     mase,
     methods,
     nlme,
-    raster,
     Rcpp,
     RColorBrewer,
     rgdal,

@@ -288,6 +288,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   dunitlut.dom <- merge(dunitlut, datmean, by=dunitvar)
   setnames(dunitlut.dom, c("mean", "mean.var"), c(yn, paste0(yn, ".var")))
 
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+
 
 ###################
 ##### TESTING #####
