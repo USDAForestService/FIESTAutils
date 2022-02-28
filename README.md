@@ -9,12 +9,16 @@ extract and perform analyses on USDA Forest Service data.
 
 ## Installation
 
-You can install the development version of FIESTAutils from
+You can install the stable version of `FIESTAutils` from CRAN with:
+
+``` r
+install.packages("FIESTAutils")
+```
+
+Or, you can install the developmental version of `FIESTAutils` from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("USDAForestService/FIESTAutils")
 ```
-
-We hope to soon have `FIESTAutils` available on CRAN.
