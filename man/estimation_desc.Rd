@@ -34,7 +34,7 @@ GBest.pbar(
   domain
 )
 
-MAest.ht(y, N, FIA = TRUE, getweights = FALSE)
+MAest.ht(y, N, FIA = TRUE, getweights = FALSE, var_method = "LinHTSRS")
 
 MAest.ps(
   y,
@@ -43,7 +43,8 @@ MAest.ps(
   x_pop,
   FIA = TRUE,
   save4testing = TRUE,
-  getweights = FALSE
+  getweights = FALSE,
+  var_method = "SRSunconditional"
 )
 
 MAest.greg(
@@ -54,10 +55,19 @@ MAest.greg(
   FIA = TRUE,
   save4testing = TRUE,
   modelselect = FALSE,
-  getweights = FALSE
+  getweights = FALSE,
+  var_method = "LinHTSRS"
 )
 
-MAest.ratio(y, N, x_sample, x_pop, FIA = TRUE, save4testing = TRUE)
+MAest.ratio(
+  y,
+  N,
+  x_sample,
+  x_pop,
+  FIA = TRUE,
+  save4testing = TRUE,
+  var_method = "LinHTSRS"
+)
 
 MAest.gregEN(
   y,
@@ -67,7 +77,8 @@ MAest.gregEN(
   FIA = TRUE,
   model = "linear",
   save4testing = TRUE,
-  getweights = FALSE
+  getweights = FALSE,
+  var_method = "LinHTSRS"
 )
 
 MAest(
@@ -85,7 +96,8 @@ MAest(
   N,
   FIA = TRUE,
   modelselect = FALSE,
-  getweights = FALSE
+  getweights = FALSE,
+  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
 
 MAest.dom(
@@ -103,7 +115,8 @@ MAest.dom(
   response = NULL,
   FIA = TRUE,
   modelselect = FALSE,
-  getweights = FALSE
+  getweights = FALSE,
+  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
 
 MAest.unit(
@@ -121,7 +134,8 @@ MAest.unit(
   npixels,
   FIA = TRUE,
   modelselect = TRUE,
-  getweights = FALSE
+  getweights = FALSE,
+  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
 
 PBest.pbar(
