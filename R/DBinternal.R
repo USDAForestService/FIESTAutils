@@ -137,8 +137,14 @@ DBvars.default <- function(istree, isseed, isveg, isdwm, issubp, regionVars,
     vsubpstrvarlst <- c("PLT_CN", "SUBP", "CONDID", "GROWTH_HABIT_CD", "LAYER",
 	"COVER_PCT")
 
+    ### Variables from INVASIVE_SUBPLOT_SPP
+    invsubpvarlst <- c("PLT_CN", "SUBP", "CONDID", "VEG_FLDSPCD", "UNIQUE_SP_NBR",
+	"VEG_SPCD", "COVER_PCT")
+
+
     returnlst$vsubpsppvarlst <- vsubpsppvarlst
     returnlst$vsubpstrvarlst <- vsubpstrvarlst
+    returnlst$invsubpvarlst <- invsubpvarlst
   }
 
   ############################  UNDERSTORY VEG VARIABLES  ############################
