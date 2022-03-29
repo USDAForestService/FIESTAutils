@@ -18,6 +18,7 @@ table_options(
   rowgrp = FALSE,
   rowgrpnm = NULL,
   rowgrpord = NULL,
+  totals = TRUE,
   allin1 = FALSE,
   metric = FALSE,
   estround = 1,
@@ -82,6 +83,8 @@ be included in same input table as rowvar.}
 
 \item{rowgrpord}{String. Name of variable to sort row group variable.
 Variable must be included in same input table as rowgrpnm.}
+
+\item{totals}{Logical. If TRUE, returns total estimate (mean * AREAUSED).}
 
 \item{allin1}{Logical. If TRUE, both estimates and percent sample error are
 output in one table as: estimates (percent sample error).}
