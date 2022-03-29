@@ -44,7 +44,7 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
                               selectdom = unique(xpop$DOMAIN),
                               meanxpop = xpop,
                               popnsize = popsize,
-                            method = "REML",
+                              method = "REML",
                               data = pltdat.unit,
                               B = 100)),
                          error=function(err) {
@@ -327,33 +327,34 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
     if (multest) {
       est <- data.table(dunitlut.dom[[dunitvar]], 
-		NBRPLT=dunitlut.dom$n.total, 
-		DIR=NA, DIR.se=NA, JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
-		JU.EBLUP=NA, JU.EBLUP.se.1=NA, 
-		hbsaeU=NA, hbsaeU.se=NA, 
-		JFH=NA, JFH.se=NA,
-		JA.synth=NA, JA.synth.se=NA, 
-		saeA=NA, saeA.se=NA, 
-		hbsaeA=NA, hbsaeA.se=NA)
+		            NBRPLT=dunitlut.dom$n.total, 
+		            DIR=NA, DIR.se=NA, JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
+		            JU.EBLUP=NA, JU.EBLUP.se.1=NA, 
+		            hbsaeU=NA, hbsaeU.se=NA, 
+		            JFH=NA, JFH.se=NA,
+		            JA.synth=NA, JA.synth.se=NA, 
+		            saeA=NA, saeA.se=NA, 
+		            hbsaeA=NA, hbsaeA.se=NA)
       setnames(est, "V1", dunitvar)
 
     } else {
-      est <- data.table(dunitlut.dom[[dunitvar]], NBRPLT=dunitlut.dom$n.total, 
-			DIR=NA, DIR.se=NA)
+      est <- data.table(dunitlut.dom[[dunitvar]], 
+                NBRPLT=dunitlut.dom$n.total, 
+			          DIR=NA, DIR.se=NA)
       setnames(est, "V1", dunitvar)
 
       if (SAmethod == "unit") {
         if (SApackage == "JoSAE") {
           est <- data.table(est, 
-			JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
-			JU.EBLUP=NA, JU.EBLUP.se.1=NA)
+			          JU.Synth=NA, JU.GREG=NA, JU.GREG.se=NA,
+			          JU.EBLUP=NA, JU.EBLUP.se.1=NA)
         } else if (SApackage == "hbsae") {
           est <- data.table(est, hbsaeU=NA, hbsaeU.se=NA)
         }
       } else if (SAmethod == "area") {
         if (SApackage == "JoSAE") {
           est <- data.table(est, 
-			JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
+			          JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
         } else if (SApackage == "sae") {
           est <- data.table(est, sae=NA, sae.se=NA)
         } else if (SApackage == "hbsae") {
