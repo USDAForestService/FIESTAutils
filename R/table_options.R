@@ -46,6 +46,7 @@
 #' be included in same input table as rowvar.
 #' @param rowgrpord String. Name of variable to sort row group variable.
 #' Variable must be included in same input table as rowgrpnm.
+#' @param totals Logical. If TRUE, returns total estimate (mean * AREAUSED).
 #' @param allin1 Logical. If TRUE, both estimates and percent sample error are
 #' output in one table as: estimates (percent sample error).
 #' @param metric Logical. If TRUE, output if returned in metric units.
@@ -73,7 +74,7 @@ table_options <- function(row.FIAname=FALSE, col.FIAname=FALSE, row.orderby=NULL
                           col.orderby=NULL, row.add0=FALSE, col.add0=FALSE,
                           rowlut=NULL, collut=NULL, rawonly=FALSE, raw.keep0=FALSE,
                           rowgrp=FALSE, rowgrpnm=NULL, rowgrpord=NULL,
-                          allin1=FALSE, metric=FALSE, estround=1, pseround=2,
+                          totals=TRUE, allin1=FALSE, metric=FALSE, estround=1, pseround=2,
                           estnull="--", psenull="--", divideby=NULL, ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
