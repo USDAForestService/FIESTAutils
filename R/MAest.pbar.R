@@ -122,9 +122,14 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
     preds.selected <- na.omit(preds.selected[1:(length(y)-1)])
   }
 
-  if (!is.null(preds.selected) && length(preds.selected) > 0) {
-    xsample <- x_sample[, preds.selected, drop=FALSE]
-    xpop <- x_pop[, preds.selected, drop=FALSE]
+#  if (!is.null(preds.selected) && length(preds.selected) > 0) {
+    if (length(preds.selected) == 0) {
+      xsample <- x_sample[, names(predselect), drop=FALSE]
+      xpop <- x_pop[, names(predselect), drop=FALSE]
+    } else {
+      xsample <- x_sample[, preds.selected, drop=FALSE]
+      xpop <- x_pop[, preds.selected, drop=FALSE]
+    }
 
     # var_method <- "LinHTSRS"
     estgreg <- tryCatch(mase::greg(	y = y,
@@ -141,9 +146,9 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
 					message(err, "\n")
 					return(NULL)
 				} )
-  } else {
-    estgreg <- NULL
-  }
+#  } else {
+#    estgreg <- NULL
+#  }
   if (is.null(estgreg)) {
     if (save4testing) {
       message("saving objects to working directory for testing: y, x_sample, x_pop, N")
@@ -523,7 +528,7 @@ MAest.unit <- function(unit, dat, cuniqueid, unitlut, unitvar,
 #unitlut=unitlut.unit
 #pltassgn=pltassgn.unit
 #N=N.unit
-#dom=doms[1]
+#dom=doms[5]
 
   unitestlst <- lapply(doms, MAest.dom,
 			dat=dat.unit, cuniqueid=cuniqueid,
