@@ -112,18 +112,15 @@ NULL
 NULL
 
 
-#' Reference table - for generating tables
+#' Reference table - for generating estimates
 #'
 #' Data frame with variable names and descriptions
 #'
 #'
 #' @name ref_estvar
 #' @docType data
-#' @format A data frame with 26 rows and 4 columns CATEGORY - Category of
-#' estimation variable ESVARNM - Estimation variable in database ESTTITLE - A
-#' title for estimation selections ESTFILTER - Filter statement for each
-#' estimation selection
-#' @source FIA look-up table
+#' @format A data frame to use a reference for estimation 
+#' variables and filters.
 #' @keywords datasets
 NULL
 

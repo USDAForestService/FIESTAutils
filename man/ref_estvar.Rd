@@ -3,15 +3,10 @@
 \docType{data}
 \name{ref_estvar}
 \alias{ref_estvar}
-\title{Reference table - for generating tables}
+\title{Reference table - for generating estimates}
 \format{
-A data frame with 26 rows and 4 columns CATEGORY - Category of
-estimation variable ESVARNM - Estimation variable in database ESTTITLE - A
-title for estimation selections ESTFILTER - Filter statement for each
-estimation selection
-}
-\source{
-FIA look-up table
+A data frame to use a reference for estimation 
+variables and filters.
 }
 \description{
 Data frame with variable names and descriptions
