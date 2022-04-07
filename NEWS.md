@@ -4,3 +4,7 @@
 * Added bootstrap method for estimating the variance of model-assisted estimation. 
 * Suppressed messages for model-assisted estimation.
 * Bug fixes. 
+
+# FIESTAutils 1.0.0
+
+* Initial public release.
