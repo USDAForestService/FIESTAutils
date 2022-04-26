@@ -8,9 +8,9 @@ MAest.ht <- function(y, N, FIA=TRUE, getweights=FALSE, var_method = "LinHTSRS") 
   NBRPLT <- length(y)
   NBRPLT.gt0 <- sum(y > 0)
   # var_method <- "LinHTSRS"
-  estht <- mase::horvitzThompson(y, pi = NULL, N = N, pi2 = NULL,
+  estht <- suppressMessages(mase::horvitzThompson(y, pi = NULL, N = N, pi2 = NULL,
 						var_est = TRUE, var_method = var_method,
-						B = 1000)
+						B = 1000))
 
   esthtdt <- data.table(estht$pop_mean, estht$pop_mean_var, NBRPLT, NBRPLT.gt0)
   setnames(esthtdt, c("nhat", "nhat.var", "NBRPLT", "NBRPLT.gt0"))
@@ -43,13 +43,13 @@ MAest.ps <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE, getweig
   NBRPLT.gt0 <- sum(y > 0)
   # var_method <- "SRSunconditional"
 
-  estps <- tryCatch(mase::postStrat(	  y = y,
+  estps <- tryCatch(suppressMessages(mase::postStrat(	  y = y,
 					   xsample = x_sample,
 					   xpop = x_pop,
 					   pi = NULL, N = N, pi2 = NULL,
 					   var_est = TRUE, var_method = var_method,
 					   datatype = "means",
-					   B = 1000),
+					   B = 1000)),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
@@ -132,7 +132,7 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
     }
 
     # var_method <- "LinHTSRS"
-    estgreg <- tryCatch(mase::greg(	y = y,
+    estgreg <- tryCatch(suppressMessages(mase::greg(	y = y,
 					xsample = xsample,
 					xpop = x_pop,
 					pi = NULL, N = N, pi2 = NULL,
@@ -141,7 +141,7 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
 					datatype = "means",
   					modelselect = FALSE,
 					lambda = "lambda.min",
-					B = 1000),
+					B = 1000)),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
@@ -210,13 +210,13 @@ MAest.ratio <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
   NBRPLT.gt0 <- sum(y > 0)
   # var_method <- "LinHTSRS"
 
-  estratio <- tryCatch(mase::ratioEstimator(	y = y,
+  estratio <- tryCatch(suppressMessages(mase::ratioEstimator(	y = y,
 					xsample = x_sample,
 					xpop = x_pop,
 					pi = NULL, N = N, pi2 = NULL,
 					var_est = TRUE, var_method = var_method,
 					datatype = "means",
-					B = 1000),
+					B = 1000)),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
@@ -277,7 +277,7 @@ MAest.gregEN <- function(y, N, x_sample, x_pop, FIA=TRUE, model="linear",
   NBRPLT <- length(y)
   NBRPLT.gt0 <- sum(y > 0)
   # var_method <- "LinHTSRS"
-  estgregEN <- tryCatch(mase::gregElasticNet(	y = y,
+  estgregEN <- tryCatch(suppressMessages(mase::gregElasticNet(	y = y,
 					xsample = x_sample,
 					xpop = x_pop,
 					pi = NULL, N = N, pi2 = NULL,
@@ -285,7 +285,7 @@ MAest.gregEN <- function(y, N, x_sample, x_pop, FIA=TRUE, model="linear",
   					var_est = TRUE, var_method = var_method,
 					datatype = "means",
 					lambda = "lambda.min",
-					B = 1000),
+					B = 1000)),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)
