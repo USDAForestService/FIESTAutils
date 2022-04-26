@@ -10,8 +10,8 @@
 
 #' @rdname internal_desc
 #' @export
-DBvars.default <- function(istree, isseed, isveg, isdwm, issubp, regionVars,
-	plotgeom=FALSE, regionVarsRS="RMRS") {
+DBvars.default <- function(istree, isseed, isveg, isgrm, isdwm, issubp, 
+	regionVars, plotgeom=FALSE, regionVarsRS="RMRS") {
 
   ## Set global variables
   treevarlst=tsumvarlst=seedvarlst=ssumvarlst=vsubpsppvarlst=vsubpstrvarlst=
@@ -176,6 +176,24 @@ DBvars.default <- function(istree, isseed, isveg, isdwm, issubp, regionVars,
     returnlst$subpcvarlst <- subpcvarlst
   }
 
+  ###############################  GRM VARIABLES  ############################
+  if (isgrm) {    ## FS_NIMS_FIADB_RMRS or FS_FIADB
+
+    ## Variables from TREE_GRM_COMPONENT
+    grmvarlst <- c("PLT_CN", "TRE_CN", "DIA_BEGIN", "DIA_MIDPT", "DIA_END",
+	"SUBP_COMPONENT_AL_FOREST", "SUBP_SUBPTYP_GRM_AL_FOREST", 
+	"SUBP_TPAGROW_UNADJ_AL_FOREST", "SUBP_TPAMORT_UNADJ_AL_FOREST")
+
+    ### Variables from TREE_GRM_MIDPT
+    grmmidptvarlst <- c("TRE_CN", "VOLCFSND", "VOLCFNET", "VOLCSNET", "VOLBFNET",
+	"DRYBIO_BG", "DRYBIO_AG", "DRYBIO_WDLD_SPP", "DRYBIO_SAPLING",
+ 	"DRYBIO_STUMP", "DRYBIO_BOLE", "DRYBIO_SAWLOG", "DRYBIO_TOP")
+
+
+    returnlst$grmvarlst <- grmvarlst
+    returnlst$grmbeginvarlst <- grmbeginvarlst
+    returnlst$grmmidptvarlst <- grmmidptvarlst
+  }
 
   ##############################  DOWN WOODY MATERIAL  ###############################
   if (isdwm) {
