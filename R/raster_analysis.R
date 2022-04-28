@@ -15,7 +15,7 @@
 #sourceCpp("r_rasterize.cpp")
 #sourceCpp("r_cmb_table.cpp")
 #sourceCpp("r_running_stats.cpp")
-#source("Iraster_analysis.R")
+#source("raster_analysis.R")
 
 ## getGDALDataTypeName
 ## getDefaultNodata
@@ -599,7 +599,12 @@ rasterInfo <- function(srcfile) {
 	for (b in 1:ri$nbands) {
 		bandinfo = getRasterBandInfo(src_ds, b)
 		ri$datatype = c(ri$datatype, bandinfo$GDType)
-		ri$nodata_value = c(ri$nodata_value, bandinfo$NoDataValue)
+		if (bandinfo$hasNoDataValue) {
+			ri$nodata_value = c(ri$nodata_value, bandinfo$NoDataValue)
+		}
+		else {
+			ri$nodata_value = c(ri$nodata_value, NA)
+		}
 		ri$has_nodata_value = c(ri$has_nodata_value, bandinfo$hasNoDataValue)
 	}
 	rgdal::GDAL.close(src_ds)
@@ -855,7 +860,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 	}
 	else {
 		if("sf" %in% class(src)) {
-			src = sf::as_Spatial(src)
+			src = sf::as_Spatial(sf::st_zm(src))
 		}
 	}
 	
@@ -892,7 +897,8 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 #' @export
 clipRaster <- function(dsn=NULL, layer=NULL, src=NULL, 
 				srcfile, src_band=NULL, 
-				dstfile, fmt=NULL, options=NULL, init=0,
+				dstfile, fmt=NULL, options=NULL, init=NULL,
+				dstnodata=NULL,
 				maskByPolygons=TRUE) {
 # Clip a larger raster to the extent of polygon layer.
 # Polygon layer from dsn/layer, or src if already open as Spatial object.
@@ -901,11 +907,9 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 # fmt - GDAL format string, if NULL will use format of srcfile if possible
 # options - GDAL dataset creation options (driver-specific)
 # init - initialize pixels to a background/nodata value
+# dstnodata - value to set as designated nodata value on the destination raster
 # Output extent will be set to maintain pixel alignment with src raster.
 # Pixels in dst raster will be masked by polygons in the layer.
-
-## TODO: handle nodata in the source raster
-## TODO: add arg to set nodata value in dst raster
 
 	if (is.null(fmt)) {
 		fmt = getGDALformat(dstfile)
@@ -919,8 +923,12 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	}
 	else {
 		if("sf" %in% class(src)) {
-			src = sf::as_Spatial(src)
+			src = sf::as_Spatial(sf::st_zm(src))
 		}
+	}
+	
+	if (!is.null(init) && !maskByPolygons) {
+		message("init value ignored when maskByPolygons=FALSE")
 	}
 
 	if (fmt == "VRT") {
@@ -934,22 +942,12 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 		rasterToVRT(srcfile=srcfile, vrtfile=dstfile, subwindow=src@bbox)
 		return(invisible())
 	}
-
-	if (is.null(init) && maskByPolygons) {
-		stop("init value must be specified when masking by polygons")
-	}
-	if (!is.null(init) && !maskByPolygons) {
-		message("init value ignored when maskByPolygons=FALSE")
-	}
 	
 	#open the source raster	
 	ri = rasterInfo(srcfile)
 	src_ds = rgdal::GDAL.open(srcfile, read.only=TRUE, silent=TRUE)
-	#nrows = .Call("RGDAL_GetRasterYSize", src_ds, PACKAGE="rgdal")
 	nrows = ri$ysize
-	#ncols = .Call("RGDAL_GetRasterXSize", src_ds, PACKAGE="rgdal")
 	ncols = ri$xsize
-	#gt = .Call("RGDAL_GetGeoTransform", src_ds, PACKAGE="rgdal")
 	gt = ri$geotransform
 	xmin = gt[1]
 	xmax = xmin + gt[2] * ncols
@@ -981,30 +979,50 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	clip_gt = c(clip_xmin, cellsizeX, 0, clip_ymax, 0, cellsizeY)
 
 	if (is.null(src_band)) {
-		#nbands = .Call("RGDAL_GetRasterCount", src_ds, PACKAGE="rgdal")
 		nbands = ri$nbands
 		src_band = 1:nbands
 	}
 	else {
-		nbands = 1
+		nbands = length(src_band)
 	}
 
-	b = rgdal::getRasterBand(src_ds)
-	# dtNum = .Call("RGDAL_GetBandType", b, PACKAGE="rgdal")
-	# dtName = getGDALDataTypeName(dtNum)
-	dtName = ri$datatype[1]
+	if (length(unique(ri$datatype)) > 1) {
+		warning("multiple data types not supported", call.=FALSE)
+	}
+	dtName = ri$datatype[src_band[1]]
 	
-	#srs = .Call("RGDAL_GetProjectionRef", src_ds, PACKAGE="rgdal")
+	setRasterNodataValue = TRUE
+	if (is.null(dstnodata)) {
+		if (any(ri$has_nodata_value[src_band])) {
+			dstnodata = ri$nodata_value[src_band]
+		}
+		else {
+			dstnodata = getDefaultNodata(dtName)
+			setRasterNodataValue = FALSE
+		}
+	}
+	if (is.null(init)) init = dstnodata
+	
 	srs = rgdal::getProjectionRef(src_ds)
 
 	#create dst raster file
 	drv = new("GDALDriver", fmt)
 	dst_ds <- new("GDALTransientDataset", driver=drv, rows=clip_nrows, 
 				cols=clip_ncols, bands=nbands, type=dtName, options=options)
-	#.Call("RGDAL_SetGeoTransform", dst_ds, clip_gt, PACKAGE="rgdal")
 	rgdal::GDALcall(dst_ds, "SetGeoTransform", clip_gt)
-	#.Call("RGDAL_SetProject", dst_ds, srs, PACKAGE="rgdal")
 	rgdal::GDALcall(dst_ds, "SetProject", srs)
+	if(setRasterNodataValue) {
+		for (b in 1:nbands) {
+			band = rgdal::getRasterBand(dst_ds, b)
+			ret <- tryCatch(
+				rgdal::GDALcall(band, "SetNoDataValue", dstnodata),
+				
+				error=function(err) {
+					message(err)
+				}
+			)
+		}
+	}
 	rgdal::saveDataset(dst_ds, dstfile, options=options)
 	rgdal::GDAL.close(dst_ds)
 	dst_ds = rgdal::GDAL.open(dstfile, read.only=FALSE, silent=TRUE)
@@ -1023,8 +1041,9 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	
 	if (maskByPolygons) {
 		message("Initializing destination raster...")
-		a <- array(init, dim=c(clip_ncols, 1))
+		if (length(init) < nbands) init = rep(init, nbands)
 		for (b in 1:nbands) {
+			a <- array(init[b], dim=c(clip_ncols, 1))
 			for (r in 0:(clip_nrows-1)) {
 				rgdal::putRasterData(dst_ds, a, band=b, offset=c(r,0))
 			}
@@ -1535,7 +1554,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	else {
 		# src should be sf or Spatial object
 		if("sf" %in% class(src)) {
-			src = sf::as_Spatial(src)
+			src = sf::as_Spatial(sf::st_zm(src))
 		}
 	}
 	
@@ -1680,7 +1699,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	}
 	else {
 		if("sf" %in% class(src)) {
-			src = sf::as_Spatial(src)
+			src = sf::as_Spatial(sf::st_zm(src))
 		}
 	}
 	
