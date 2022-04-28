@@ -171,7 +171,8 @@ clipRaster(
   dstfile,
   fmt = NULL,
   options = NULL,
-  init = 0,
+  init = NULL,
+  dstnodata = NULL,
   maskByPolygons = TRUE
 )
 

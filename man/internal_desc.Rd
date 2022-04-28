@@ -84,6 +84,7 @@ DBvars.default(
   istree,
   isseed,
   isveg,
+  isgrm,
   isdwm,
   issubp,
   regionVars,
