@@ -183,6 +183,9 @@ DBvars.default <- function(istree, isseed, isveg, isgrm, isdwm, issubp,
     grmvarlst <- c("PLT_CN", "TRE_CN", "DIA_BEGIN", "DIA_MIDPT", "DIA_END",
 	"SUBP_COMPONENT_AL_FOREST", "SUBP_SUBPTYP_GRM_AL_FOREST", 
 	"SUBP_TPAGROW_UNADJ_AL_FOREST", "SUBP_TPAMORT_UNADJ_AL_FOREST")
+    
+    ## Set to NULL for now
+    grmbeginvarlst <- NULL
 
     ### Variables from TREE_GRM_MIDPT
     grmmidptvarlst <- c("TRE_CN", "VOLCFSND", "VOLCFNET", "VOLCSNET", "VOLBFNET",
