@@ -128,7 +128,7 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
     }
     rast.prj <- rast.info$crs
 
-    if (is.na(rast.prj) || rast.prj == "") {
+    if (any(is.na(rast.prj)) || any(rast.prj == "")) {
       message(paste("raster has undefined projection:", rastfn))
     } else if (sf::st_is_longlat(rast.prj)) {
       message(paste("rast is longlat:", rastfn))

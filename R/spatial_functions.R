@@ -241,7 +241,7 @@ check.extents <- function(bbox1, bbox2, showext=FALSE, layer1nm=NULL,
     plot(sf::st_geometry(bbox1sfc), add=TRUE, border="red")
   }
 
-  if (is.na(intpct1) || intpct1 == 0) {
+  if (any(is.na(intpct1)) || any(intpct1 == 0)) {
     msg <- paste(layer1nm, "does not overlap", layer2nm)
     if (stopifnotin) {
       stop(msg)
@@ -274,8 +274,8 @@ getprjatt <- function(prj4str, prjatt, stopifnull=FALSE) {
     att.split <- strsplit(prj4str, prjatt2)[[1]][2]
     att.val <- strsplit(att.split, " ")[[1]][1]
   } else {
-    if ((prjatt == "datum" && !grepl('ellps', prj4str)) ||
-		(prjatt == 'ellps' && !grepl('datum', prj4str))) {
+    if ((any(prjatt == "datum") && !grepl('ellps', prj4str)) ||
+		(any(prjatt == 'ellps') && !grepl('datum', prj4str))) {
       if (stopifnull) {
         stop(prjatt, " does not exist in prj4str")
       } else {
@@ -458,7 +458,7 @@ crsCompare <- function(x, ycrs=NULL, x.crs=NULL, nolonglat=FALSE,
     ycrs <- sf::st_as_sf(ycrs, stringsAsFactors=FALSE)
 
   ## Define default Coordinate System as USGS albers
-  if (is.null(crs.default) || is.na(crs.default) || crs.default=="") {
+  if (is.null(crs.default) || any(is.na(crs.default)) || any(crs.default=="")) {
     crs.default <- crs.albersUS
   }
 

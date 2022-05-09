@@ -431,7 +431,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
       }
     }
 
-    if (!is.null(where.qry) && where.qry != "")
+    if (!is.null(where.qry) && any(where.qry != ""))
       where.qry <- paste(" where", where.qry)
 
     ## create pfromqry
@@ -774,7 +774,7 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
     SQLitefn <- paste(outfn.pre, SQLitefn, sep="_")
   }
   
-  if (is.na(getext(SQLitefn)) || getext(SQLitefn) == "NA") {
+  if (any(is.na(getext(SQLitefn))) || any(getext(SQLitefn) == "NA")) {
     SQLitefn <- paste0(SQLitefn, dbext)
   }
   if (!dir.exists(dirname(SQLitefn))) {

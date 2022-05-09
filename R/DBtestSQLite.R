@@ -69,7 +69,7 @@ DBtestSQLite <- function(SQLitefn = NULL,
       return(NULL)
     }
   } else {
-    if (is.na(getext(SQLitefn)) || getext(SQLitefn) == "NA") {
+    if (any(is.na(getext(SQLitefn))) || any(getext(SQLitefn) == "NA")) {
       SQLitefn <- paste0(SQLitefn, dbext)
     }
     if (DBI::dbCanConnect(RSQLite::SQLite(), SQLitepath)) {

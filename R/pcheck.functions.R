@@ -81,10 +81,10 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
 		paste(varnm, "is invalid"))
   }
 
-  if (is.null(var2check) || is.na(var2check) || length(var2check) == 0 || gsub(" ", "", var2check) == "") {
+  if (is.null(var2check) || any(is.na(var2check)) || length(var2check) == 0 || any(gsub(" ", "", var2check) == "")) {
     if (gui) {
       var2check <- select.list(checklst, title=caption, multiple=multiple, ...)
-      if (length(var2check) == 0 || var2check == "") {
+      if (length(var2check) == 0 || any(var2check == "")) {
         stop("NULL")
       }
     } else {
@@ -110,7 +110,7 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
     } else if (gui) {
       message(warn)
       var2check <- select.list(checklst, title=caption, multiple=multiple, ...)
-      if (length(var2check) == 0 || var2check == "") stop("")
+      if (length(var2check) == 0 || any(var2check == "")) stop("")
     } else {
       if (stopifinvalid) {
         if (multiple) {
@@ -141,7 +141,7 @@ pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
       dsn <- paste(dsn, ext, sep=".")
   }
   tabext <- getext(dsn)
-  if (is.na(tabext) || tabext == "NA") {
+  if (any(is.na(tabext)) || any(tabext == "NA")) {
     stop("dsn must include extension")
   }
   if (tabext %in% c("sqlite", "gpkg")) {
@@ -300,7 +300,7 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
   }
 
   tabext <- getext(tab_dsn)
-  if (is.na(tabext) || tabext == "NA") {
+  if (any(is.na(tabext)) || any(tabext == "NA")) {
     if (dir.exists(tab_dsn) && file.exists(paste(tab_dsn, tab, sep="/"))) {
       tab_dsn <- paste(tab_dsn, tab, sep="/")
       tabext <- getext(tab_dsn)
@@ -327,7 +327,7 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
           stop(tab, " not in ", tab_dsn)
         }
       }
-      if (!is.null(tabqry) && !is.na(tabqry)) {
+      if (!is.null(tabqry) && any(!is.na(tabqry))) {
         tabx <- data.table(DBI::dbGetQuery(dbconn, tabqry))
       } else {
         tabx <- data.table(DBI::dbReadTable(dbconn, tab))
@@ -805,7 +805,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
 
   if (!is.null(dsn)) {
     ext.dsn <- getext(dsn)
-    if (!file.exists(dsn) && (is.na(ext.dsn) || ext.dsn == "NA")) {
+    if (!file.exists(dsn) && (any(is.na(ext.dsn)) || any(ext.dsn == "NA"))) {
       if (!is.null(fmt) && fmt %in% fmtlst)
         dsn <- paste(dsn, fmt, sep=".")
       if (!file.exists(dsn)) dsn <- NULL

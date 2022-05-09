@@ -112,7 +112,7 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
     if (!ext %in% extlst)
       stop("ext not supported")
 
-    if (is.na(getext(outfn)) || !extfn %in% extlst)
+    if (any(is.na(getext(outfn))) || any(!extfn %in% extlst))
       outfn <- paste0(outfn, ".", ext)
   } else if (is.na(getext(outfn))) {
     stop("specify out_format")
@@ -135,7 +135,7 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   }
 
   ## Check if outfolder
-  if ((is.na(extfn) || extfn=="NA") && dir.exists(outfn)) {
+  if ((any(is.na(extfn)) || any(extfn=="NA")) && any(dir.exists(outfn))) {
     message("outfn is a folder name... must be a file name")
     return(outfn)
   }
