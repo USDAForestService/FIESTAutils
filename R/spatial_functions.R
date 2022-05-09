@@ -659,7 +659,7 @@ clip.othertables <- function(inids, othertabnms, othertabs=NULL, uniqueid="PLT_C
   }
 
   # Clips tables in othertabs to inids
-  if (class(othertabs) != "list") stop("othertabs must be a list")
+  if (!is(othertabs, "list")) stop("othertabs must be a list")
   if (length(othertabs) > 0) {
     intablst <- list()
     namesintablst <- {}

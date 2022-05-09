@@ -172,7 +172,7 @@ MAest.greg <- function(y, N, x_sample, x_pop, FIA=TRUE, save4testing=TRUE,
   }
  
   selected <- data.frame(t(estgreg$coefficients))[,-1]
-  if (class(selected) != "data.frame") {
+  if (!is(selected, "data.frame")) {
     predselect <- rbindlist(list(predselect, as.list(selected)), fill=TRUE)
   } else {  
     predselect <- rbindlist(list(predselect, selected), fill=TRUE)
