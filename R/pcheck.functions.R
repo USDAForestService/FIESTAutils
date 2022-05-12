@@ -355,7 +355,7 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
       tabx <- tabx[apply(tabx, 1, function(x) sum(is.na(x) | x=="NA" | x=="")) != ncol(x),]
   }
 
-  if (returnsf && "sf" %in% class(tabx)) {
+  if (returnsf && is(tabx, "sf")) {
     return(tabx)
   } else {
     if (returnDT) {
@@ -535,12 +535,12 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
       if (exists(obj, envir=.GlobalEnv) && is.list(get(obj))) {
         #message(tab, " exists in Global Environment")
         return(get(obj))
-      } else if (!is.na(getext(obj)) && file.exists(obj)) {
+      } else if (any(!is.na(getext(obj))) && file.exists(obj)) {
         objx <- get(load(obj))
         if (!is.list(objx)) stop("must be list object")
-      } else if (!is.na(getext(obj)) && !file.exists(obj)) {
+      } else if (any(!is.na(getext(obj))) && !file.exists(obj)) {
         stop("file does not exist")
-      } else if (is.na(getext(obj))) {
+      } else if (any(is.na(getext(obj)))) {
         stop(objnm, " must be a list object or filename")
       } else {
         stop(objnm, " must be a list object or filename")
@@ -649,7 +649,7 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 		outfn.date=outfn.date, overwrite=overwrite_dsn, outfn.default="data",
 		ext=ext, add=add_layer, append=append_layer)
 
-    if (out_fmt %in% c("sqlite", "gpkg") && createSQLite) {
+    if (any(out_fmt %in% c("sqlite", "gpkg")) && createSQLite) {
       gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
       out_dsn <- DBcreateSQLite(out_dsn, gpkg=gpkg)
     }
@@ -683,7 +683,7 @@ pcheck.colors <- function(colorlst, n) {
    if (!is.vector(colorlst) || !is.character(colorlst)) {
      stop("colorlst must be a character vector of color names, hexadecimal codes, or brewer palettes")
    }
-   if (length(colorlst) == 1 && colorlst %in% brewerlst) {
+   if (length(colorlst) == 1 && any(colorlst %in% brewerlst)) {
      if (n < 3) {
        stop("minimum number for brewer palettes is 3")
      }
@@ -717,9 +717,9 @@ pcheck.areaunits <- function(unitarea, areavar, areaunits, metric=FALSE) {
   areausedvar <- checknm("AREAUSED", names(unitarea))
   unitarea[[areausedvar]] <- unitarea[[areavar]]
   if (areaunits != outunits) {
-    if (areaunits == "acres" && outunits == "hectares") {
+    if (any(areaunits == "acres") && any(outunits == "hectares")) {
       unitarea[[areausedvar]] <- unitarea[[areausedvar]] * 0.4046860
-    } else if (areaunits == "hectares" && outunits == "acres") {
+    } else if (any(areaunits == "hectares") && any(outunits == "acres")) {
       unitarea[[areausedvar]] <- unitarea[[areausedvar]] / 0.4046860
     } else {
       stop("invalid units... cannot convert ", areaunits, " to ", outunits)
@@ -806,7 +806,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
   if (!is.null(dsn)) {
     ext.dsn <- getext(dsn)
     if (!file.exists(dsn) && (any(is.na(ext.dsn)) || any(ext.dsn == "NA"))) {
-      if (!is.null(fmt) && fmt %in% fmtlst)
+      if (!is.null(fmt) && any(fmt %in% fmtlst))
         dsn <- paste(dsn, fmt, sep=".")
       if (!file.exists(dsn)) dsn <- NULL
     }
@@ -825,7 +825,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
     }
   } else {
     ext.layer <- getext(layer)
-    if (!is.na(ext.layer) && ext.layer != "NA" && file.exists(layer)) {
+    if (any(!is.na(ext.layer)) && any(ext.layer != "NA") && file.exists(layer)) {
       if (ext.layer %in% c("shp", "csv")) {
         dsn <- layer
         layer <- basename.NoExt(dsn)
