@@ -1,3 +1,8 @@
+# FIESTAutils 1.1.1
+
+* Bug fixes regarding Error produced in r-devel: "'length > 1' in coercion to 'logical(1)'"
+
+
 # FIESTAutils 1.1.0
 
 * Added a `NEWS.md` file to track changes to the package.
