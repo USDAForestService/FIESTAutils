@@ -81,13 +81,13 @@
 \title{General Utility Functions}
 \usage{
 DBvars.default(
-  istree,
-  isseed,
-  isveg,
-  isgrm,
-  isdwm,
-  issubp,
-  regionVars,
+  istree = FALSE,
+  isseed = FALSE,
+  isveg = FALSE,
+  isgrm = FALSE,
+  isdwm = FALSE,
+  issubp = FALSE,
+  regionVars = FALSE,
   plotgeom = FALSE,
   regionVarsRS = "RMRS"
 )
