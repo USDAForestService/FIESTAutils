@@ -10,8 +10,8 @@
 
 #' @rdname internal_desc
 #' @export
-DBvars.default <- function(istree, isseed, isveg, isgrm, isdwm, issubp, 
-	regionVars, plotgeom=FALSE, regionVarsRS="RMRS") {
+DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE, 
+	isdwm=FALSE, issubp=FALSE, regionVars=FALSE, plotgeom=FALSE, regionVarsRS="RMRS") {
 
   ## Set global variables
   treevarlst=tsumvarlst=seedvarlst=ssumvarlst=vsubpsppvarlst=vsubpstrvarlst=
