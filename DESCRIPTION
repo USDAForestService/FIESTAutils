@@ -1,7 +1,7 @@
 Package: FIESTAutils
 Type: Package
 Title: Utility Functions for Forest Inventory Estimation and Analysis
-Version: 1.1.1
+Version: 1.1.1.9000
 Date: 2022-05-12
 Authors@R:
     c(person(given = "Tracey",
@@ -47,7 +47,7 @@ Imports:
     xml2
 Suggests:
     knitr
-License: MIT + file LICENSE
+License: GPL-3 + file LICENSE
 URL: https://github.com/USDAForestService/FIESTAutils
 BugReports: https://github.com/USDAForestService/FIESTAutils/issues
 Encoding: UTF-8
