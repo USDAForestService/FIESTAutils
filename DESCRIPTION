@@ -47,7 +47,8 @@ Imports:
     xml2
 Suggests:
     knitr
-License: GPL-3 + file LICENSE
+License: GPL-3
+Copyright: See file COPYRIGHTS for details. 
 URL: https://github.com/USDAForestService/FIESTAutils
 BugReports: https://github.com/USDAForestService/FIESTAutils/issues
 Encoding: UTF-8
