@@ -44,7 +44,7 @@ groupEstunit <- function(x, minplotnum) {
 
 #' @rdname internal_desc
 #' @export
-groupStrata <- function(x, minplotnum) {
+groupStrata <- function(x, minplotnum, nvar="n.strata") {
   ## DESCRIPTION: Groups strata with total plots <= minplotnum.
   ## Strata that have less than minplotnum are combined with the strata
   ## next in order (numeric or alphabetical). If there are no strata
@@ -56,16 +56,16 @@ groupStrata <- function(x, minplotnum) {
   strat=stratnew <- NULL
  # print(x) # commented out by Grayson... don't think this should be here
 
-  if (any(x$n.strata < minplotnum)) {
+  if (any(x[[nvar]] < minplotnum)) {
     strats <- x$strat
     agstrats <- {}
     for (stratum in strats) {
       if (!stratum %in% agstrats) {
         agstrats <- c(stratum)
-        if (x[strat %in% stratum][["n.strata"]] >= minplotnum) {
+        if (x[strat %in% stratum][[nvar]] >= minplotnum) {
           x[strat %in% stratum][["stratnew"]] <- stratum
         } else {
-          maxag <- sum(x[strat %in% stratum][["n.strata"]])
+          maxag <- sum(x[strat %in% stratum][[nvar]])
           while (maxag < minplotnum) {
             if (any(x$strat > max(agstrats))) {
               stratag <- min(x$strat[x$strat > max(agstrats)])
@@ -77,7 +77,7 @@ groupStrata <- function(x, minplotnum) {
               agstrats <- c(stratag, agstrats)
             }
             agstratsnm <- paste(agstrats, collapse="-")
-            maxag <- sum(x[strat %in% agstrats][["n.strata"]])
+            maxag <- sum(x[strat %in% agstrats][[nvar]])
             x[strat %in% agstrats][["stratnew"]] <- agstratsnm
           }
         }
@@ -89,4 +89,5 @@ groupStrata <- function(x, minplotnum) {
   }
   return(x)
 }
+
 
