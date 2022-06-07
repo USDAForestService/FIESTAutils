@@ -123,7 +123,7 @@ getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_
     }
   }
   ## Remove summed variables from condx
-  vars2remove <- c(varsumlst, cadjfacnm, varsadjlst)
+  vars2remove <- c(varsumlst, cadjfacnm, varadjlst)
   vars2remove <- vars2remove[vars2remove %in% names(condx)]
   if (length(vars2remove) > 0) {
     condx[, (vars2remove) := NULL]
