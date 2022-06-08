@@ -79,11 +79,10 @@ getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_
 #  pltadj$CONDPROP_ADJ <- 1 / pltadj$CONDPROP_UNADJ_SUM
 #  pltx <- pltadj[, c(cuniqueid, "CONDPROP_ADJ"), with=FALSE]
 #  setkeyv(pltx, cuniqueid)
-
+  
   pltadj[, (varadjlst) := lapply(.SD,
 	function(x) ifelse((is.na(x) | x==0), 0, 1/x)), .SDcols=varsumlst]
   condx <- condx[pltadj]
-
 
   ## Change name of condition adjustment factor to cadjfac
   ## Note: CONDPPROP_UNADJ is the same as below (combination of MACR and SUBP)
