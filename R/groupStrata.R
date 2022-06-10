@@ -54,7 +54,7 @@ groupStrata <- function(x, minplotnum, nvar="n.strata") {
 
   ## set global variables
   strat=stratnew <- NULL
- # print(x) # commented out by Grayson... don't think this should be here
+  # print(x) # commented out by Grayson... don't think this should be here
 
   if (any(x[[nvar]] < minplotnum)) {
     strats <- x$strat

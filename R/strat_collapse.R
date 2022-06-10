@@ -151,10 +151,10 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
   #############################################################################
   ## If stratcombine=TRUE and number of total plots is less than minplotnum.strat
   #############################################################################
-#  if ("n.strata" %in% names(unitgrpsum) &&
-#		any(unique(unitgrpsum$n.strata) < minplotnum.strat)) {
-   if ("n.strata" %in% names(unitgrpsum) &&
-		any(unique(unitgrpsum$n.strata) < 60)) {
+  if ("n.strata" %in% names(unitgrpsum) &&
+		any(unique(unitgrpsum$n.strata) < minplotnum.strat)) {
+   #if ("n.strata" %in% names(unitgrpsum) &&
+	#	any(unique(unitgrpsum$n.strata) < 60)) {
      
     tabprint <- TRUE
 
@@ -164,6 +164,7 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     }
     unitgrpsum$strat <- as.numeric(unitgrpsum$strat)
     unitgrpsum$stratnew <- as.character(-1)
+
     stratgrp <- unitgrpsum[, groupStrata(.SD, minplotnum.strat), by=unitvar]
 
     strlut <- stratgrp[, lapply(.SD, sum, na.rm=TRUE),
