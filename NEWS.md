@@ -1,3 +1,7 @@
+# FIESTutils 1.1.2
+* SAest.pbar - Fixed code to include DOMAINs with no plots. Values will be NA.
+
+
 # FIESTAutils 1.1.1
 
 * Bug fixes regarding Error produced in r-devel: "'length > 1' in coercion to 'logical(1)'"
