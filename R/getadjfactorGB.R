@@ -134,7 +134,6 @@ getadjfactorGB <- function(condx=NULL, treex=NULL, seedx=NULL, vcondsppx=NULL,
       seedx[condx, tadjfac := get(tvaradj[["MICR"]])]
     }
   }
-
   if (!is.null(vcondsppx)) {
     setkeyv(vcondsppx, c(vuniqueid, condid))
     vcondsppx <- merge(vcondsppx, condx[, c(key(condx), cadjfacnm), with=FALSE],
@@ -156,6 +155,12 @@ getadjfactorGB <- function(condx=NULL, treex=NULL, seedx=NULL, vcondsppx=NULL,
     tabs <- check.matchclass(unitlut, unitarea, unitvars)
     unitlut <- tabs$tab1
     unitarea <- tabs$tab2
+
+    ## Check if values match
+    test <- check.matchval(unitlut, unitarea, unitvars, subsetrows=TRUE)
+    if (nrow(test) < nrow(unitlut)) {
+      stop("unitlut rows less than unitarea rows")
+    }
 
     ## Merge unitlut with unitarea
     setkeyv(unitarea, unitvars)
