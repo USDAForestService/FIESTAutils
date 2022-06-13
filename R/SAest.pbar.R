@@ -285,7 +285,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   datmean <- pltdat.dom[, list(mean=mean(get(yn), na.rm=TRUE),
 			mean.var=var(get(yn), na.rm=TRUE)), by=dunitvar]
   setkeyv(datmean, dunitvar)
-  dunitlut.dom <- merge(dunitlut, datmean, by=dunitvar)
+  dunitlut.dom <- merge(dunitlut, datmean, by=dunitvar, all.x=TRUE)
+  dunitlut.dom <- DT_NAto0(dunitlut.dom, c("mean", "mean.var"))
   setnames(dunitlut.dom, c("mean", "mean.var"), c(yn, paste0(yn, ".var")))
 
   oldpar <- graphics::par(no.readonly = TRUE)
@@ -702,10 +703,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
                          "EBLUP","EBLUP.se.1")]
         names(unit.JoSAE) <- c("DOMAIN", "JU.Synth", "JU.GREG",
                       "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
-
       }  
 
-      est <- merge(est, unit.JoSAE, by=dunitvar)
+      est <- merge(est, unit.JoSAE, by=dunitvar, all.x=TRUE)
       SAobjlst$unit.JoSAE.obj <- unit.JoSAE.obj
     }
 
@@ -728,7 +728,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         setnames(unit.hbsae, "DOMAIN", dunitvar)
       } else {
         unit.hbsae <- data.frame(
-          DOMAIN = unit.hbsae.obj$sampledAreaNames,
+          DOMAIN = names(unit.hbsae.obj$est),
           hbsaeU = unit.hbsae.obj$est,
           hbsaeU.se = sqrt(unit.hbsae.obj$mse)
         )
@@ -924,7 +924,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       } else {
       
         area.hbsae <- data.frame(
-          DOMAIN = area.hbsae.obj$predAreaNames,
+          DOMAIN = names(area.hbsae.obj$est),
           hbsaeA = area.hbsae.obj$est,
           hbsaeA.se = sqrt(area.hbsae.obj$mse)
         )
@@ -975,7 +975,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
 
   ## Merge NBRPLT.gt0
-  est <- merge(est, NBRPLT.gt0, by="DOMAIN")
+  est <- merge(est, NBRPLT.gt0, by="DOMAIN", all.x=TRUE)
+  est <- DT_NAto0(est, "NBRPLT.gt0")
 
 
   ## Merge AOI
@@ -1102,8 +1103,10 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   setkeyv(pltassgn.large, c(dunitvar, cuniqueid))
 
   ## get unique domain units and subset domain lut for largebnd value
+  #dunits <- sort(unique(dat.large[[dunitvar]]))
+  #dunitlut.large <- dunitlut[dunitlut[[dunitvar]] %in% dunits,]
   dunits <- sort(unique(dat.large[[dunitvar]]))
-  dunitlut.large <- dunitlut[dunitlut[[dunitvar]] %in% dunits,]
+  dunitlut.large <- dunitlut
 
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
@@ -1172,7 +1175,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
       setnames(predselect.area, "largebnd", largebnd.unique)
     }
     
-    SAobjlst.dom <- do.call(rbind, estlst)[,"SAobjlst"]$SAobjlst
+    SAobjlst.dom <- do.call(rbind, estlst)[,"SAobjlst"]$SAobjlst[[1]]
   }
 
   setkeyv(est.large, dunitvar)
