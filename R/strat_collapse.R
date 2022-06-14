@@ -2,7 +2,7 @@
 #' @export
 strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
 	minplotnum.strat=2, unitarea, areavar, unitvar, unitvar2=NULL, strvar,
-	getwt=FALSE, stratcombine=TRUE, unitcombine=FALSE, vars2combine=NULL) {
+	getwt=FALSE, stratcombine=TRUE, unitcombine=FALSE, vars2combine=NULL, ...) {
   ## unitcombine - If TRUE, combine estimation units, If FALSE, only combine strata
 
   ## Set global variables

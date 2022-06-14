@@ -372,7 +372,8 @@ strat.collapse(
   getwt = FALSE,
   stratcombine = TRUE,
   unitcombine = FALSE,
-  vars2combine = NULL
+  vars2combine = NULL,
+  ...
 )
 
 allin1f(
