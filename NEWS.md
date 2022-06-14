@@ -1,5 +1,7 @@
 # FIESTutils 1.1.2
+
 * SAest.pbar - Fixed code to include DOMAINs with no plots. Values will be NA.
+* Bug fixes and improvements. 
 
 
 # FIESTAutils 1.1.1
