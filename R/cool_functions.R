@@ -539,7 +539,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
     stop("name not found")
   } else if (sum(test) > 1) {
     testnames <- xvect[test]
-    test <- testnames[match(tolower(x), tolower(testnames))]
+    test <- match(tolower(x), tolower(testnames))
     if (length(test) == 1) {
       return(testnames[test])
     } else {
