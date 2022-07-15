@@ -1,10 +1,11 @@
 #' @rdname internal_desc
 #' @export
-getadjfactorGB <- function(condx=NULL, treex=NULL, seedx=NULL, vcondsppx=NULL,
-	vcondstrx=NULL, tuniqueid="PLT_CN", cuniqueid="PLT_CN", vuniqueid="PLT_CN",
-	condid="CONDID", unitlut=NULL, unitvars=NULL, strvars=NULL, unitarea=NULL,
-	areavar=NULL, areawt="CONDPROP_UNADJ", cvars2keep=NULL,
-	tpropvars=list(SUBP="SUBPPROP_UNADJ", MICR="MICRPROP_UNADJ", MACR="MACRPROP_UNADJ")){
+getadjfactorGB <- function(condx=NULL, treex=NULL, seedx=NULL, 
+     vcondsppx=NULL, vcondstrx=NULL, cond_dwm_calcx=NULL, 
+     tuniqueid="PLT_CN", cuniqueid="PLT_CN", vuniqueid="PLT_CN", duniqueid="PLT_CN",
+     condid="CONDID", unitlut=NULL, unitvars=NULL, strvars=NULL, unitarea=NULL, 
+     areavar=NULL, areawt="CONDPROP_UNADJ", cvars2keep=NULL, 
+     tpropvars=list(SUBP="SUBPPROP_UNADJ", MICR="MICRPROP_UNADJ", MACR="MACRPROP_UNADJ")){
 
   ####################################################################################
   ## DESCRIPTION:
@@ -95,13 +96,21 @@ getadjfactorGB <- function(condx=NULL, treex=NULL, seedx=NULL, vcondsppx=NULL,
 
   ## Change name of condition adjustment factor to cadjfac
   ## Note: CONDPPROP_UNADJ is the same as below (combination of MACR and SUBP)
-  cadjfacnm <- suppressMessages(checknm("cadjfac", names(condx)))
-  setnames(condx, areaadj, cadjfacnm)
-  setnames(unitlut, areaadj, cadjfacnm)
+  if (length(areaadj) == 1 && areaadj == "CONDPROP_UNADJ") {  
+    cadjfacnm <- suppressMessages(checknm("cadjfac", names(condx)))
+    setnames(condx, areaadj, cadjfacnm)
+    setnames(unitlut, areaadj, cadjfacnm)
 
-  ## Calculate adjusted condition proportion for plots
-  areawtnm <- adjnm(areawt)
-  condx[, (areawtnm) := get(areawt) * get(cadjfacnm)]
+    ## Calculate adjusted condition proportion for plots
+    areawtnm <- adjnm(areawt)
+    condx[, (areawtnm) := get(areawt) * get(cadjfacnm)]
+  } else {
+    cadjfacnm <- areaadj
+
+    ## Calculate adjusted condition proportion for plots
+    areawtnm <- adjnm(areawt)
+    condx[, (areawtnm) := Map("*", mget(cadjfacnm), mget(areawt))]
+  }
   setkeyv(condx, c(cuniqueid, condid))
 
   ## Calculate adjusted condition proportions for different size plots for trees
