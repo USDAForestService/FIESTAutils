@@ -13,6 +13,8 @@ FIA look-up tables.
 }
 \description{
 Table with variable codes (VALUE) and descriptions (MEANING).
+Reference tables for FORTYPCD, FORTYPGRPCD, SPCD, and SPGRPCD were 
+downloaded from FIA Datamart on July 13, 2022.
 }
 \references{
 O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,

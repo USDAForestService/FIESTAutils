@@ -1,3 +1,8 @@
+# FIESTutils 1.1.3
+
+* Updated codes for FORTYPCD, FORTYPGRPCD, SPCD, SPGRPCD
+
+
 # FIESTutils 1.1.2
 
 * SAest.pbar - Fixed code to include DOMAINs with no plots. Values will be NA.
