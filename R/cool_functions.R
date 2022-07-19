@@ -562,10 +562,8 @@ chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
       return(NULL)
     }
   }
-  if (tolower(tab) %in% dbtablst) {
-    return(tolower(tab))
-  } else if (toupper(tab) %in% dbtablst) {
-    return(toupper(tab))
+  if (tolower(tab) %in% tolower(dbtablst)) {
+    return(dbtablst[tolower(dbtablst) == tolower(tab)])
   } else {
     if (stopifnull) {
       stop(tab, " does not exist in database")
