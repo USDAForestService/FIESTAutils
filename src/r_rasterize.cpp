@@ -3,7 +3,6 @@
 
 #include <Rcpp.h>
 // [[Rcpp::plugins(cpp11)]]
-// [[Rcpp::plugins(unwindProtect)]]
 
 #include <cstdlib>
 #include <algorithm>
