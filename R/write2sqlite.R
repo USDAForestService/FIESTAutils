@@ -70,7 +70,7 @@ write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
   if (!is.null(index)) {
     indxnm <- paste0(out_name, "_", paste(tolower(index), collapse="_"), "_idx")
     message("adding index: ", indxnm, " to ", out_name)
-    idxsql <- paste0("create index ", idxnm, " ON ",
+    idxsql <- paste0("create index ", indxnm, " ON ",
 				out_name, "(",  paste(index, collapse=","), ")")
     DBI::dbExecute(dbconn, idxsql)
     message(sub("create", "creating", idxsql))
