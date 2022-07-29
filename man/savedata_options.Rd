@@ -8,6 +8,7 @@ savedata_options(
   outfolder = NULL,
   out_fmt = "csv",
   outsp_fmt = "shp",
+  outobj_fmt = "rds",
   out_dsn = NULL,
   out_layer = "outdat",
   outfn.pre = NULL,
@@ -30,6 +31,8 @@ written to working directory, or if gui=TRUE, a window to browse.}
 \item{out_fmt}{String. Format for output tables ('csv', 'sqlite', 'gpkg', 'gdb').}
 
 \item{outsp_fmt}{String. Format for output spatial ('shp', sqlite', 'gpkg', 'gdb').}
+
+\item{outobj_fmt}{String. Format for output spatial ('rda', 'rds', 'llo').}
 
 \item{out_dsn}{String. Data source name for output. If extension is
 not included, out_fmt is used. Use full path if outfolder=NULL.}

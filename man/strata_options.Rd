@@ -10,6 +10,7 @@ strata_options(
   strwtvar = "strwt",
   stratcombine = TRUE,
   minplotnum.strat = 2,
+  pivot = FALSE,
   ...
 )
 }
@@ -29,6 +30,8 @@ See notes for more info.}
 
 \item{minplotnum.strat}{Integer. Minimum number of plots for a stratum
 within an estimation unit.}
+
+\item{pivot}{Logical. If TRUE, pivot stratalut.}
 
 \item{...}{For extendibility.}
 }
