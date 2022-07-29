@@ -44,7 +44,8 @@ Imports:
     stats,
     units,
     utils,
-    xml2
+    xml2,
+    largeList
 Suggests:
     knitr
 License: GPL-3
