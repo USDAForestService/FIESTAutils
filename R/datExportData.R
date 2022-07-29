@@ -26,7 +26,7 @@ datExportData <- function(dfobj, create_dsn=FALSE,
 	index.unique=NULL, index=NULL, savedata_opts=savedata_options()) {
   ###########################################################################
   ## DESCRIPTION: Exports a data.frame to file or database.
-  ## out_fmt	Output format ('csv', 'sqlite', 'gpkg', 'shp')
+  ## out_fmt	Output format ('csv', 'sqlite', 'gpkg', 'shp', 'rda', 'rds', 'llo')
   ## out_dsn	Database file path (including extension or outfolder
   ## out_layer	Only include if out_dsn is a database (e.g., *.db, *.gdb)
   ##			If NULL, basename of out_dsn is used
@@ -138,6 +138,14 @@ datExportData <- function(dfobj, create_dsn=FALSE,
   } else if (out_fmt == "rda") {
     objfn <- getoutfn(outfn=out_layer, outfolder=outfolder, outfn.pre=outfn.pre,
 		outfn.date=outfn.date, overwrite=overwrite_layer, ext="rda")
+    save(dfobj, file=objfn)
+  } else if (out_fmt == "rds") {
+    objfn <- getoutfn(outfn=out_layer, outfolder=outfolder, outfn.pre=outfn.pre,
+		outfn.date=outfn.date, overwrite=overwrite_layer, ext="rds")
+    save(dfobj, file=objfn)
+  } else if (out_fmt == "llo") {
+    objfn <- getoutfn(outfn=out_layer, outfolder=outfolder, outfn.pre=outfn.pre,
+		outfn.date=outfn.date, overwrite=overwrite_layer, ext="llo")
     save(dfobj, file=objfn)
   } else {
     stop(out_fmt, " currently not supported")
