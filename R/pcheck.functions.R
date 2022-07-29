@@ -609,6 +609,9 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 
   if (out_fmt %in% c("csv", "shp")) {
     outfolder <- pcheck.outfolder(outfolder)
+    if (append_layer) {
+      overwrite_layer <- FALSE
+    }
     return(list(out_dsn=NULL, outfolder=outfolder, out_fmt=out_fmt,
 		overwrite_layer=overwrite_layer, append_layer=append_layer,
 		outfn.date=outfn.date, outfn.pre=outfn.pre))
