@@ -202,7 +202,7 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
   if (isdwm) {
 
     ## Variables from COND_DWM_CALC
-    dwmlst <- c("PLT_CN", "CONDID", "CONDPROP_CWD", "CONDPROP_FWD_SM", "CONDPROP_FWD_MD",
+    dwmvarlst <- c("PLT_CN", "CONDID", "CONDPROP_CWD", "CONDPROP_FWD_SM", "CONDPROP_FWD_MD",
 	"CONDPROP_FWD_LG", "CONDPROP_DUFF", "CWD_TL_COND", "CWD_TL_UNADJ", "CWD_TL_ADJ",
 	"CWD_LPA_COND", "CWD_LPA_UNADJ", "CWD_LPA_ADJ", "CWD_VOLCF_COND", "CWD_VOLCF_UNADJ",
 	"CWD_VOLCF_ADJ", "CWD_DRYBIO_COND", "CWD_DRYBIO_UNADJ", "CWD_DRYBIO_ADJ",
@@ -224,7 +224,7 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
 	"DUFF_CARBON", "LITTER_DEPTH", "LITTER_BIOMASS", "LITTER_CARBON", "DUFF_TC_COND",
 	"DUFF_TC_UNADJ", "DUFF_TC_ADJ", "AVG_WOOD_DENSITY")
 
-    returnlst$dwmlst <- dwmlst
+    returnlst$dwmvarlst <- dwmvarlst
   }
 
   return(returnlst)
