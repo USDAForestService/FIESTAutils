@@ -112,7 +112,7 @@ getadjfactorGB <- function(condx=NULL, treex=NULL, seedx=NULL,
 
   ## Change name of condition adjustment factor to cadjfac
   ## Note: CONDPPROP_UNADJ is the same as below (combination of MACR and SUBP)
-  if (length(areaadj) == 1 && areaadj == "CONDPROP_UNADJ") {  
+  if (length(areawt) == 1 && areawt == "CONDPROP_UNADJ") {  
     cadjfacnm <- suppressMessages(checknm("cadjfac", names(condx)))
     setnames(condx, areaadj, cadjfacnm)
     setnames(unitlut, areaadj, cadjfacnm)
