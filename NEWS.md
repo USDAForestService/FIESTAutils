@@ -2,7 +2,7 @@
 
 * Updated codes for FORTYPCD, FORTYPGRPCD, SPCD, SPGRPCD
 * Add imported package: largeList
-* Add outobj_fmt to savedata_options()
+* Add outobj_fmt to savedata_options
 
 
 # FIESTutils 1.1.2
