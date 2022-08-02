@@ -1,5 +1,5 @@
 // Rasterize one polygon
-// Chris Toney, christoney at fs.fed.us
+// Chris Toney, chris.toney at usda.gov
 
 #include <Rcpp.h>
 // [[Rcpp::plugins(cpp11)]]
@@ -15,14 +15,14 @@ int RasterizePolygon(int nRasterXSize, int nRasterYSize,
 					Rcpp::Function fnRasterIO,
 					double dBurnValue, Rcpp::String sAttrValue = NA_STRING) {
 
-	if (dvX.size() != dvY.size()) return 1;
-	int nCoords = dvX.size();
-	int nParts = ivPartSizes.size();
+    if (dvX.size() != dvY.size()) return 1;
+    int nCoords = dvX.size();
+    int nParts = ivPartSizes.size();
 
     int *panNodeX = (int *)(std::malloc( sizeof(int) * nCoords ));
 
-	double dminY = dvY[0];
-	double dmaxY = dvY[0];
+    double dminY = dvY[0];
+    double dmaxY = dvY[0];
     for (int i = 1; i < nCoords; i++) {
         if (dvY[i] < dminY) dminY = dvY[i];
         if (dvY[i] > dmaxY) dmaxY = dvY[i];
@@ -66,9 +66,9 @@ int RasterizePolygon(int nRasterXSize, int nRasterYSize,
 				fnRasterIO(y, panNodeX[i], panNodeX[i+1]-1, dBurnValue, sAttrValue);
 			}
 		}
-	}
+    }
 
-	std::free(panNodeX);
-	return 0;
+    std::free(panNodeX);
+    return 0;
 }
 
