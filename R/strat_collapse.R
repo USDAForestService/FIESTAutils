@@ -140,6 +140,13 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     ## Merge new unitvar to pltstratx
     setkeyv(pltstratx, unitjoinvars)
     setkeyv(unitgrplut, unitjoinvars)
+
+    ## Check that class of unitjoinvars in unitgrplut match plstratx
+    matchcl <- check.matchclass(tab1=pltstratx, tab2=unitgrplut, matchcol=unitjoinvars,
+		tab1txt="pltstrat", tab2txt="unitgrplut")
+    pltstratx <- matchcl$tab1
+    unitgrplut <- matchcl$tab2
+
     pltstratx <- merge(pltstratx, unitgrplut, by=unitjoinvars)
     unitvar <- unitvarnew
 
