@@ -164,10 +164,10 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
 
   if (length(matchcol) > 1 && !all(matchcol %in% names(tab1))) {
     nomatch <- matchcol[which(!matchcol %in% names(tab1))]
-    stop(paste(paste(nomatch, collapse=", "), "not in", tab1txt))
+    stop(paste(toString(nomatch), "not in", tab1txt))
   }
   if (is.null(var2) && any(!matchcol %in% names(tab2)))
-    stop(paste(matchcol, "not in", tab2txt))
+    stop(paste(toString(matchcol), "not in", tab2txt))
   if (!is.null(var2) && any(!var2 %in% names(tab2)))
     stop(paste(var2, "not in", tab2txt))
 
