@@ -1,7 +1,8 @@
 #' @rdname internal_desc
 #' @export
-getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_CN",
-	tuniqueid="PLT_CN", condid="CONDID", checkNA=TRUE, areawt="CONDPROP_UNADJ",
+getadjfactorPLOT <- function(popType="VOL", condx=NULL, treex=NULL, seedx=NULL, 
+	cuniqueid="PLT_CN", tuniqueid="PLT_CN", condid="CONDID", checkNA=TRUE, 
+	areawt="CONDPROP_UNADJ",
 	tpropvars=list(SUBP="SUBPPROP_UNADJ", MICR="MICRPROP_UNADJ", MACR="MACRPROP_UNADJ")){
 
   ####################################################################################
@@ -50,7 +51,7 @@ getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_
   seedx <- pcheck.table(seedx)
 
   ## Get list of condition-level variables to calculate adjustments for
-  if (!is.null(treex)) {
+  if (!is.null(treex) || popType == "CHNG") {
     tvarlst <- unlist(tpropvars)
     tvarlst2 <- tvarlst[which(tvarlst%in% names(condx))]
     if (length(tvarlst2) == 0) {
