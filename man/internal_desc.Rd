@@ -182,7 +182,8 @@ customEvalchk(
   allyrs = FALSE,
   invyrs = NULL,
   measyrs = NULL,
-  intensity = FALSE
+  invyrtab = NULL,
+  gui = FALSE
 )
 
 Ratio2Size(sumyn, ysum, sumyd, uniqueid, stratalut, unitvar, strvar, domain)

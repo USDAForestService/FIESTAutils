@@ -30,7 +30,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   ## Set global variables
   CONDPROP_ADJ=CONDPROP_UNADJ=ADJ_FACTOR_COND=cadjfac=tadjfac=TPAGROW_UNADJ=
 	ADJ_FACTOR_MICR=ADJ_FACTOR_MACR=ADJ_FACTOR_SUBP=expfac=expcond=expcondtab=
-	n.strata=TPROP_BASIS=EXPNS=strwt=Prop <- NULL
+	n.strata=TPROP_BASIS=EXPNS=strwt=Prop=TPA_UNADJ <- NULL
 
   ## Define function
   adjnm <- function(nm) {

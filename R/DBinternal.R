@@ -872,7 +872,7 @@ changeclass <- function(tab, noIDate=TRUE) {
 #' @export
 customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL, 
 		measEndyr.filter = NULL, allyrs = FALSE, invyrs = NULL, 
-		measyrs = NULL, intensity = FALSE) {
+		measyrs = NULL, invyrtab = NULL, gui=FALSE) {
 
   ### Check measCur
   ###########################################################
@@ -999,22 +999,8 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
     }
   }
 
-  ## Check intensity1
-  ###########################################################
-  ## For periodic data, the INTENSITY variable does not equal 1
-  if (invtype == "ANNUAL") {
-    intensity1 <- pcheck.logical(intensity1, 
-                            varnm = "intensity1",
-                            title = "Intensity = 1?", 
-                            first = "YES", 
-                            gui = gui)
-  } else {
-    message("note: periodic data includes forested plots >= 5% cover")
-    intensity1 <- FALSE
-  }
-
   returnlst <- list(measCur=measCur, measEndyr=measEndyr, 
 		measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
-		invyrs=invyrs, measyrs=measyrs, intensity=intensity)
+		invyrs=invyrs, measyrs=measyrs)
 }
 
