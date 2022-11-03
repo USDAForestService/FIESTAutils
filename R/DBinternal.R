@@ -6,6 +6,8 @@
 ## getEvalid.ppsa     ## Get Evalid from pop_plot_stratum_assgn
 ## gui_filterdf		## Get filter from a data frame
 ## DBgetbyids		## Gets data from database from ids
+## changeclass
+## customEvalchk
 
 
 #' @rdname internal_desc
@@ -816,5 +818,203 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
   } else {
     return(basename(SQLitepath))
   }
+}
+
+#' @rdname internal_desc
+#' @export
+changeclass <- function(tab, noIDate=TRUE) {
+  ## Description: changes class of columns if integer64 or IDate
+  ## 	if integer64 - if CN, PLT_CN, or PLT_CN, change to character 
+  ##	if integer64 - if not CN, PLT_CN, or PLT_CN, change to numeric 
+  ##	if IDate - change to character
+
+  isdt <- TRUE
+  if (!"data.table" %in% class(tab)) {
+    tab <- setDT(tab) 
+    isdt <- FALSE
+  }
+  tabclass <- unlist(lapply(tab, class))
+ 
+  if (any(tabclass == "integer64")) { 
+    int64vars <- names(tabclass)[tabclass == "integer64"]
+    int64vars.CN <- int64vars[int64vars %in% c("CN", "PLT_CN", "PREV_PLT_CN")]
+    int64vars.notCN <- int64vars[!int64vars %in% int64vars.CN]
+
+    if (length(int64vars.CN) > 0) {
+      tab[, (int64vars) := lapply(.SD, as.character), .SDcols=int64vars]
+    } 
+    if (length(int64vars.notCN) > 0) {
+      tab[, (int64vars) := lapply(.SD, as.numeric), .SDcols=int64vars]
+    } 
+  }
+
+  if (noIDate) {
+    cols <- names(tab)[unlist(lapply(tab, function(x) any(class(x) == "IDate")))]
+    if (length(cols) > 0) {
+      tab[, (cols) := lapply(.SD, as.character), .SDcols=cols]
+      if ("MODIFIED_DATE" %in% names(tab) && is.logical(tab$MODIFIED_DATE)) {
+        tab$MODIFIED_DATE <- as.character(tab$MODIFIED_DATE)
+      }
+    } 
+  } else {
+    if ("MODIFIED_DATE" %in% names(tab) && is.logical(tab$MODIFIED_DATE)) {
+      tab$MODIFIED_DATE <- as.IDate(tab$MODIFIED_DATE)
+    }
+  }
+
+  if (isdt) {
+    tab <- setDF(tab)
+  }
+  return(tab)
+}
+
+#' @rdname internal_desc
+#' @export
+customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL, 
+		measEndyr.filter = NULL, allyrs = FALSE, invyrs = NULL, 
+		measyrs = NULL, intensity = FALSE) {
+
+  ### Check measCur
+  ###########################################################
+  measCur <- pcheck.logical(measCur, varnm="measCur", 
+			title="Current measyear?", first="YES", gui=gui)
+
+  ### Check measEndyr
+  ###########################################################
+  measEndyr.filter <- NULL
+  if (!is.null(measEndyr)) {
+    minyr <- min(invyrtab$INVYR)
+    if (!is.numeric(measEndyr) || measEndyr < minyr)
+      stop("measEndyr must be yyyy format and greater than minimum inventory year: ", minyr)
+    measCur <- TRUE
+    measEndyr.filter <- paste0(" and MEASYEAR < ", measEndyr)
+  }
+  if (measCur) {
+    xymeasCur <- TRUE
+    allyrs <- FALSE
+  }  
+
+  ### GET allyrs
+  ###########################################################
+  allyrs <- pcheck.logical(allyrs, varnm="allyrs", 
+		title="All years?", first="YES", gui=gui)
+  if (allyrs) {
+    ## xymeasCur
+    xymeasCur <- pcheck.logical(xymeasCur, varnm="xymeasCur", 
+                             title="Most current XY?", first="YES", gui=gui)
+    measCur <- FALSE
+    measEndyr=measEndyr.filter <- NULL
+  }
+ 
+  ## Check INVYR(S) 
+  ###########################################################
+  if (!measCur) {
+    if ((is.null(invyrs) || length(invyrs) == 0) && 
+		(is.null(measyrs) || length(measyrs) == 0)) {
+      if (is.null(invyrtab)) {
+        stop("must include INVYR in plot")
+      } 
+      invyrs <- sapply(states, function(x) NULL)
+      for (state in states) { 
+        stabbr <- pcheck.states(state, "ABBR")
+        stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
+
+        if (allyrs) {
+          invyr <- stinvyrlst
+        } else {
+          if (!gui) stop("need to specify a timeframe for plot data")
+
+          ## GET INVENTORY YEAR(S) FROM USER
+          invyr <- select.list(as.character(stinvyrlst),
+                         title = paste("Inventory year(s) -", stabbr), 
+                         multiple = TRUE)
+          if (length(invyr) == 0) stop("")
+        }
+        invyrs[[state]] <- as.numeric(invyr)
+      }
+    } else if (!is.null(invyrs)) {
+      if (!is(invyrs, "list")) {
+        if (is.vector(invyrs) && is.numeric(invyrs)) {
+          invyrs <- list(invyrs)
+          if (length(states) == 1) {
+            names(invyrs) <- states
+          } else {
+            warning("using specified invyrs for all states")
+            yrs <- invyrs
+            invyrs <- sapply(states, function(x) NULL)
+            for (st in states) invyrs[st] <- yrs
+          } 
+        }
+      } else if (length(invyrs) != length(states)) {
+        stop("check invyrs list.. does not match number of states")
+      }
+      ## Check inventory years
+      for (state in states) {
+        stcd <- pcheck.states(state, "VALUE")
+        if ("STATENM" %in% names(invyrtab)) {
+          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
+        } else if ("STATECD" %in% names(invyrtab)) {
+          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
+        } else {
+          stop("invyrtab is invalid")
+        }
+        if (!all(invyrs[[state]] %in% stinvyrlst)) {
+          invyrs[[state]] <- invyrs[[state]][invyrs[[state]] %in% stinvyrlst]
+          missyr <- invyrs[[state]][!invyrs[[state]] %in% stinvyrlst]
+          message(state, " missing following inventory years: ", toString(missyr))
+        }
+      }
+    } else if (!is.null(measyrs)) {
+      if (!is(measyrs, "list")) {
+        if (is.vector(measyrs) && is.numeric(measyrs)) {
+          measyrs <- list(measyrs)
+          if (length(states) == 1) {
+            names(measyrs) <- states
+          } else {
+            message("using specified invyrs for all states")
+            yrs <- measyrs
+            measyrs <- sapply(states, function(x) NULL)
+            for (st in states) measyrs[st] <- yrs
+          } 
+        }
+      } else if (length(measyrs) != length(states)) {
+        stop("check measyrs list.. does not match number of states")
+      }
+      ## Check inventory years
+      for (state in states) {
+        stcd <- pcheck.states(state, "VALUE")
+        if ("STATENM" %in% names(invyrtab)) {
+          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
+        } else if ("STATECD" %in% names(invyrtab)) {
+          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
+        } else {
+          stop("invyrtab is invalid")
+        }
+        if (!all(measyrs[[state]] %in% stinvyrlst)) {
+          measyrs[[state]] <- measyrs[[state]][measyrs[[state]] %in% stinvyrlst]
+          missyr <- measyrs[[state]][!measyrs[[state]] %in% stinvyrlst]
+          message(state, " missing following inventory years: ", toString(missyr))
+        }
+      }
+    }
+  }
+
+  ## Check intensity1
+  ###########################################################
+  ## For periodic data, the INTENSITY variable does not equal 1
+  if (invtype == "ANNUAL") {
+    intensity1 <- pcheck.logical(intensity1, 
+                            varnm = "intensity1",
+                            title = "Intensity = 1?", 
+                            first = "YES", 
+                            gui = gui)
+  } else {
+    message("note: periodic data includes forested plots >= 5% cover")
+    intensity1 <- FALSE
+  }
+
+  returnlst <- list(measCur=measCur, measEndyr=measEndyr, 
+		measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
+		invyrs=invyrs, measyrs=measyrs, intensity=intensity)
 }
 

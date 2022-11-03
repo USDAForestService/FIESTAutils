@@ -16,6 +16,8 @@
 \alias{gui_filterdf}
 \alias{DBgetbyids}
 \alias{DBcreateSQLite}
+\alias{changeclass}
+\alias{customEvalchk}
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
@@ -168,6 +170,19 @@ DBcreateSQLite(
   overwrite = FALSE,
   returnpath = TRUE,
   stopifnull = FALSE
+)
+
+changeclass(tab, noIDate = TRUE)
+
+customEvalchk(
+  states,
+  measCur = TRUE,
+  measEndyr = NULL,
+  measEndyr.filter = NULL,
+  allyrs = FALSE,
+  invyrs = NULL,
+  measyrs = NULL,
+  intensity = FALSE
 )
 
 Ratio2Size(sumyn, ysum, sumyd, uniqueid, stratalut, unitvar, strvar, domain)
