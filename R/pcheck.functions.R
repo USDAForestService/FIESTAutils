@@ -1036,10 +1036,12 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
 
 #' @rdname pcheck_desc
 #' @export
-pcheck.params <- function(input.params, strata_opts=NULL,
-			unit_opts=NULL, table_opts=NULL, title_opts=NULL,
-			savedata_opts=NULL, multest_opts=NULL,
-			spMakeSpatial_opts=NULL) {
+pcheck.params <- function(input.params, strata_opts=NULL, 
+                 unit_opts=NULL, table_opts=NULL, title_opts=NULL,
+                 savedata_opts=NULL, multest_opts=NULL,
+                 spMakeSpatial_opts=NULL, eval_opts=NULL,
+                 xy_opts=NULL 
+                 ) {
   ## DESCRIPTION: function to check input list parameters
 
   if (!is.null(strata_opts)) {
@@ -1153,6 +1155,41 @@ pcheck.params <- function(input.params, strata_opts=NULL,
       spMakeSpatial.params <- names(spMakeSpatial_opts)[!names(spMakeSpatial_opts) %in% c("formallst", "input.params")]
       if (!all(spMakeSpatial.params %in% formallst.spMakeSpatial)) {
         miss <- spMakeSpatial.params[!spMakeSpatial.params %in% formallst.spMakeSpatial]
+        stop("invalid parameter: ", toString(miss))
+      }
+    }
+  }
+
+  if (!is.null(eval_opts)) {
+    if ("eval_opts" %in% input.params) {
+      if (!is.list(eval_opts)) {
+        eval_opts <- as.list(eval_opts)
+      }
+      if (is.null(names(eval_opts))) {
+        stop("must specify an evaluation timeframe for data extraction... \n", 
+	    "...see eval_opts parameter, (e.g., eval_opts=eval_options(evalCur=TRUE))")
+      }
+      formallst.eval <- names(formals(eval_options))[-length(formals(eval_options))]
+      eval.params <- names(eval_opts)[!names(eval_opts) %in% c("formallst", "input.params")]
+      if (!all(eval.params %in% formallst.eval)) {
+        miss <- eval.params[!eval.params %in% formallst.eval]
+        stop("invalid parameter: ", toString(miss))
+      }
+    }
+  }
+
+  if (!is.null(xy_opts)) {
+    if ("xy_opts" %in% input.params) {
+      if (!is.list(xy_opts)) {
+        xy_opts <- as.list(xy_opts)
+      }
+      if (is.null(names(xy_opts))) {
+        stop("invalid xy_opts... see xy_options()")
+      }
+      formallst.xy <- names(formals(xy_options))[-length(formals(xy_options))]
+      xy.params <- names(xy_opts)[!names(xy_opts) %in% c("formallst", "input.params")]
+      if (!all(xy.params %in% formallst.xy)) {
+        miss <- xy.params[!xy.params %in% formallst.xy]
         stop("invalid parameter: ", toString(miss))
       }
     }

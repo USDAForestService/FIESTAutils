@@ -912,7 +912,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
     if ((is.null(invyrs) || length(invyrs) == 0) && 
 		(is.null(measyrs) || length(measyrs) == 0)) {
       if (is.null(invyrtab)) {
-        stop("must include INVYR in plot")
+        return(NULL)
       } 
       invyrs <- sapply(states, function(x) NULL)
       for (state in states) { 
@@ -922,8 +922,9 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
         if (allyrs) {
           invyr <- stinvyrlst
         } else {
-          if (!gui) stop("need to specify a timeframe for plot data")
-
+          if (!gui) {
+            return(NULL)
+          }
           ## GET INVENTORY YEAR(S) FROM USER
           invyr <- select.list(as.character(stinvyrlst),
                          title = paste("Inventory year(s) -", stabbr), 
@@ -983,10 +984,17 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
       ## Check inventory years
       for (state in states) {
         stcd <- pcheck.states(state, "VALUE")
+        names(invyrtab) <- toupper(names(invyrtab))
+        yrnm <- ifelse("INVYR" %in% names(invyrtab), "INVYR", 
+			ifelse("MEASYEAR" %in% names(invyrtab), "MEASYEAR", "NONE"))
+        if (yrnm == "NONE") {
+          stop("invyrtab is invalid")
+        }           
+ 
         if ("STATENM" %in% names(invyrtab)) {
-          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
+          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, yrnm])
         } else if ("STATECD" %in% names(invyrtab)) {
-          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
+          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, yrnm])
         } else {
           stop("invyrtab is invalid")
         }

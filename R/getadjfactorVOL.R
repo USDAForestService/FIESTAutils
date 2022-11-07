@@ -67,7 +67,6 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     varsumlst <- c(varsumlst, unlist(tvarsum))
     varadjlst <- c(varadjlst, unlist(tvaradj))
   }
-
  
 
   ###############################################################################
