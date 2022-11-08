@@ -5,48 +5,52 @@
 #' 
 #' If no parameters, an empty list is returned.
 #' 
-#' @param evalid Integer. To extract data for a specific evaluation period. See
-#' notes for more information about FIA Evaluations.
-#' @param evalCur Logical. If TRUE, extract plots with most current FIA
-#' Evalidation for state(s).
-#' @param evalEndyr Integer. Defining end year of Evaluation (yyyy).
-#' @param evalAll Logical. All Evaluations in database.
-#' @param evalType String vector. The type(s) of evaluation of interest ('ALL',
-#' 'AREAVOL', 'GRM', 'P2VEG', 'DWM', 'INV', 'REGEN', 'CRWN').  The evalType
-#' 'ALL' includes nonsampled plots; 'AREAVOL' includes plots used for area or
-#' tree estimates (eval_typ %in% c(CURR, VOL)); The evalType 'GRM' includes
-#' plots used for growth, removals, mortality, and change estimates (eval_typ
-#' %in% c(GROW, MORT, REMV, CHNG)). Multiple types are accepted.  See FIA
-#' database manual for regional availability and/or differences.
-#' @param measCur Logical. If TRUE, extract plots with most current measurement
-#' for state(s).
-#' @param measEndyr Integer year (YYYY). If measCur=TRUE, extract plots with
-#' most current measurement for state(s) for years measured before measEndyr.
-#' @param invyrs Integer vector. Defining specific inventory years of data
-#' (e.g., 2010:2015).
-#' @param measyrs Integer vector. Defining specific measurement years of data
-#' (e.g., 2010:2015).
-#' @param allyrs Logical. If TRUE, selects all years (annual inventory) in
-#' database.
+#' @param Cur Logical. If eval='FIA': extract plots with most current 
+#' evaluation. If eval='custom': extract the most current sampled plots 
+#' in the database.
+#' @param Endyr Integer (YYYY). If eval='FIA', defines end year for  
+#' extracting one or more FIA evaluation. If eval='custom', defines 
+#' end year for extracting the most current sampled plots until. 
+#' @param Endyr.filter Filter. If endyr != NULL, a filter to identify
+#' when to use measEndyr, such as areas or plots identified as being 
+#' disturbed in a particular year. In this example, plots sampled after
+#' the disturbance will be excluded.
+#' @param All Logical. If eval='FIA': includes all evaluations in 
+#' database (annual inventory only). If eval='custom': includes all years 
+#' in database (annual inventory only).
+#' @param evalid Integer. Only eval='FIA': extract data for a specific 
+#' evaluation period. See notes for more information about FIA Evaluations.
+#' @param evalType String vector. Only eval='FIA": type(s) of 'FIA' 
+#' evaluation ('CURR','VOL','GRM','P2VEG','DWM','INV','CHNG','GRM','REGEN').  
+#' The evalType 'CURR' includes nonsampled plots; 'VOL' includes plots used 
+#' for area or tree estimates (eval_typ %in% c(CURR, VOL)); The evalType 
+#' 'GRM' includes plots used for growth, removals, mortality, and change 
+#' estimates (eval_typ in(GROW, MORT, REMV, CHNG)). Multiple types are 
+#' accepted. See FIA database manual for regional availability and/or 
+#' differences.
+#' @param invyrs Integer vector. eval='custom': defines specific  
+#' inventory years of data (e.g., 2010:2015). See FIA manual for 
+#' definition of INVYR. 
+#' @param measyrs Integer vector. eval='custom': defines specific
+#' measurement years of data (e.g., 2010:2015).
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Tracey S. Frescino
 #' @keywords list
 #' @examples
-#' eval_options(measCur = TRUE)
+#' eval_options(invyrs = 2015:2018)
 #' @export eval_options
 
-eval_options <- function(evalid = NULL,
-                           evalCur = FALSE,
-                           evalEndyr = NULL,
-                           evalAll = FALSE,
-                           evalType = "VOL",
-                           measCur = FALSE,
-                           measEndyr = NULL, 
-                           invyrs = NULL, 
-                           measyrs = NULL, 
-                           allyrs = FALSE, 
-                           ...) {
+eval_options <- function(Cur = FALSE, 
+                         Endyr = NULL,
+                         Endyr.filter = NULL,
+                         All = FALSE,
+                         evalType = "VOL",
+                         evalid = NULL, 
+                         invyrs = NULL, 
+                         measyrs = NULL,                         
+                         ...) {
+
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(eval_options)))

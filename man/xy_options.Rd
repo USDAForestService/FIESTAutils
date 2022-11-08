@@ -5,7 +5,6 @@
 \title{List of population tables.}
 \usage{
 xy_options(
-  xy = NULL,
   xy.uniqueid = "PLT_CN",
   xvar = NULL,
   yvar = NULL,
@@ -15,10 +14,6 @@ xy_options(
 )
 }
 \arguments{
-\item{xy}{sf R object or String. Table with xy coordinates. Can be a spatial
-polygon object, data frame, full pathname to a shapefile, or name of a layer
-within a database.}
-
 \item{xy.uniqueid}{String. Unique identifier of xy.}
 
 \item{xvar}{String. Name of variable in xyplt defining x coordinate.}
@@ -29,7 +24,7 @@ within a database.}
 Coordinate Reference System.}
 
 \item{xyjoinid}{String. Variable in xy to join to plot data. If NULL,
-xyjoinid=xy.uniqueid.}
+xyjoinid = xy.uniqueid.}
 
 \item{...}{For extendibility.}
 }

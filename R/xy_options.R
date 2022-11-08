@@ -5,16 +5,13 @@
 #' 
 #' If no parameters, an empty list is returned.
 #' 
-#' @param xy sf R object or String. Table with xy coordinates. Can be a spatial
-#' polygon object, data frame, full pathname to a shapefile, or name of a layer
-#' within a database.
 #' @param xy.uniqueid String. Unique identifier of xy.
 #' @param xvar String. Name of variable in xyplt defining x coordinate.
 #' @param yvar String. Name of variable in xyplt defining y coordinate.
 #' @param xy.crs PROJ.4 String or CRS object or Integer EPSG code defining
 #' Coordinate Reference System.
 #' @param xyjoinid String. Variable in xy to join to plot data. If NULL,
-#' xyjoinid=xy.uniqueid.
+#' xyjoinid = xy.uniqueid.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Tracey S. Frescino
@@ -23,8 +20,7 @@
 #' xy_options(xvar="LON", yvar="LAT")
 #' @export xy_options
 
-xy_options <- function(xy = NULL, 
-                    xy.uniqueid = "PLT_CN", 
+xy_options <- function(xy.uniqueid = "PLT_CN", 
                     xvar = NULL, 
                     yvar = NULL, 
                     xy.crs = 4269, 

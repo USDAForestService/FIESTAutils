@@ -5,52 +5,53 @@
 \title{List of population tables.}
 \usage{
 eval_options(
-  evalid = NULL,
-  evalCur = FALSE,
-  evalEndyr = NULL,
-  evalAll = FALSE,
+  Cur = FALSE,
+  Endyr = NULL,
+  Endyr.filter = NULL,
+  All = FALSE,
   evalType = "VOL",
-  measCur = FALSE,
-  measEndyr = NULL,
+  evalid = NULL,
   invyrs = NULL,
   measyrs = NULL,
-  allyrs = FALSE,
   ...
 )
 }
 \arguments{
-\item{evalid}{Integer. To extract data for a specific evaluation period. See
-notes for more information about FIA Evaluations.}
+\item{Cur}{Logical. If eval='FIA': extract plots with most current 
+evaluation. If eval='custom': extract the most current sampled plots 
+in the database.}
 
-\item{evalCur}{Logical. If TRUE, extract plots with most current FIA
-Evalidation for state(s).}
+\item{Endyr}{Integer (YYYY). If eval='FIA', defines end year for
+extracting one or more FIA evaluation. If eval='custom', defines 
+end year for extracting the most current sampled plots until.}
 
-\item{evalEndyr}{Integer. Defining end year of Evaluation (yyyy).}
+\item{Endyr.filter}{Filter. If endyr != NULL, a filter to identify
+when to use measEndyr, such as areas or plots identified as being 
+disturbed in a particular year. In this example, plots sampled after
+the disturbance will be excluded.}
 
-\item{evalAll}{Logical. All Evaluations in database.}
+\item{All}{Logical. If eval='FIA': includes all evaluations in 
+database (annual inventory only). If eval='custom': includes all years 
+in database (annual inventory only).}
 
-\item{evalType}{String vector. The type(s) of evaluation of interest ('ALL',
-'AREAVOL', 'GRM', 'P2VEG', 'DWM', 'INV', 'REGEN', 'CRWN').  The evalType
-'ALL' includes nonsampled plots; 'AREAVOL' includes plots used for area or
-tree estimates (eval_typ %in% c(CURR, VOL)); The evalType 'GRM' includes
-plots used for growth, removals, mortality, and change estimates (eval_typ
-%in% c(GROW, MORT, REMV, CHNG)). Multiple types are accepted.  See FIA
-database manual for regional availability and/or differences.}
+\item{evalType}{String vector. Only eval='FIA": type(s) of 'FIA' 
+evaluation ('CURR','VOL','GRM','P2VEG','DWM','INV','CHNG','GRM','REGEN').  
+The evalType 'CURR' includes nonsampled plots; 'VOL' includes plots used 
+for area or tree estimates (eval_typ %in% c(CURR, VOL)); The evalType 
+'GRM' includes plots used for growth, removals, mortality, and change 
+estimates (eval_typ in(GROW, MORT, REMV, CHNG)). Multiple types are 
+accepted. See FIA database manual for regional availability and/or 
+differences.}
 
-\item{measCur}{Logical. If TRUE, extract plots with most current measurement
-for state(s).}
+\item{evalid}{Integer. Only eval='FIA': extract data for a specific 
+evaluation period. See notes for more information about FIA Evaluations.}
 
-\item{measEndyr}{Integer year (YYYY). If measCur=TRUE, extract plots with
-most current measurement for state(s) for years measured before measEndyr.}
+\item{invyrs}{Integer vector. eval='custom': defines specific
+inventory years of data (e.g., 2010:2015). See FIA manual for 
+definition of INVYR.}
 
-\item{invyrs}{Integer vector. Defining specific inventory years of data
-(e.g., 2010:2015).}
-
-\item{measyrs}{Integer vector. Defining specific measurement years of data
-(e.g., 2010:2015).}
-
-\item{allyrs}{Logical. If TRUE, selects all years (annual inventory) in
-database.}
+\item{measyrs}{Integer vector. eval='custom': defines specific
+measurement years of data (e.g., 2010:2015).}
 
 \item{...}{For extendibility.}
 }
@@ -65,7 +66,7 @@ evaluation (FIA or custom) extraction to be supplied to *DB functions.
 If no parameters, an empty list is returned.
 }
 \examples{
-eval_options(measCur = TRUE)
+eval_options(invyrs = 2015:2018)
 }
 \author{
 Tracey S. Frescino

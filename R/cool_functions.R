@@ -532,6 +532,13 @@ recodelut <- function(lut, minvar="min", maxvar="max", classvar="class") {
 #' @rdname internal_desc
 #' @export
 findnm <- function(x, xvect, returnNULL=FALSE) {
+  if (is.null(x)) {
+    if (returnNULL) {
+      return(NULL)
+    } else {
+      stop("variable is NULL")
+    }
+  }
   test <- grepl(x, xvect, ignore.case=TRUE)
   if (sum(test) == 0) {
     if (returnNULL) {

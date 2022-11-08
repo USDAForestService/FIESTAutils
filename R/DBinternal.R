@@ -890,7 +890,6 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
     measEndyr.filter <- paste0(" and MEASYEAR < ", measEndyr)
   }
   if (measCur) {
-    xymeasCur <- TRUE
     allyrs <- FALSE
   }  
 
@@ -899,9 +898,6 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
   allyrs <- pcheck.logical(allyrs, varnm="allyrs", 
 		title="All years?", first="YES", gui=gui)
   if (allyrs) {
-    ## xymeasCur
-    xymeasCur <- pcheck.logical(xymeasCur, varnm="xymeasCur", 
-                             title="Most current XY?", first="YES", gui=gui)
     measCur <- FALSE
     measEndyr=measEndyr.filter <- NULL
   }
