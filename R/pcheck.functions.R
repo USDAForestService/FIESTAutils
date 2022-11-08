@@ -1167,7 +1167,7 @@ pcheck.params <- function(input.params, strata_opts=NULL,
       }
       if (is.null(names(eval_opts))) {
         stop("must specify an evaluation timeframe for data extraction... \n", 
-	    "...see eval_opts parameter, (e.g., eval_opts=eval_options(evalCur=TRUE))")
+	    "...see eval_opts parameter, (e.g., eval_opts=eval_options(Cur=TRUE))")
       }
       formallst.eval <- names(formals(eval_options))[-length(formals(eval_options))]
       eval.params <- names(eval_opts)[!names(eval_opts) %in% c("formallst", "input.params")]
