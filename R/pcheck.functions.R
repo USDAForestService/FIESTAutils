@@ -158,7 +158,7 @@ pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
 #' @export
 pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
 	caption=NULL, returnsf=TRUE, factors=FALSE, returnDT=TRUE, warn=NULL,
-	stopifnull=FALSE, nullcheck=FALSE, obj=FALSE, gui=FALSE){
+	stopifnull=FALSE, stopifinvalid=FALSE, nullcheck=FALSE, obj=FALSE, gui=FALSE){
 
   ## DESCRIPTION: This function checks the table parameter..  if NULL, it prompts the
   ##      user with gui options to select the table of interest.
@@ -305,7 +305,11 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
       tab_dsn <- paste(tab_dsn, tab, sep="/")
       tabext <- getext(tab_dsn)
     } else {
-      stop(tabnm, " is invalid")
+      if (!stopifinvalid) {
+        return(NULL)
+      } else {
+        stop(tabnm, " is invalid")
+      }
     }
   }
 
@@ -315,7 +319,11 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
     tabx <- pcheck.spatial(tab, dsn=tab_dsn)
   } else if (tabext %in% tabdblst) {
     if (is.null(tab) || !is.character(tab)) {
-      stop("tab is invalid")
+      if (!stopifinvalid) {
+        return(NULL)
+      } else {
+        stop("tab is invalid")
+      }
     }
     if (tabext %in% c("sqlite", "sqlite3", "db", "db3", "gpkg")) {
       dbconn <- DBtestSQLite(tab_dsn, dbconnopen=TRUE, showlist=FALSE)

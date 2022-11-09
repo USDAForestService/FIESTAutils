@@ -64,6 +64,7 @@ pcheck.table(
   returnDT = TRUE,
   warn = NULL,
   stopifnull = FALSE,
+  stopifinvalid = FALSE,
   nullcheck = FALSE,
   obj = FALSE,
   gui = FALSE
