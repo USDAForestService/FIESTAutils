@@ -386,7 +386,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
 
   if (plotCur) {
     where.qry <- "PLOT_STATUS_CD != 3"
-    if (!is.null(subcycle99) && !subcycle99) {
+    if (!is.null(subcycle99) && subcycle99) {
       subcycle.filter <- "SUBCYCLE <> 99"
       if (syntax == 'R') gsub("<>", "!=", subcycle.filter)
       if (where.qry == "") {
@@ -395,6 +395,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
         where.qry <- paste(paste(where.qry, subcycle.filter, sep=" and "))
       }
     }
+ 
     if (!is.null(intensity1) && intensity1) {
       intensity1.filter <- "INTENSITY = '1'"
       if (syntax == 'R') gsub("=", "==", intensity1.filter)
