@@ -122,6 +122,7 @@ getpfromqry(
   dsn = NULL,
   evalid = NULL,
   plotCur = TRUE,
+  pjoinid = NULL,
   varCur = "MEASYEAR",
   Endyr = NULL,
   invyrs = NULL,

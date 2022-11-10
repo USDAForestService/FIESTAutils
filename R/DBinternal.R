@@ -342,7 +342,7 @@ getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1
 
 #' @rdname internal_desc
 #' @export
-getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
+getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid=NULL, 
 	varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
 	subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, chk=FALSE,
 	syntax="sql", plotnm="plot", ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN",
@@ -361,6 +361,10 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
     chk <- FALSE
   }
 
+  if (is.null(pjoinid)) {
+    pjoinid <- "CN"
+  }
+
   if (!is.null(evalid)) {
     if (chk) {
       ppsanm <- pcheck.varchar(ppsanm, varnm="pop_plot_stratum_assgn",
@@ -371,7 +375,11 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE,
       if (!all(evalid %in% evalidlst)) stop("invalid evalid")
     }
     pfromqry <- paste0(SCHEMA., ppsanm, " ppsa JOIN ",
-			SCHEMA., plotnm, " p ON (p.CN = ppsa.", ppsaid, ")")
+			SCHEMA., plotnm, " p ON (p.", pjoinid, " = ppsa.", ppsaid, ")")
+    if (!is.null(joinfromqry)) {
+      pfromqry <- paste0(pfromqry, 
+		" JOIN ", SCHEMA., jointable, " ON (p.", pjoinid, " = ", joinalias, ".", joinid, ")") 
+    }
     return(pfromqry)
   }
 
