@@ -473,7 +473,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid=NULL,
 
     if (popSURVEY) {
       pfromqry <- paste0(pfromqry, " JOIN ", SCHEMA., surveynm,
-		" s on (s.CN = p.SRV_CN and s.ANN_INVENTORY = 'Y')")
+		" survey on (survey.CN = p.SRV_CN and survey.ANN_INVENTORY = 'Y')")
     }
 
   } else if (allyrs) {
