@@ -68,17 +68,17 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
     varnm <- "varnm"
   } else {
     if (!is.character(varnm)) {
-      warning("varnm must be a string")
+      warning("varnm must be a string\n")
     }
   }
-  #if (is.null(var2check) && stopifnull) stop(paste(varnm, "is NULL"))
+  #if (is.null(var2check) && stopifnull) stop(paste(varnm, "is NULL\n"))
   if (is.null(caption)) {
     caption <- paste0(varnm, "?")
   }
   if (is.null(warn)) {
     warn <- ifelse(!is.null(checklst) && length(checklst) < 6,
 		paste(varnm, "must be in following list:", toString(checklst)),
-		paste(varnm, "is invalid"))
+		paste(varnm, "is invalid\n"))
   }
 
   if (is.null(var2check) || any(is.na(var2check)) || length(var2check) == 0 || any(gsub(" ", "", var2check) == "")) {
@@ -89,7 +89,7 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
       }
     } else {
       if (stopifnull) {
-        stop(paste(varnm, "is NULL"))
+        stop(paste(varnm, "is NULL\n"))
       } else {
         return(NULL)
       }
@@ -116,7 +116,7 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
         if (multiple) {
           warn <- message("invalid variable: ",
 				toString(var2check[which(!var2check %in% checklst)]),
-				"\n possible values: ", toString(checklst))
+				"\n possible values: ", toString(checklst),"\n")
         }
         stop(warn)
       } else {

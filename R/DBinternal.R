@@ -922,8 +922,12 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
       invyrs <- sapply(states, function(x) NULL)
       for (state in states) { 
         stabbr <- pcheck.states(state, "ABBR")
-        stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
-
+        if ("STATENM" %in% names(invyrtab)) {
+          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
+        } else if ("STATECD" %in% names(invyrtab)) {
+          stcd <- pcheck.states(state, "VALUE")
+          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
+        }        
         if (allyrs) {
           invyr <- stinvyrlst
         } else {
