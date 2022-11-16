@@ -342,7 +342,7 @@ getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1
 
 #' @rdname internal_desc
 #' @export
-getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid=NULL, 
+getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid, 
 	varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
 	subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, chk=FALSE,
 	syntax="sql", plotnm="plot", ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN",
@@ -361,10 +361,6 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid=NULL,
     chk <- FALSE
   }
 
-  if (is.null(pjoinid)) {
-    pjoinid <- "CN"
-  }
-
   if (!is.null(evalid)) {
     if (chk) {
       ppsanm <- pcheck.varchar(ppsanm, varnm="pop_plot_stratum_assgn",
@@ -381,15 +377,6 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid=NULL,
 		" JOIN ", SCHEMA., jointable, " ON (p.", pjoinid, " = ", joinalias, ".", joinid, ")") 
     }
     return(pfromqry)
-  }
-
-  ## CHeck for plot table in dsn
-  if (chk) {
-    pltnm <- pcheck.varchar("plot", varnm="plot", checklst=tablst, stopifnull=TRUE)
-    pltflds <- DBI::dbListFields(dbconn, pltnm)
-
-    if (!all(c(varCur, "PLOT_STATUS_CD") %in% pltflds))
-      stop(paste("must include", toString(c(varCur, "PLOT_STATUS_CD")), "in plot table"))
   }
 
   if (plotCur) {
@@ -883,6 +870,10 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 		measEndyr.filter = NULL, allyrs = FALSE, invyrs = NULL, 
 		measyrs = NULL, invyrtab = NULL, gui=FALSE) {
 
+  ## Set global variables
+  invyrlst=measyrlst <- NULL
+
+
   ### Check measCur
   ###########################################################
   measCur <- pcheck.logical(measCur, varnm="measCur", 
@@ -919,7 +910,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
       if (is.null(invyrtab)) {
         return(NULL)
       } 
-      invyrs <- sapply(states, function(x) NULL)
+      invyrlst <- sapply(states, function(x) NULL)
       for (state in states) { 
         stabbr <- pcheck.states(state, "ABBR")
         if ("STATENM" %in% names(invyrtab)) {
@@ -940,19 +931,19 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
                          multiple = TRUE)
           if (length(invyr) == 0) stop("")
         }
-        invyrs[[state]] <- as.numeric(invyr)
+        invyrlst[[state]] <- as.numeric(invyr)
       }
     } else if (!is.null(invyrs)) {
       if (!is(invyrs, "list")) {
         if (is.vector(invyrs) && is.numeric(invyrs)) {
-          invyrs <- list(invyrs)
+          invyrlst <- list(invyrs)
           if (length(states) == 1) {
-            names(invyrs) <- states
+            names(invyrlst) <- states
           } else {
             warning("using specified invyrs for all states")
             yrs <- invyrs
-            invyrs <- sapply(states, function(x) NULL)
-            for (st in states) invyrs[st] <- yrs
+            invyrlst <- sapply(states, function(x) NULL)
+            for (st in states) invyrlst[st] <- yrs
           } 
         }
       } else if (length(invyrs) != length(states)) {
@@ -968,23 +959,23 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
         } else {
           stop("invyrtab is invalid")
         }
-        if (!all(invyrs[[state]] %in% stinvyrlst)) {
-          invyrs[[state]] <- invyrs[[state]][invyrs[[state]] %in% stinvyrlst]
-          missyr <- invyrs[[state]][!invyrs[[state]] %in% stinvyrlst]
+        if (!all(invyrlst[[state]] %in% stinvyrlst)) {
+          invyrlst[[state]] <- invyrlst[[state]][invyrs[[state]] %in% stinvyrlst]
+          missyr <- invyrlst[[state]][!invyrlst[[state]] %in% stinvyrlst]
           message(state, " missing following inventory years: ", toString(missyr))
         }
       }
     } else if (!is.null(measyrs)) {
       if (!is(measyrs, "list")) {
         if (is.vector(measyrs) && is.numeric(measyrs)) {
-          measyrs <- list(measyrs)
+          measyrlst <- list(measyrs)
           if (length(states) == 1) {
-            names(measyrs) <- states
+            names(measyrlst) <- states
           } else {
             message("using specified invyrs for all states")
             yrs <- measyrs
-            measyrs <- sapply(states, function(x) NULL)
-            for (st in states) measyrs[st] <- yrs
+            measyrlst <- sapply(states, function(x) NULL)
+            for (st in states) measyrlst[st] <- yrs
           } 
         }
       } else if (length(measyrs) != length(states)) {
@@ -1007,9 +998,9 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
         } else {
           stop("invyrtab is invalid")
         }
-        if (!all(measyrs[[state]] %in% stinvyrlst)) {
-          measyrs[[state]] <- measyrs[[state]][measyrs[[state]] %in% stinvyrlst]
-          missyr <- measyrs[[state]][!measyrs[[state]] %in% stinvyrlst]
+        if (!all(measyrlst[[state]] %in% stinvyrlst)) {
+          measyrlst[[state]] <- measyrlst[[state]][measyrlst[[state]] %in% stinvyrlst]
+          missyr <- measyrlst[[state]][!measyrlst[[state]] %in% stinvyrlst]
           message(state, " missing following inventory years: ", toString(missyr))
         }
       }
@@ -1018,6 +1009,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 
   returnlst <- list(measCur=measCur, measEndyr=measEndyr, 
 		measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
-		invyrs=invyrs, measyrs=measyrs)
+		invyrs=invyrs, measyrs=measyrs, 
+           invyrlst=invyrlst, measyrlst=measyrlst)
 }
 
