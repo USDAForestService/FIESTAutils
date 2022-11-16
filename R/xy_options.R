@@ -20,9 +20,9 @@
 #' xy_options(xvar="LON", yvar="LAT")
 #' @export xy_options
 
-xy_options <- function(xy.uniqueid = "PLT_CN", 
-                    xvar = NULL, 
-                    yvar = NULL, 
+xy_options <- function(xy.uniqueid = "CN", 
+                    xvar = "LON", 
+                    yvar = "LAT", 
                     xy.crs = 4269, 
                     xyjoinid = NULL, 
                     ...) {
