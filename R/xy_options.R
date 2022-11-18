@@ -6,12 +6,12 @@
 #' If no parameters, an empty list is returned.
 #' 
 #' @param xy.uniqueid String. Unique identifier of xy.
-#' @param xvar String. Name of variable in xyplt defining x coordinate.
-#' @param yvar String. Name of variable in xyplt defining y coordinate.
+#' @param xvar String. Name of variable in xy defining x coordinate.
+#' @param yvar String. Name of variable in xy defining y coordinate.
 #' @param xy.crs PROJ.4 String or CRS object or Integer EPSG code defining
 #' Coordinate Reference System.
-#' @param xyjoinid String. Variable in xy to join to plot data. If NULL,
-#' xyjoinid = xy.uniqueid.
+#' @param xyjoinid String. Name of variable in xy to join to plot data. 
+#' If NULL, xyjoinid = xy.uniqueid.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Tracey S. Frescino
