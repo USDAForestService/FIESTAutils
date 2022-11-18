@@ -392,12 +392,22 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     }
  
     if (!is.null(intensity1) && intensity1) {
-      intensity1.filter <- "INTENSITY = '1'"
-      if (syntax == 'R') gsub("=", "==", intensity1.filter)
-      if (where.qry == "") {
-        where.qry <- intensity1.filter
+      if (!is.null(dsn)) {
+        intensitynm <- findnm(DBI::dbListFields(dbconn, plotnm), returnNULL=TRUE)
       } else {
-        where.qry <- paste(paste(where.qry, intensity1.filter, sep=" and "))
+        intensitynm <- findnm("INTENSITY", names(get(plotnm)), returnNULL=TRUE)
+      }
+ 
+      if (!is.null(intensitynm)) {
+        intensity1.filter <- paste(intensitynm, "= '1'")
+        if (syntax == 'R') gsub("=", "==", intensity1.filter)
+        if (where.qry == "") {
+          where.qry <- intensity1.filter
+        } else {
+          where.qry <- paste(paste(where.qry, intensity1.filter, sep=" and "))
+        }
+      } else {
+        message("INTENSITY variable is not in data... assuming all INTENSITY=1 plots")
       }
     }
 
