@@ -439,7 +439,7 @@ pcheck.states <- function (states, statereturn="MEANING", gui=FALSE, RS=NULL,
         states <- ref_state[[statereturn]]
         message(paste("returning all states in", paste(RS, collapse=",")))
       } else {
-        if (stopifnull) stop("invalid state")
+        if (stopifnull) stop("invalid state\n")
         return(NULL)
       }
     }
@@ -460,7 +460,7 @@ pcheck.states <- function (states, statereturn="MEANING", gui=FALSE, RS=NULL,
         states.miss <- states[which(!states %in% c(ref_state$VALUE, ref_state$ABBR,
 		  ref_state$MEANING))]
         if (length(states.miss) > 0) {
-          stop("invalid states: ", states.miss)
+          stop("invalid states: ", states.miss, "\n")
         } else {
           return(NULL)
         }

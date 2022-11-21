@@ -5,9 +5,9 @@
 \title{List of population tables.}
 \usage{
 xy_options(
-  xy.uniqueid = "PLT_CN",
-  xvar = NULL,
-  yvar = NULL,
+  xy.uniqueid = "CN",
+  xvar = "LON",
+  yvar = "LAT",
   xy.crs = 4269,
   xyjoinid = NULL,
   ...
@@ -16,15 +16,15 @@ xy_options(
 \arguments{
 \item{xy.uniqueid}{String. Unique identifier of xy.}
 
-\item{xvar}{String. Name of variable in xyplt defining x coordinate.}
+\item{xvar}{String. Name of variable in xy defining x coordinate.}
 
-\item{yvar}{String. Name of variable in xyplt defining y coordinate.}
+\item{yvar}{String. Name of variable in xy defining y coordinate.}
 
 \item{xy.crs}{PROJ.4 String or CRS object or Integer EPSG code defining
 Coordinate Reference System.}
 
-\item{xyjoinid}{String. Variable in xy to join to plot data. If NULL,
-xyjoinid = xy.uniqueid.}
+\item{xyjoinid}{String. Name of variable in xy to join to plot data. 
+If NULL, xyjoinid = xy.uniqueid.}
 
 \item{...}{For extendibility.}
 }

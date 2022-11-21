@@ -122,7 +122,7 @@ getpfromqry(
   dsn = NULL,
   evalid = NULL,
   plotCur = TRUE,
-  pjoinid = NULL,
+  pjoinid,
   varCur = "MEASYEAR",
   Endyr = NULL,
   invyrs = NULL,
@@ -137,7 +137,8 @@ getpfromqry(
   plotnm = "plot",
   ppsanm = "pop_plot_stratum_assgn",
   ppsaid = "PLT_CN",
-  surveynm = "survey"
+  surveynm = "survey",
+  plotobj = NULL
 )
 
 getEvalid.ppsa(

@@ -346,7 +346,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 	varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
 	subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, chk=FALSE,
 	syntax="sql", plotnm="plot", ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN",
-	surveynm="survey") {
+	surveynm="survey", plotobj=NULL) {
   ## DESCRIPTION: gets from statement for database query
   ## syntax - ('sql', 'R')
 
@@ -372,10 +372,6 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     }
     pfromqry <- paste0(SCHEMA., ppsanm, " ppsa JOIN ",
 			SCHEMA., plotnm, " p ON (p.", pjoinid, " = ppsa.", ppsaid, ")")
-    if (!is.null(joinfromqry)) {
-      pfromqry <- paste0(pfromqry, 
-		" JOIN ", SCHEMA., jointable, " ON (p.", pjoinid, " = ", joinalias, ".", joinid, ")") 
-    }
     return(pfromqry)
   }
 
@@ -395,7 +391,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
       if (!is.null(dsn)) {
         intensitynm <- findnm(DBI::dbListFields(dbconn, plotnm), returnNULL=TRUE)
       } else {
-        intensitynm <- findnm("INTENSITY", names(get(plotnm)), returnNULL=TRUE)
+        intensitynm <- findnm("INTENSITY", names(plotobj), returnNULL=TRUE)
       }
  
       if (!is.null(intensitynm)) {
@@ -425,7 +421,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     if (!is.null(Endyr)) {
       #if (!is.numeric(Endyr)) stop("Endyr must be numeric year")
       if (chk) {
-        yrlst.qry <- paste("select distinct", varCur, "from", pltnm, "order by INVYR")
+        yrlst.qry <- paste("select distinct", varCur, "from", plotnm, "order by INVYR")
         pltyrs <- DBI::dbGetQuery(dbconn, yrlst.qry)
 
         if (Endyr <= min(pltyrs, na.rm=TRUE))
@@ -479,7 +475,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
   } else if (!is.null(invyrs)) {
 
     if (chk) {
-      invyrlst.qry <- paste("select distinct INVYRS from", pltnm, "order by INVYR")
+      invyrlst.qry <- paste("select distinct INVYRS from", plotnm, "order by INVYR")
       pltyrs <- DBI::dbGetQuery(dbconn, invyrlst.qry)
 
       invyrs.miss <- invyrs[which(!invyrs %in% pltyrs)]
