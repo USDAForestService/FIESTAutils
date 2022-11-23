@@ -73,12 +73,13 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   ## Calculate adjustment factors by strata (and estimation unit) for variable list
   ## Sum condition variable(s) in varlst and divide by total number of plots in strata
   ###############################################################################
+  n <- "n.total"
+  keyvars=strunitvars <- c(unitvars, strvars)
 
   if (adj == "samp") {
     ## check tables
     unitlut <- pcheck.table(unitlut)
     unitarea <- pcheck.table(unitarea)
-    keyvars=strunitvars <- c(unitvars, strvars)
     setkeyv(unitlut, keyvars)
 
     ## Sum condition variable(s) in varlst by strata and rename varlst to *_sum
@@ -88,7 +89,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
     ## Merge condition adjustment factors to strata table.
     unitlut <- unitlut[cndadj]
-    n <- ifelse(is.null(strvars), "n.total", "n.strata")
+    if (!is.null(strvars)) n <- "n.strata"
 
     ## Calculate adjustment factor for conditions
     ## (divide summed condition proportions by total number of plots in strata)
@@ -145,6 +146,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     }
 
   } else {
+ 
     keyvars <- c(cuniqueid)
     setkeyv(condx, keyvars)
 
@@ -235,7 +237,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     setcolorder(unitlut, c(names(unitlut)[!names(unitlut) %in% varadjlst], 
 			names(unitlut)[names(unitlut) %in% varadjlst]))  
   }
-
+ 
   ## Remove summed variables from condx
   vars2remove <- c(varsumlst)
   vars2removec <- vars2remove[vars2remove %in% names(condx)]
@@ -251,16 +253,15 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   #condx[, names(condx)[grep("ADJ_FACTOR_", names(condx))]:= NULL]
   #condx[, names(condx)[grep("_UNADJ", names(condx))]:= NULL]
 
+
+
   adjfacdata <- list(condx=condx)
-
-  if (adj == "samp") {
-    setkeyv(unitlut, strunitvars)    
-    adjfacdata$unitlut <- unitlut
-    adjfacdata$expcondtab <- expcondtab
-  }
-
   if (!is.null(treex)) adjfacdata$treex <- treex
   if (!is.null(seedx)) adjfacdata$seedx <- seedx
+
+  setkeyv(unitlut, strunitvars)    
+  adjfacdata$unitlut <- unitlut
+  adjfacdata$expcondtab <- expcondtab
 
   adjfacdata$cvars2keep <- names(condx)[names(condx) != "CONDPROP_ADJ"]
   adjfacdata$areawtnm <- areawtnm
