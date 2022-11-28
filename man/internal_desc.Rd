@@ -2,10 +2,11 @@
 % Please edit documentation in R/DBinternal.R, R/Ratio2Size.R, R/addCI.R,
 %   R/change10char.R, R/cool_functions.R, R/cool_spfunctions.R,
 %   R/fileexistsnm.R, R/getRefcodes.R, R/getRefobject.R, R/getadjfactorDWM.R,
-%   R/getadjfactorP2VEG.R, R/getadjfactorVOL.R, R/getfunnm.R, R/getlt10char.R,
-%   R/getrhat.R, R/groupStrata.R, R/groupUnits.R, R/internal_desc.R,
-%   R/save1tab.R, R/save2tabs.R, R/strat_collapse.R, R/table_functions.R,
-%   R/vector_proc.r, R/wtcalc.R, R/wtcalc_unit.R
+%   R/getadjfactorGB.R, R/getadjfactorP2VEG.R, R/getadjfactorPLOT.R,
+%   R/getadjfactorVOL.R, R/getfunnm.R, R/getlt10char.R, R/getrhat.R,
+%   R/groupStrata.R, R/groupUnits.R, R/internal_desc.R, R/save1tab.R,
+%   R/save2tabs.R, R/strat_collapse.R, R/table_functions.R, R/vector_proc.r,
+%   R/wtcalc.R, R/wtcalc_unit.R
 \name{DBvars.default}
 \alias{DBvars.default}
 \alias{DBgetfn}
@@ -51,7 +52,9 @@
 \alias{getRefcodes}
 \alias{getRefobject}
 \alias{getadjfactorDWM}
+\alias{getadjfactorGB}
 \alias{getadjfactorP2VEG}
+\alias{getadjfactorPLOT}
 \alias{getadjfactorVOL}
 \alias{getfunnm}
 \alias{getlt10char}
@@ -295,6 +298,29 @@ getadjfactorDWM(
   dwmpropvars = NULL
 )
 
+getadjfactorGB(
+  condx = NULL,
+  treex = NULL,
+  seedx = NULL,
+  vcondsppx = NULL,
+  vcondstrx = NULL,
+  cond_dwm_calcx = NULL,
+  tuniqueid = "PLT_CN",
+  cuniqueid = "PLT_CN",
+  vuniqueid = "PLT_CN",
+  duniqueid = "PLT_CN",
+  condid = "CONDID",
+  unitlut = NULL,
+  unitvars = NULL,
+  strvars = NULL,
+  unitarea = NULL,
+  areavar = NULL,
+  areawt = "CONDPROP_UNADJ",
+  cvars2keep = NULL,
+  tpropvars = list(SUBP = "SUBPPROP_UNADJ", MICR = "MICRPROP_UNADJ", MACR =
+    "MACRPROP_UNADJ")
+)
+
 getadjfactorP2VEG(
   adj = "samp",
   condx,
@@ -310,6 +336,19 @@ getadjfactorP2VEG(
   areavar = NULL,
   areawt = "SUBP_CONDPROP_UNADJ",
   cvars2keep = NULL
+)
+
+getadjfactorPLOT(
+  condx = NULL,
+  treex = NULL,
+  seedx = NULL,
+  cuniqueid = "PLT_CN",
+  tuniqueid = "PLT_CN",
+  condid = "CONDID",
+  checkNA = TRUE,
+  areawt = "CONDPROP_UNADJ",
+  tpropvars = list(SUBP = "SUBPPROP_UNADJ", MICR = "MICRPROP_UNADJ", MACR =
+    "MACRPROP_UNADJ")
 )
 
 getadjfactorVOL(
