@@ -58,17 +58,17 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   if (!is.null(treex)) {
     tvarlst <- unlist(tpropvars)
     tvarlst2 <- tvarlst[which(tvarlst%in% names(condx))]
+
     if (length(tvarlst2) == 0) {
       stop("must include unadjusted variables in cond")
     }
     tvarsum <- lapply(tpropvars, function(x) paste0(x, "_SUM"))
     tvaradj <- lapply(tpropvars, function(x) paste0("ADJ_FACTOR_", sub("PROP_UNADJ", "", x)))
-    varlst <- c(varlst, tvarlst)
-    varsumlst <- c(varsumlst, unlist(tvarsum))
-    varadjlst <- c(varadjlst, unlist(tvaradj))
+    varlst <- unique(c(varlst, tvarlst))
+    varsumlst <- unique(c(varsumlst, unlist(tvarsum)))
+    varadjlst <- unique(c(varadjlst, unlist(tvaradj)))
   }
  
-
   ###############################################################################
   ## Calculate adjustment factors by strata (and estimation unit) for variable list
   ## Sum condition variable(s) in varlst and divide by total number of plots in strata
@@ -77,6 +77,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   keyvars=strunitvars <- c(unitvars, strvars)
 
   if (adj == "samp") {
+
     ## check tables
     unitlut <- pcheck.table(unitlut)
     unitarea <- pcheck.table(unitarea)
@@ -159,7 +160,6 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     pltadj[, (varadjlst) := lapply(.SD,
 	function(x) ifelse((is.na(x) | x==0), 0, 1/x)), .SDcols=varsumlst]
     condx <- condx[pltadj]
-
 
     ## Change name of condition adjustment factor to cadjfac
     ## Note: CONDPPROP_UNADJ is the same as below (combination of MACR and SUBP)
