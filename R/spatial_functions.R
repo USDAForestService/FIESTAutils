@@ -551,10 +551,9 @@ sf_dissolve <- function(sflayer, col=NULL, areacalc=TRUE) {
 closest_poly <- function(x.centroid, ypoly, ypoly.att=NULL, nbr=NULL, returnsf=TRUE) {
   ## DESCRIPTION: Get polygon(s) in y closest to x (centroid or polygon)
 
-  a<- sf::st_distance(x.centroid, ypoly, by_element=TRUE)
-
-
-  ypoly$dist <- units::drop_units(sf::st_distance(x.centroid, ypoly, by_element=TRUE))
+  ## Changed because of error in sf version (sf_1.0-9)
+  ## 'length(x) == length(y) is not TRUE'
+  ypoly$dist <- as.vector(sf::st_distance(x.centroid, ypoly, by_element=FALSE)[1,])
   ypoly <- ypoly[order(ypoly$dist, decreasing=FALSE),]
   if (is.null(nbr)) nbr <- nrow(ypoly)
   ypoly.near <- ypoly[1:nbr,]
