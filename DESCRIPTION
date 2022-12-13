@@ -55,4 +55,4 @@ BugReports: https://github.com/USDAForestService/FIESTAutils/issues
 Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
