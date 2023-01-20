@@ -497,8 +497,10 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
 
   ## Adds to file filters to Cran R Filters table.
   if (.Platform$OS.type=="windows") {
-    Filters=rbind(Filters,shp=c("R Objects (*.rda)", "*.rda")) }
-
+    Filters=rbind(Filters,obj=c("Rda Objects (*.rda)", "*.rda")) 
+    Filters=rbind(Filters,obj=c("Rds Objects (*.rds)", "*.rds")) 
+    Filters=rbind(Filters,obj=c("llo Objects (*.rda)", "*.llo")) 
+  }
 
   ## Set global variables
   objx <- NULL
@@ -506,7 +508,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
   if (is.null(objnm)) objnm <- "obj"
   if (is.null(caption)) caption <- "Object?"
 
-  selectlst <- c("NONE", "object", "rda")
+  selectlst <- c("NONE", "object", "rda", "rds", "llo")
 
   ## Check gui
   if (gui && !.Platform$OS.type=="windows")
@@ -525,12 +527,24 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
         obj <- select.list(objlst, title=caption, multiple=FALSE)
         if (obj == "") stop("")
         objx <- get(obj, pos=1)
-        if (!is.list(objx)) stop("must be list object")
+        #if (!is.list(objx)) stop("must be list object")
       } else if (objresp == "rda") {
         objfn <- choose.files(default=getwd(), caption=caption,
 			filters=Filters[c("rda", "All"),], multi=FALSE)
         if (objfn == "") stop("")
         objx <- get(load(objfn))
+        #if (!is.list(objx)) stop("must be list object")
+      } else if (objresp == "rds") {
+        objfn <- choose.files(default=getwd(), caption=caption,
+			filters=Filters[c("rds", "All"),], multi=FALSE)
+        if (objfn == "") stop("")
+        objx <- readRDS(file = objfn)
+        #if (!is.list(objx)) stop("must be list object")
+      } else if (objresp == "llo") {
+        objfn <- choose.files(default=getwd(), caption=caption,
+			filters=Filters[c("llo", "All"),], multi=FALSE)
+        if (objfn == "") stop("")
+        objx <- readList(file = objfn)
         if (!is.list(objx)) stop("must be list object")
       }
     }
@@ -544,8 +558,17 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
         #message(tab, " exists in Global Environment")
         return(get(obj))
       } else if (any(!is.na(getext(obj))) && file.exists(obj)) {
-        objx <- get(load(obj))
-        if (!is.list(objx)) stop("must be list object")
+        objext <- getext(obj)
+        if (objext == "rda") {
+          objx <- get(load(obj))
+        } else if (objext == "rds") {
+          objx <- readRDS(file = obj)
+        } else if (objext == "llo") {
+          objx <- readList(file = objfn)
+          if (!is.list(objx)) stop("must be list object")
+        } else {
+          stop("obj not supported")
+        }
       } else if (any(!is.na(getext(obj))) && !file.exists(obj)) {
         stop("file does not exist")
       } else if (any(is.na(getext(obj)))) {
