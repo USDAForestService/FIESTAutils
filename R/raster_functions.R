@@ -1,7 +1,7 @@
 ## getrastlst.rgdal - verifies a list of raster or raster files.
 ## areacalc.pixel - calculates area of raster pixels and appends to polygon attribute table.
 ## aspect_transform - transforms aspect, in degrees, to easting and northing units.
-## checkrast.longlat
+## checkrast.longlat - checks of raster has long/lat crs
 
 
 #' @rdname raster_desc

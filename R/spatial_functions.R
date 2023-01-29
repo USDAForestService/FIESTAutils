@@ -41,80 +41,6 @@ polyfix.sf <- function(x) {
   return(x)
 }
 
-#' @rdname spatial_desc
-#' @export
-build.prj4str <- function(prj, datum=NULL, ellps=NULL, zone=NULL, zoneS=FALSE,
-	aea.param="USGS", gui=FALSE) {
-
-  #######################################################################
-  ## DESCRIPTION:
-  ## Builds the proj4string from input parameters.
-  ##
-  ## ARGUMENTS:
-  ## prj - String. Projection
-  ## datum - String. Datum
-  ## zone - String. If prj="utm", UTM zone
-  ## zoneS - Logical. If prj="utm", if UTM zone is in Southern hemisphere
-  ## aea.param - If prj="aea", parameters
-  #######################################################################
-
-  ## Set variable lists
-  prjlst <- as.character(rgdal::projInfo(type="proj")$name)
-  #datumlst <- as.character(rgdal::projInfo(type="datum")$name)
-  ellpslst <- as.character(rgdal::projInfo(type="ellps")$name)
-  zonelst <- c(1:60)
-
-
-  prj <- pcheck.varchar(var2check=prj, varnm="prj", checklst=prjlst,
-		caption="Projection?", gui=gui, stopifnull=TRUE)
-  if (prj == "latlong") prj <- "longlat"
-
-#  datum <- pcheck.varchar(var2check=datum, varnm="datum", checklst=datumlst,
-#		caption="Datum?", gui=gui)
-  ellps.gui <- ifelse(is.null(datum), TRUE, FALSE)
-  ellps <- pcheck.varchar(var2check=ellps, varnm="ellps", checklst=ellpslst,
-		caption="Ellipse?", gui=ellps.gui)
-  if (is.null(ellps))
-    stop("both datum and ellpse are NULL.. cannot reproject")
-
-  if (prj == "utm") {
-    zone <- pcheck.varchar(var2check=as.character(zone), varnm="zone",
-		checklst=zonelst, caption="UTM zone?", gui=gui)
-    if (is.null(zone)) stop("must include zone number")
-
-    zoneS <- pcheck.logical(zoneS, varnm="zoneS", title="UTM South?",
-      	first="NO", gui=gui)
-  }
-
-  ###########################################
-  prj4str <- paste0("+proj=", prj)
-
-  if (prj == "longlat") {
-    if (!is.null(datum)) {
-      prj4str = paste0(prj4str, " +datum=", datum, " +no_defs")
-    } else {
-      prj4str = paste0(prj4str, " +ellps=", ellps, " +no_defs")
-    }
-  } else if (prj == "utm") {
-    prj4str <- paste0(prj4str, " +zone=", zone, " +datum=", datum)
-    if (zoneS) prj4str <- paste(prj4str, "+south")
-  } else if (prj == "aea") {
-    if (aea.param == "USGS") {
-      prj4str <- paste("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0",
-			"+ellps=GRS80 +towgs84=0,0,0,-0,-0,-0,0 +units=m +no_defs")
-    } else {
-      param <- " +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0"
-
-      if (!is.null(datum)) {
-        prj4str <- paste0(prj4str, param, " +datum=", datum, " +units=m +no_defs")
-      } else {
-        prj4str = paste0(prj4str, param, " +ellps=", ellps, " +no_defs")
-      }
-    }
-  }
-
-  return(prj4str)
-}
 
 #' @rdname spatial_desc
 #' @export
@@ -159,31 +85,6 @@ trunc10shp <- function(x) {
 
   return(list(shp=x, newnms=newnms))
 }
-
-#' @rdname spatial_desc
-#' @export
-getEPSG <- function(prj=NULL, datum=NULL, zone=NULL) {
-
-  #######################################################################
-  ## DESCRIPTION: Return table of potential EPSG codes and corresponding prj4str.
-  ##
-  ## ARGUMENTS:
-  ## prj - String. Projection ("longlat", "utm", "aea" (albers), "lcc" (Lambert))
-  ## datum - String. Datum ("WGS84", "NAD83", "NAD27")
-  ## zone - Number/String. If prj="utm", the UTM zone.
-  #######################################################################
-
-  lut <- EPSG <- rgdal::make_EPSG()
-  if (!is.null(prj))
-    lut <- lut[grep(paste0("+proj=", prj), lut$prj4), c("code", "prj4")]
-  if (!is.null(datum))
-    lut <- lut[grep(datum, lut$prj4), c("code", "prj4")]
-  if (!is.null(zone))
-    lut <- lut[grep(paste0("+zone=", zone), lut$prj4), c("code", "prj4")]
-
-  return(lut)
-}
-
 
 #' @rdname spatial_desc
 #' @export
@@ -376,21 +277,6 @@ areacalc.poly <- function(polyv, polyv_dsn=NULL, areaprj="aea", zone=NULL,
   return(units::drop_units(polyv))
 }
 
-
-#writeESRIprj <- function(x) {
-  ## Adds *.prj file to folder with *.bil file.
-  ## Note: when using raster getData(), the files are written the working
-  ## 		working directory as *.bil files. When read back into R, GDAL
-  ## 		thinks it is in ESRI format (not sure why), but missing a *.prj file.
-  ##		So, if you want to read from file, you must write a *.prj file
-  ##		to the same directory.
-
-#  p4s <- sp::proj4string(x)
-#  xfn <- x@file@name
-
-#  rgdal::showWKT(p4s, morphToESRI = TRUE,
-#      file=paste0(dirname(xfn), "/", basename.NoExt(xfn), ".prj"))
-#}
 
 #' @rdname spatial_desc
 #' @export
