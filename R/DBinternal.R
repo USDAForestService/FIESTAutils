@@ -454,7 +454,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 #    } else {
 
       pfromqry <- paste0(SCHEMA., plotnm, " p
-		INNER JOIN
+		LEFT JOIN
 		(select statecd, unitcd, countycd, plot, max(", varCur, ") maxyr
 		from ", SCHEMA., plotnm, where.qry,
 		" group by statecd, unitcd, countycd, plot) pp
