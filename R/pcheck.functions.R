@@ -766,7 +766,7 @@ pcheck.areaunits <- function(unitarea, areavar, areaunits, metric=FALSE) {
 #' @rdname pcheck_desc
 #' @export
 pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
-	caption=NULL, stopifnull=FALSE, gui=FALSE, polyfix=FALSE, asSpatial=FALSE,
+	caption=NULL, stopifnull=FALSE, gui=FALSE, polyfix=FALSE,
 	dropgeom=FALSE, stopifnoCRS=TRUE, checkonly=FALSE) {
   ## DESCRIPTION: checks or gets Vector layer from file name or spatial object.
   ## ARGUMENTS:
@@ -815,6 +815,9 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
       } else {
         layer <- layer[[1]]
       }
+    }
+    if ("SpatVector" %in% class(layer)) {
+      layer <- sf::st_as_sf(layer) 
     }
     if (any(c("sf", "data.frame") %in% class(layer))) {
       if (nrow(layer) == 0) {
