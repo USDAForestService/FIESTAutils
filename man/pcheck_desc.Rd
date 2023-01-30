@@ -119,7 +119,6 @@ pcheck.spatial(
   stopifnull = FALSE,
   gui = FALSE,
   polyfix = FALSE,
-  asSpatial = FALSE,
   dropgeom = FALSE,
   stopifnoCRS = TRUE,
   checkonly = FALSE
