@@ -946,10 +946,10 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
           if (length(states) == 1) {
             names(invyrlst) <- states
           } else {
-            warning("using specified invyrs for all states")
+            message("using specified invyrs for all states")
             yrs <- invyrs
             invyrlst <- sapply(states, function(x) NULL)
-            for (st in states) invyrlst[st] <- yrs
+            for (st in states) invyrlst[[st]] <- yrs
           } 
         }
       } else if (length(invyrs) != length(states)) {
@@ -981,7 +981,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
             message("using specified invyrs for all states")
             yrs <- measyrs
             measyrlst <- sapply(states, function(x) NULL)
-            for (st in states) measyrlst[st] <- yrs
+            for (st in states) measyrlst[[st]] <- yrs
           } 
         }
       } else if (length(measyrs) != length(states)) {
