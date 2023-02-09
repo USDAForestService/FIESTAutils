@@ -3,8 +3,9 @@
 getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL, 
      	tuniqueid="PLT_CN", cuniqueid="PLT_CN", condid="CONDID", unitlut=NULL, 
      	unitvars=NULL, strvars=NULL, unitarea=NULL, areavar=NULL, 
-	areawt="CONDPROP_UNADJ", cvars2keep=NULL, 
-	tpropvars=list(SUBP="SUBPPROP_UNADJ", MICR="MICRPROP_UNADJ", MACR="MACRPROP_UNADJ")){
+	areawt="CONDPROP_UNADJ", cvars2keep=NULL,
+	cpropvars=list(SUBP="SUBPPROP_UNADJ", MACR="MACRPROP_UNADJ"),
+	tpropvars=list(SUBP="SUBPPROP_UNADJ", MACR="MACRPROP_UNADJ", MICR="MICRPROP_UNADJ")){
 
   ####################################################################################
   ## DESCRIPTION:
@@ -55,6 +56,20 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   cadjfacnm <- varadjlst
 
   ## Get list of condition-level variables to calculate adjustments for
+  if (!is.null(cpropvars)) {
+    cvarlst <- unlist(cpropvars)
+    cvarlst2 <- cvarlst[which(cvarlst%in% names(condx))]
+
+    if (length(cvarlst2) > 0) {
+      cvarsum <- lapply(cpropvars, function(x) paste0(x, "_SUM"))
+      cvaradj <- lapply(cpropvars, function(x) paste0("ADJ_FACTOR_", sub("PROP_UNADJ", "", x)))
+      varlst <- unique(c(varlst, cvarlst))
+      varsumlst <- unique(c(varsumlst, unlist(cvarsum)))
+      varadjlst <- unique(c(varadjlst, unlist(cvaradj)))
+    }
+  }
+
+  ## Get list of condition-level variables to calculate adjustments for
   if (!is.null(treex)) {
     tvarlst <- unlist(tpropvars)
     tvarlst2 <- tvarlst[which(tvarlst%in% names(condx))]
@@ -62,8 +77,8 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     if (length(tvarlst2) == 0) {
       stop("must include unadjusted variables in cond")
     }
-    tvarsum <- lapply(tpropvars, function(x) paste0(x, "_SUM"))
-    tvaradj <- lapply(tpropvars, function(x) paste0("ADJ_FACTOR_", sub("PROP_UNADJ", "", x)))
+    tvarsum <- lapply(tvarlst, function(x) paste0(x, "_SUM"))
+    tvaradj <- lapply(tvarlst, function(x) paste0("ADJ_FACTOR_", sub("PROP_UNADJ", "", x)))
     varlst <- unique(c(varlst, tvarlst))
     varsumlst <- unique(c(varsumlst, unlist(tvarsum)))
     varadjlst <- unique(c(varadjlst, unlist(tvaradj)))
@@ -77,7 +92,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   keyvars=strunitvars <- c(unitvars, strvars)
 
   if (adj == "samp") {
-
+ 
     ## check tables
     unitlut <- pcheck.table(unitlut)
     unitarea <- pcheck.table(unitarea)
@@ -101,7 +116,6 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     setkeyv(condx, keyvars)
     condx <- condx[unitlut[,c(strunitvars, varadjlst), with=FALSE]]
 
-
     ## Change name of condition adjustment factor to cadjfac
     ## Note: CONDPPROP_UNADJ is the same as below (combination of MACR and SUBP)
 #    if (all(length(areawt) == 1, areawt == "CONDPROP_UNADJ")) {  
@@ -121,7 +135,6 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 #    }
     setkeyv(condx, c(cuniqueid, condid))
 
-
     ## Calculate adjusted condition proportions for different size plots for trees
     if (!is.null(treex)) {
       setkeyv(treex, c(tuniqueid, condid))
@@ -139,7 +152,6 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
       } else {
         treex[condx, tadjfac := 1]
       }
-
       if (!is.null(seedx)) {
         setkeyv(seedx, c(tuniqueid, condid))
         seedx[condx, tadjfac := get(tvaradj[["MICR"]])]
@@ -265,6 +277,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
   adjfacdata$cvars2keep <- names(condx)[names(condx) != "CONDPROP_ADJ"]
   adjfacdata$areawtnm <- areawtnm
+  adjfacdata$areaadj <- areaadj
   adjfacdata$varadjlst <- varadjlst
 
   return(adjfacdata)

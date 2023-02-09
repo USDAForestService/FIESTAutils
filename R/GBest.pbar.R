@@ -41,7 +41,6 @@ GBest.pbar <- function(sumyn="CONDPROP_ADJ", ysum, sumyd=NULL, esttype="AREA",
 
   if (esttype == "RATIO") {
     if (ratiotype == "PERTREE") {
-      sumyd <- paste(sumyn, "d", sep=".")
       if (!sumyd %in% names(ysum)) {
         message(sumyd, " not in denominator")
         return(NULL)

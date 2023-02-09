@@ -544,7 +544,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
         objfn <- choose.files(default=getwd(), caption=caption,
 			filters=Filters[c("llo", "All"),], multi=FALSE)
         if (objfn == "") stop("")
-        objx <- readList(file = objfn)
+        objx <- largeList::readList(file = objfn)
         if (!is.list(objx)) stop("must be list object")
       }
     }
@@ -564,7 +564,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
         } else if (objext == "rds") {
           objx <- readRDS(file = obj)
         } else if (objext == "llo") {
-          objx <- readList(file = objfn)
+          objx <- largeList::readList(file = objfn)
           if (!is.list(objx)) stop("must be list object")
         } else {
           stop("obj not supported")
