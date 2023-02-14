@@ -167,9 +167,9 @@ Ratio2Size <- function(yn, y2n = NULL, yd, y2d = NULL, ysum, dsum,
 
   if (!is.null(y2n)) {
     RHGdat[, ':=' (ssq2.dom = n.resp^2 / (n.resp - 1) * 
-				(y2nsq.dom - 2 * y2bar.dom * nd2.dom + y2bar.dom^2 * y2dsq.dom) / (y2d.dom^2),
+					(y2nsq.dom - 2 * y2bar.dom * nd2.dom + y2bar.dom^2 * y2dsq.dom) / (y2d.dom^2),
                    cov.dom = n.resp^2 / (n.resp - 1) * 
-           		(covyd.dom - y2bar.dom * nd.dom - ybar.dom * nd2.dom + 
+           				(covyd.dom - y2bar.dom * nd.dom - ybar.dom * nd2.dom + 
 					ybar.dom * y2bar.dom * covyd.dom) / (yd.dom * y2d.dom) ) ] 
 
     RHGdat[, ':=' (ybar.dom = ybar.dom + y2bar.dom,
@@ -210,7 +210,6 @@ Ratio2Size <- function(yn, y2n = NULL, yd, y2d = NULL, ysum, dsum,
   ##############################################################
   #ybardat <- merge(stratalut, ybardat, by=strunitvars, all.x=TRUE)
   ybardat <- merge(stratalut, ybardat, by=strunitvars)
-
 
 ################
 ## CHECK THIS LATER
