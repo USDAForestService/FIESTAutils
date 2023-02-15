@@ -35,6 +35,14 @@ write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
   ## Check layer
   layer <- pcheck.table(layer)
 
+
+  ## Change columns of type POSIX* to character before writing to database
+  if (any(grepl("POSIX", lapply(layer, class)))) {
+    POSIXcols <- names(layer)[grepl("POSIX", lapply(layer, class))]
+    layer <- setDF(layer)
+    layer[POSIXcols] <- lapply(layer[POSIXcols], as.character)
+  }
+
   ## Write table to database
   DBI::dbWriteTable(dbconn, out_name, layer, append=append_layer, overwrite=overwrite)
   message(paste(appendtext, out_name, "to", SQLitefn))
