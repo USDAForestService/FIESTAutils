@@ -5,8 +5,8 @@
 %   R/getadjfactorGB.R, R/getadjfactorP2VEG.R, R/getadjfactorPLOT.R,
 %   R/getadjfactorVOL.R, R/getfunnm.R, R/getlt10char.R, R/getrhat.R,
 %   R/groupStrata.R, R/groupUnits.R, R/internal_desc.R, R/save1tab.R,
-%   R/save2tabs.R, R/strat_collapse.R, R/table_functions.R, R/vector_proc.r,
-%   R/wtcalc.R, R/wtcalc_unit.R
+%   R/save2tabs.R, R/strat_collapse.R, R/subpsamp.R, R/table_functions.R,
+%   R/vector_proc.r, R/wtcalc.R, R/wtcalc_unit.R
 \name{DBvars.default}
 \alias{DBvars.default}
 \alias{DBgetfn}
@@ -66,6 +66,7 @@
 \alias{save1tab}
 \alias{save2tabs}
 \alias{strat.collapse}
+\alias{subpsamp}
 \alias{allin1f}
 \alias{crosstabx}
 \alias{add0unit}
@@ -464,6 +465,15 @@ strat.collapse(
   unitcombine = FALSE,
   vars2combine = NULL,
   ...
+)
+
+subpsamp(
+  cond,
+  subp_cond,
+  subplot,
+  data_dsn = NULL,
+  subpuniqueid = "PLT_CN",
+  subpid = "SUBP"
 )
 
 allin1f(
