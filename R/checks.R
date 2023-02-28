@@ -148,7 +148,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
   ## Define function
   unAsIs <- function(X) {
      ## Description: removes AsIs from class
-     if("AsIs" %in% class(X)) {
+     if ("AsIs" %in% class(X) && !any(c("sfc_POINT", "sfc") %in% class(X))) {
          class(X) <- class(X)[-match("AsIs", class(X))]
      }
      X
@@ -161,7 +161,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
   if (is.null(tab2txt)) tab2txt <- "tab2"
 
   if (is.null(tab1) || is.null(tab2)) stop("invalid tables")
-
+ 
   if (length(matchcol) > 1 && !all(matchcol %in% names(tab1))) {
     nomatch <- matchcol[which(!matchcol %in% names(tab1))]
     stop(paste(toString(nomatch), "not in", tab1txt))
@@ -184,6 +184,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
     #if (length(matchcol) > 1) stop("only 1 matchcol allowed if different names")
     if (length(matchcol) > length(var2)) stop("number of vars in matchcol different than vars2")
   }
+
   for (i in 1:length(matchcol)) {
     v <- matchcol[i]
     if (!is.null(var2)) {
@@ -214,8 +215,10 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
       tab2[[v2]] <- as.character(tab2[[v2]])
     }
 
-    tab1 <- tab1[, lapply(.SD, unAsIs)]
-    tab2 <- tab2[, lapply(.SD, unAsIs)]
+    #tab1 <- tab1[, lapply(.SD, unAsIs)]
+    #tab2 <- tab2[, lapply(.SD, unAsIs)]
+    tab1[,] <- lapply(tab1[,], unAsIs)
+    tab2[,] <- lapply(tab2[,], unAsIs)
 
     tab1.class <- class(tab1[[v1]])
     tab2.class <- class(tab2[[v2]])
