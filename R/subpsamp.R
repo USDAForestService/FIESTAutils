@@ -6,15 +6,15 @@ subpsamp <- function(cond, subp_cond, subplot, data_dsn = NULL,
   ## DESCRIPTION: Summarize sampled subplot condition proportions.
 
   ## Check cond
-  condx <- pcheck.table(cond, tab_dsn=data_dsn, tabnm="cond", gui=gui, 
+  condx <- pcheck.table(cond, tab_dsn=data_dsn, tabnm="cond", 
 			caption="Condition table?")
 
   ## Check subplot
-  subplotx <- pcheck.table(subplot, tab_dsn=data_dsn, tabnm="subplot", gui=gui, 
+  subplotx <- pcheck.table(subplot, tab_dsn=data_dsn, tabnm="subplot",
 			caption="Subplot table table?")
 
   ## Check cond
-  subp_condx <- pcheck.table(subp_cond, tab_dsn=data_dsn, tabnm="subp_cond", gui=gui, 
+  subp_condx <- pcheck.table(subp_cond, tab_dsn=data_dsn, tabnm="subp_cond",
 			caption="Subplot condition table?")
 
   ## Remove nonsampled conditions by subplotx
@@ -31,14 +31,14 @@ subpsamp <- function(cond, subp_cond, subplot, data_dsn = NULL,
       message("assuming all sampled conditions in subplot")
     }
       
-    if (ACI && "NF_COND_STATUS_CD" %in% names(subplotx)) {
-      subp.nonsamp.filter.ACI <- "(is.na(NF_SUBP_STATUS_CD) | NF_SUBP_STATUS_CD != 3)"
-      message("removing ", sum(is.na(NF_SUBP_STATUS_CD) & NF_SUBP_STATUS_CD == 3, na.rm=TRUE), 
-		" nonsampled nonforest conditions")
-      if (!is.null(subp.nonsamp.filter)) {
-        subp.nonsamp.filter <- paste(subp.nonsamp.filter, "&", subp.nonsamp.filter.ACI)
-      }
-    }
+#     if (ACI && "NF_COND_STATUS_CD" %in% names(subplotx)) {
+#       subp.nonsamp.filter.ACI <- "(is.na(NF_SUBP_STATUS_CD) | NF_SUBP_STATUS_CD != 3)"
+#       message("removing ", sum(is.na(NF_SUBP_STATUS_CD) & NF_SUBP_STATUS_CD == 3, na.rm=TRUE), 
+# 		" nonsampled nonforest conditions")
+#       if (!is.null(subp.nonsamp.filter)) {
+#         subp.nonsamp.filter <- paste(subp.nonsamp.filter, "&", subp.nonsamp.filter.ACI)
+#       }
+#     }
     subplotx <- datFilter(x=subplotx, xfilter=subp.nonsamp.filter, 
 		title.filter="subp.nonsamp.filter")$xf
 
