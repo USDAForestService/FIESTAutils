@@ -8,6 +8,7 @@
 ## DBgetbyids		## Gets data from database from ids
 ## changeclass
 ## customEvalchk
+## addftypgrp         ## Appends forest type group codes to table
 
 
 #' @rdname internal_desc
@@ -1017,5 +1018,25 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 		measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
 		invyrs=invyrs, measyrs=measyrs, 
            invyrlst=invyrlst, measyrlst=measyrlst)
+}
+
+
+#' @rdname internal_desc
+#' @export
+addftypgrp <- function(x) {
+  ## DESCRIPTION: appends fortypgrpcd and fortypgrpnm to table
+  ftypnm <- findnm("FORTYPCD", names(x), returnNULL=TRUE)
+  if (is.null(ftypnm)) {
+    stop("FORTYPCD not in x")
+  }
+  ftypgrpnm <- findnm("FORTYPGRPCD", names(x), returnNULL=TRUE)
+  if (!is.null(ftypgrpnm)) {
+    stop("FORTYPGRPCD already in x")
+  }
+  ref_fortypcd <- ref_codes[ref_codes$VARIABLE == "FORTYPCD", c("VALUE", "GROUPCD", "GROUPNM")]
+  names(ref_fortypcd) <- c("FORTYPCD", "FORTYPGRPCD", "FORTYPGRPNM")
+
+  x <- datLUTnm(x, xvar=ftypnm, LUT=ref_fortypcd, LUTvar="FORTYPCD")$xLUT
+  return(x)
 }
 
