@@ -1,3 +1,8 @@
+# FIESTutils 1.1.5
+
+* Deprecated evalType - changed to Type
+
+
 # FIESTutils 1.1.3
 
 * Updated codes for FORTYPCD, FORTYPGRPCD, SPCD, SPGRPCD
