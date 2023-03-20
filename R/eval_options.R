@@ -20,14 +20,16 @@
 #' in database (annual inventory only).
 #' @param evalid Integer. Only eval='FIA': extract data for a specific 
 #' evaluation period. See notes for more information about FIA Evaluations.
-#' @param evalType String vector. Only eval='FIA": type(s) of 'FIA' 
-#' evaluation ('CURR','VOL','GRM','P2VEG','DWM','INV','CHNG','GRM','REGEN').  
-#' The evalType 'CURR' includes nonsampled plots; 'VOL' includes plots used 
-#' for area or tree estimates (eval_typ %in% c(CURR, VOL)); The evalType 
-#' 'GRM' includes plots used for growth, removals, mortality, and change 
-#' estimates (eval_typ in(GROW, MORT, REMV, CHNG)). Multiple types are 
-#' accepted. See FIA database manual for regional availability and/or 
-#' differences.
+#' @param Type String vector. Evaluation types ('CURR','VOL','P2VEG',
+#' DWM','INV','CHNG','GRM','REGEN'). If eval='FIA', Type is equivalent to
+#' plots for FIA Evaluations where 'CURR' includes nonsampled plots; 'VOL' 
+#' includes plots used for area or tree estimates; Type = 'GRM' includes 
+#' plots used for growth, removals, mortality; and Type = 'CHNG' includes 
+#' plots used for change estimates (See FIA database manual for region
+#' availability and/or differences 
+#' (https://www.fia.fs.usda.gov/library/database-documentation/index.php) 
+#' If eval='custom', the associated tables are extracted for each Type. 
+#' Multiple Types are accepted.
 #' @param invyrs Integer vector. eval='custom': defines specific  
 #' inventory years of data (e.g., 2010:2015). See FIA manual for 
 #' definition of INVYR. 
@@ -45,7 +47,7 @@ eval_options <- function(Cur = FALSE,
                          Endyr = NULL,
                          Endyr.filter = NULL,
                          All = FALSE,
-                         evalType = "VOL",
+                         Type = "VOL",
                          evalid = NULL, 
                          invyrs = NULL, 
                          measyrs = NULL,                         
@@ -53,7 +55,7 @@ eval_options <- function(Cur = FALSE,
 
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
-  formallst <- c(names(formals(eval_options)))
+  formallst <- c(names(formals(eval_options)), "evalType")
   if (!all(input.params %in% formallst)) {
     miss <- input.params[!input.params %in% formallst]
     stop("invalid parameter: ", toString(miss))
@@ -64,6 +66,13 @@ eval_options <- function(Cur = FALSE,
   
   # create list from input parameters
   l <- c(as.list(environment()), list(...))
+
+  if ("evalType" %in% names(l)) {
+    message("the parameter evalType is deprecated... use 'Type'\n")
+    l$Type <- l$evalType
+    l$evalType <- NULL
+  }
+
   
   # return list
   return(l)
