@@ -9,7 +9,7 @@ eval_options(
   Endyr = NULL,
   Endyr.filter = NULL,
   All = FALSE,
-  evalType = "VOL",
+  Type = "VOL",
   evalid = NULL,
   invyrs = NULL,
   measyrs = NULL,
@@ -34,14 +34,16 @@ the disturbance will be excluded.}
 database (annual inventory only). If eval='custom': includes all years 
 in database (annual inventory only).}
 
-\item{evalType}{String vector. Only eval='FIA": type(s) of 'FIA' 
-evaluation ('CURR','VOL','GRM','P2VEG','DWM','INV','CHNG','GRM','REGEN').  
-The evalType 'CURR' includes nonsampled plots; 'VOL' includes plots used 
-for area or tree estimates (eval_typ %in% c(CURR, VOL)); The evalType 
-'GRM' includes plots used for growth, removals, mortality, and change 
-estimates (eval_typ in(GROW, MORT, REMV, CHNG)). Multiple types are 
-accepted. See FIA database manual for regional availability and/or 
-differences.}
+\item{Type}{String vector. Evaluation types ('CURR','VOL','P2VEG',
+DWM','INV','CHNG','GRM','REGEN'). If eval='FIA', Type is equivalent to
+plots for FIA Evaluations where 'CURR' includes nonsampled plots; 'VOL' 
+includes plots used for area or tree estimates; Type = 'GRM' includes 
+plots used for growth, removals, mortality; and Type = 'CHNG' includes 
+plots used for change estimates (See FIA database manual for region
+availability and/or differences 
+(https://www.fia.fs.usda.gov/library/database-documentation/index.php) 
+If eval='custom', the associated tables are extracted for each Type. 
+Multiple Types are accepted.}
 
 \item{evalid}{Integer. Only eval='FIA': extract data for a specific 
 evaluation period. See notes for more information about FIA Evaluations.}
