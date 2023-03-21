@@ -35,6 +35,7 @@
 #' definition of INVYR. 
 #' @param measyrs Integer vector. eval='custom': defines specific
 #' measurement years of data (e.g., 2010:2015).
+#' @param evalType Deprecated. Use Type instead.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Tracey S. Frescino
@@ -50,7 +51,8 @@ eval_options <- function(Cur = FALSE,
                          Type = "VOL",
                          evalid = NULL, 
                          invyrs = NULL, 
-                         measyrs = NULL,                         
+                         measyrs = NULL, 
+                         evalType = "VOL",                        
                          ...) {
 
   # Check input parameters

@@ -13,6 +13,7 @@ eval_options(
   evalid = NULL,
   invyrs = NULL,
   measyrs = NULL,
+  evalType = "VOL",
   ...
 )
 }
@@ -54,6 +55,8 @@ definition of INVYR.}
 
 \item{measyrs}{Integer vector. eval='custom': defines specific
 measurement years of data (e.g., 2010:2015).}
+
+\item{evalType}{Deprecated. Use Type instead.}
 
 \item{...}{For extendibility.}
 }

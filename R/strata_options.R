@@ -16,6 +16,7 @@
 #' @param minplotnum.strat Integer. Minimum number of plots for a stratum
 #' within an estimation unit.
 #' @param pivot Logical. If TRUE, pivot stratalut. 
+#' @param nonresp Deprecated. 
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Grayson W. White
@@ -26,10 +27,14 @@
 #' 
 #' @export strata_options
 
-strata_options <- function(getwt=FALSE, getwtvar="P1POINTCNT", 
-                           strwtvar="strwt",
-                           stratcombine=TRUE, minplotnum.strat=2, 
-                           pivot=FALSE, ...) {
+strata_options <- function(getwt = FALSE, 
+                           getwtvar = "P1POINTCNT", 
+                           strwtvar = "strwt",
+                           stratcombine = TRUE, 
+                           minplotnum.strat = 2, 
+                           pivot = FALSE, 
+                           nonresp = FALSE,
+                           ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(strata_options)))

@@ -11,6 +11,7 @@ strata_options(
   stratcombine = TRUE,
   minplotnum.strat = 2,
   pivot = FALSE,
+  nonresp = FALSE,
   ...
 )
 }
@@ -32,6 +33,8 @@ See notes for more info.}
 within an estimation unit.}
 
 \item{pivot}{Logical. If TRUE, pivot stratalut.}
+
+\item{nonresp}{Deprecated.}
 
 \item{...}{For extendibility.}
 }
