@@ -41,6 +41,7 @@ write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
     POSIXcols <- names(layer)[grepl("POSIX", lapply(layer, class))]
     layer <- setDF(layer)
     layer[POSIXcols] <- lapply(layer[POSIXcols], as.character)
+    layer <- setDT(layer)
   }
 
   ## Write table to database

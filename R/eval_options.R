@@ -20,13 +20,13 @@
 #' in database (annual inventory only).
 #' @param evalid Integer. Only eval='FIA': extract data for a specific 
 #' evaluation period. See notes for more information about FIA Evaluations.
-#' @param Type String vector. Evaluation types ('CURR','VOL','P2VEG',
+#' @param Type String vector. Evaluation types ('ALL','CURR','VOL','P2VEG',
 #' DWM','INV','CHNG','GRM','REGEN'). If eval='FIA', Type is equivalent to
-#' plots for FIA Evaluations where 'CURR' includes nonsampled plots; 'VOL' 
-#' includes plots used for area or tree estimates; Type = 'GRM' includes 
-#' plots used for growth, removals, mortality; and Type = 'CHNG' includes 
-#' plots used for change estimates (See FIA database manual for region
-#' availability and/or differences 
+#' plots for FIA Evaluations where 'ALL' includes nonsampled plots; 'VOL' 
+#' and 'CURR' include plots used for area or tree estimates; Type = 'GRM' 
+#' includes plots used for growth, removals, mortality; and Type = 'CHNG' 
+#' includes plots used for change estimates (See FIA database manual for 
+#' regioin availability and/or differences 
 #' (https://www.fia.fs.usda.gov/library/database-documentation/index.php) 
 #' If eval='custom', the associated tables are extracted for each Type. 
 #' Multiple Types are accepted.
@@ -73,6 +73,8 @@ eval_options <- function(Cur = FALSE,
     message("the parameter evalType is deprecated... use 'Type'\n")
     l$Type <- l$evalType
     l$evalType <- NULL
+  } else {
+    l$Type <- l$Type
   }
 
   

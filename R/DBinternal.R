@@ -911,7 +911,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
  
   ## Check INVYR(S) 
   ###########################################################
-  if (!measCur) {
+  if (!measCur || !is.null(invyrs) || !is.null(measyrs)) {
     if ((is.null(invyrs) || length(invyrs) == 0) && 
 		(is.null(measyrs) || length(measyrs) == 0)) {
       if (is.null(invyrtab)) {
@@ -955,21 +955,26 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
         }
       } else if (length(invyrs) != length(states)) {
         stop("check invyrs list.. does not match number of states")
+      } else {
+        invyrlst <- invyrs
       }
-      ## Check inventory years
-      for (state in states) {
-        stcd <- pcheck.states(state, "VALUE")
-        if ("STATENM" %in% names(invyrtab)) {
-          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
-        } else if ("STATECD" %in% names(invyrtab)) {
-          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
-        } else {
-          stop("invyrtab is invalid")
-        }
-        if (!all(invyrlst[[state]] %in% stinvyrlst)) {
-          invyrlst[[state]] <- invyrlst[[state]][invyrs[[state]] %in% stinvyrlst]
-          missyr <- invyrlst[[state]][!invyrlst[[state]] %in% stinvyrlst]
-          message(state, " missing following inventory years: ", toString(missyr))
+ 
+      if (!is.null(invyrtab)) {
+        ## Check inventory years
+        for (state in states) {
+          stcd <- pcheck.states(state, "VALUE")
+          if ("STATENM" %in% names(invyrtab)) {
+            stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, "INVYR"])
+          } else if ("STATECD" %in% names(invyrtab)) {
+            stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
+          } else {
+            stop("invyrtab is invalid")
+          }
+          if (!all(invyrlst[[state]] %in% stinvyrlst)) {
+            invyrlst[[state]] <- invyrlst[[state]][invyrs[[state]] %in% stinvyrlst]
+            missyr <- invyrlst[[state]][!invyrlst[[state]] %in% stinvyrlst]
+            message(state, " missing following inventory years: ", toString(missyr))
+          }
         }
       }
     } else if (!is.null(measyrs)) {
@@ -988,27 +993,31 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
       } else if (length(measyrs) != length(states)) {
         stop("check measyrs list.. does not match number of states")
       }
-      ## Check inventory years
-      for (state in states) {
-        stcd <- pcheck.states(state, "VALUE")
-        names(invyrtab) <- toupper(names(invyrtab))
-        yrnm <- ifelse("INVYR" %in% names(invyrtab), "INVYR", 
+
+      if (!is.null(invyrtab)) {
+
+        ## Check inventory years
+        for (state in states) {
+          stcd <- pcheck.states(state, "VALUE")
+          names(invyrtab) <- toupper(names(invyrtab))
+          yrnm <- ifelse("INVYR" %in% names(invyrtab), "INVYR", 
 			ifelse("MEASYEAR" %in% names(invyrtab), "MEASYEAR", "NONE"))
-        if (yrnm == "NONE") {
-          stop("invyrtab is invalid")
-        }           
+          if (yrnm == "NONE") {
+            stop("invyrtab is invalid")
+          }           
  
-        if ("STATENM" %in% names(invyrtab)) {
-          stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, yrnm])
-        } else if ("STATECD" %in% names(invyrtab)) {
-          stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, yrnm])
-        } else {
-          stop("invyrtab is invalid")
-        }
-        if (!all(measyrlst[[state]] %in% stinvyrlst)) {
-          measyrlst[[state]] <- measyrlst[[state]][measyrlst[[state]] %in% stinvyrlst]
-          missyr <- measyrlst[[state]][!measyrlst[[state]] %in% stinvyrlst]
-          message(state, " missing following inventory years: ", toString(missyr))
+          if ("STATENM" %in% names(invyrtab)) {
+            stinvyrlst <- sort(invyrtab[invyrtab$STATENM == state, yrnm])
+          } else if ("STATECD" %in% names(invyrtab)) {
+            stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, yrnm])
+          } else {
+            stop("invyrtab is invalid")
+          }
+          if (!all(measyrlst[[state]] %in% stinvyrlst)) {
+            measyrlst[[state]] <- measyrlst[[state]][measyrlst[[state]] %in% stinvyrlst]
+            missyr <- measyrlst[[state]][!measyrlst[[state]] %in% stinvyrlst]
+            message(state, " missing following inventory years: ", toString(missyr))
+          }
         }
       }
     }
