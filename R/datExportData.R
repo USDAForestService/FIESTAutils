@@ -118,7 +118,8 @@ datExportData <- function(dfobj, create_dsn=FALSE,
       out_dsn <- DBtestSQLite(out_dsn, gpkg=gpkg, outfolder=outfolder,
 		returnpath=TRUE, showlist=FALSE)
     }
-    write2sqlite(dfobj, SQLitefn=out_dsn, out_name=out_layer, gpkg=gpkg,
+ 
+    write2sqlite(setDT(dfobj), SQLitefn=out_dsn, out_name=out_layer, gpkg=gpkg,
 		overwrite=overwrite_layer, append_layer=append_layer,
 		index.unique=index.unique, index=index)
 

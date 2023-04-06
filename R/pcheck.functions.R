@@ -652,7 +652,6 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
   ###########################################################
   chkfn <- checkfilenm(out_dsn, outfolder=outfolder)
 
-
   if (is.null(chkfn)) {
     ext <- "db"
     if (is.null(out_dsn)) {

@@ -70,8 +70,12 @@ eval_options <- function(Cur = FALSE,
   l <- c(as.list(environment()), list(...))
 
   if ("evalType" %in% names(l)) {
-    message("the parameter evalType is deprecated... use 'Type'\n")
-    l$Type <- l$evalType
+    if ("Type" %in% names(l) && l$Type != "VOL") {
+      l$Type <- l$Type
+    } else {
+      message("the parameter evalType is deprecated... use 'Type'\n")
+      l$Type <- l$evalType 
+    }
     l$evalType <- NULL
   } else {
     l$Type <- l$Type

@@ -52,7 +52,7 @@ write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
     message("invalid index.unique... names not in ", out_name)
     index.unique <- NULL
   }
-
+ 
   if (!is.null(index.unique)) {
     idxnm <- paste0(out_name, "_", paste(tolower(index.unique), collapse="_"), "_idx")
     if (sum(duplicated(layer[,index.unique, with=FALSE])) > 0) {
