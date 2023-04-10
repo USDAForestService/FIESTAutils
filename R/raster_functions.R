@@ -30,6 +30,10 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
     Filters <- rbind(Filters,bil=c("Binary (*.bil)", "*.bil"))
   }
 
+  if (!is.list(rastnmlst)) {
+    rastnmlst <- as.list(rastnmlst)
+  }
+
   rastfnlst <- {}
   if (is.null(rastnmlst)) {
     if (gui) {
@@ -76,25 +80,18 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
         return(NULL)
       }
     }
-  } else if (class(rastnmlst) %in% c("RasterLayer", "RasterStack", "RasterBrick")) {
-    rastfn <- rastnmlst[[1]]@file@name
-    if (file.exists(rastfn)) {
-      rastfnlst <- c(rastfnlst, rastfn)
-    } else {
-      stop(rastfn, "is invalid... must be saved to file")
-    }
-  } else if (any(sapply(rastnmlst, isS4))) {
+  } else if (any(class(rastnm) %in% "SpatRaster")) {
     for (rastnm in rastnmlst) {
-      if (!class(rastnm) %in% c("RasterLayer", "RasterStack", "RasterBrick")) {
+      if (!class(rastnm) %in% "SpatRaster") {
         if (file.exists(rastnm[[1]])) {
           rastfnlst <- c(rastfnlst, rastnm)
         } else {
           message(rastnm[[1]], "is invalid")
         }
       } else {
-        rastfn <- rastnm[[1]]@file@name
+        rastfn <- sources(rastnm)
         if (file.exists(rastfn)) {
-         rastfnlst <- c(rastfnlst, rastfn)
+         rastfnlst <- unique(c(rastfnlst, rastfn))
         } else {
          stop(rastfn, "is invalid")
         }
