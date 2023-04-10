@@ -30,10 +30,6 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
     Filters <- rbind(Filters,bil=c("Binary (*.bil)", "*.bil"))
   }
 
-  if (!is.list(rastnmlst)) {
-    rastnmlst <- as.list(rastnmlst)
-  }
-
   rastfnlst <- {}
   if (is.null(rastnmlst)) {
     if (gui) {
@@ -80,37 +76,43 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
         return(NULL)
       }
     }
-  } else if (any(class(rastnmlst) %in% "SpatRaster")) {
-    for (rastnm in rastnmlst) {
-      if (!class(rastnm) %in% "SpatRaster") {
-        if (file.exists(rastnm[[1]])) {
-          rastfnlst <- c(rastfnlst, rastnm)
+  } else {
+    if (!is.list(rastnmlst)) {
+      rastnmlst <- as.list(rastnmlst)
+    }
+
+    if (any(class(rastnmlst) %in% "SpatRaster")) {
+      for (rastnm in rastnmlst) {
+        if (!class(rastnm) %in% "SpatRaster") {
+          if (file.exists(rastnm[[1]])) {
+            rastfnlst <- c(rastfnlst, rastnm)
+          } else {
+            message(rastnm[[1]], "is invalid")
+          }
         } else {
-          message(rastnm[[1]], "is invalid")
-        }
-      } else {
-        rastfn <- sources(rastnm)
-        if (file.exists(rastfn)) {
-         rastfnlst <- unique(c(rastfnlst, rastfn))
-        } else {
-         stop(rastfn, "is invalid")
+          rastfn <- sources(rastnm)
+          if (file.exists(rastfn)) {
+           rastfnlst <- unique(c(rastfnlst, rastfn))
+          } else {
+           stop(rastfn, "is invalid")
+          }
         }
       }
-    }
-  } else {  ## !is.null(rastnmlst)
-    if (!is.null(rastfolder)) {
-      if (file.exists(rastfolder) && rastfolder != "") {
-        rastfnlst <- paste(rastfolder, rastnmlst, sep="/")
+    } else {  ## !is.null(rastnmlst)
+      if (!is.null(rastfolder)) {
+        if (file.exists(rastfolder) && rastfolder != "") {
+          rastfnlst <- paste(rastfolder, rastnmlst, sep="/")
+        } else {
+          stop("rastfolder is not valid")
+        }
       } else {
-        stop("rastfolder is not valid")
+        rastfnlst <- rastnmlst
       }
-    } else {
-      rastfnlst <- rastnmlst
-    }
-    if (sum(sapply(rastfnlst, file.exists) == FALSE) > 0) {
-       notexist <- rastfnlst[sapply(rastfnlst, file.exists) == FALSE]
-       message("invalid rastnm in rastmlst:")
-       message(paste(unlist(notexist), collapse=", "))
+      if (sum(sapply(rastfnlst, file.exists) == FALSE) > 0) {
+         notexist <- rastfnlst[sapply(rastfnlst, file.exists) == FALSE]
+         message("invalid rastnm in rastmlst:")
+         message(paste(unlist(notexist), collapse=", "))
+      }
     }
   }
 
@@ -132,7 +134,7 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
       if (stopifLonLat) stop("")
     }
   }
-  return(rastfnlst)
+  return(unlist(rastfnlst))
 }
 
 #' @rdname raster_desc
