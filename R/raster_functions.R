@@ -80,7 +80,7 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
         return(NULL)
       }
     }
-  } else if (any(class(rastnm) %in% "SpatRaster")) {
+  } else if (any(class(rastnmlst) %in% "SpatRaster")) {
     for (rastnm in rastnmlst) {
       if (!class(rastnm) %in% "SpatRaster") {
         if (file.exists(rastnm[[1]])) {
