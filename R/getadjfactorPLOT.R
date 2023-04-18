@@ -1,8 +1,12 @@
 #' @rdname internal_desc
 #' @export
-getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_CN",
-	tuniqueid="PLT_CN", condid="CONDID", checkNA=TRUE, areawt="CONDPROP_UNADJ",
-	tpropvars=list(SUBP="SUBPPROP_UNADJ", MICR="MICRPROP_UNADJ", MACR="MACRPROP_UNADJ")){
+getadjfactorPLOT <- function(condx = NULL, treex = NULL, seedx = NULL, 
+                             cuniqueid = "PLT_CN", tuniqueid = "PLT_CN", 
+                             condid = "CONDID", 
+                             checkNA = TRUE, areawt = "CONDPROP_UNADJ",
+                             tpropvars = list(SUBP = "SUBPPROP_UNADJ", 
+                                              MICR = "MICRPROP_UNADJ", 
+                                              MACR = "MACRPROP_UNADJ")){
 
   ####################################################################################
   ## DESCRIPTION:
@@ -81,7 +85,7 @@ getadjfactorPLOT <- function(condx=NULL, treex=NULL, seedx=NULL, cuniqueid="PLT_
 #  setkeyv(pltx, cuniqueid)
   
   pltadj[, (varadjlst) := lapply(.SD,
-	function(x) ifelse((is.na(x) | x==0), 0, 1/x)), .SDcols=varsumlst]
+	  function(x) ifelse((is.na(x) | x==0), 0, 1/x)), by=key(pltadj), .SDcols=varsumlst]
   condx <- condx[pltadj]
 
   ## Change name of condition adjustment factor to cadjfac

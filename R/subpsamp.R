@@ -53,10 +53,10 @@ subpsamp <- function(cond, subp_cond, subplot, data_dsn = NULL,
     ## Generate query for calculating subplot-level adjustments
     sumcprop.qry <- paste0(
         "SELECT c.PLT_CN, c.CONDID, c.COND_STATUS_CD, subc.SUBP,
-              SUM(COALESCE(subc.SUBPCOND_PROP, 0)) AS SUBPPROP_UNADJ,
-              SUM(COALESCE(subc.MICRCOND_PROP, 0)) AS MICRPROP_UNADJ,
-              SUM(COALESCE(subc.MACRCOND_PROP, 0)) AS MACRPROP_UNADJ,
-              SUM(CASE WHEN subc.MACRCOND_PROP IS NULL
+              SUM(subc.SUBPCOND_PROP)  AS SUBPPROP_UNADJ,
+              SUM(subc.MICRCOND_PROP) AS MICRPROP_UNADJ,
+              SUM(subc.MACRCOND_PROP) AS MACRPROP_UNADJ,
+              SUM(CASE WHEN subc.MACRCOND_PROP IS NOT NULL
                        THEN subc.MACRCOND_PROP
                        ELSE subc.SUBPCOND_PROP end) AS CONDPROP_UNADJ
          FROM condx c
@@ -73,10 +73,10 @@ subpsamp <- function(cond, subp_cond, subplot, data_dsn = NULL,
     ## Generate query for calculating subplot-level adjustments
     sumcprop.qry <- paste0(
         "SELECT c.PLT_CN, c.CONDID, c.COND_STATUS_CD, subc.SUBP,
-              SUM(COALESCE(subc.SUBPCOND_PROP, 0)) AS SUBPPROP_UNADJ,
-              SUM(COALESCE(subc.MICRCOND_PROP, 0)) AS MICRPROP_UNADJ,
-              SUM(COALESCE(subc.MACRCOND_PROP, 0)) AS MACRPROP_UNADJ,
-              SUM(CASE WHEN subc.MACRCOND_PROP IS NULL
+              SUM(subc.SUBPCOND_PROP) AS SUBPPROP_UNADJ,
+              SUM(subc.MICRCOND_PROP) AS MICRPROP_UNADJ,
+              SUM(subc.MACRCOND_PROP) AS MACRPROP_UNADJ,
+              SUM(CASE WHEN subc.MACRCOND_PROP IS NOT NULL
                        THEN subc.MACRCOND_PROP
                        ELSE subc.SUBPCOND_PROP end) AS CONDPROP_UNADJ
          FROM condx c
@@ -85,6 +85,7 @@ subpsamp <- function(cond, subp_cond, subplot, data_dsn = NULL,
          WHERE ", cwhereqry, 
              " GROUP BY c.PLT_CN, c.CONDID, subc.SUBP, c.COND_STATUS_CD")
   }
+
   subpcx <- data.table(sqldf::sqldf(sumcprop.qry))
   return(subpcx)
 }
