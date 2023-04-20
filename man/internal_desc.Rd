@@ -5,8 +5,9 @@
 %   R/getadjfactorGB.R, R/getadjfactorP2VEG.R, R/getadjfactorPLOT.R,
 %   R/getadjfactorVOL.R, R/getfunnm.R, R/getlt10char.R, R/getrhat.R,
 %   R/groupStrata.R, R/groupUnits.R, R/internal_desc.R, R/save1tab.R,
-%   R/save2tabs.R, R/strat_collapse.R, R/subpsamp.R, R/subpsampP2VEG.R,
-%   R/table_functions.R, R/vector_proc.r, R/wtcalc.R, R/wtcalc_unit.R
+%   R/save2tabs.R, R/strat_collapse.R, R/subpsamp.R, R/subpsampCHNG.R,
+%   R/subpsampP2VEG.R, R/table_functions.R, R/vector_proc.r, R/wtcalc.R,
+%   R/wtcalc_unit.R
 \name{DBvars.default}
 \alias{DBvars.default}
 \alias{DBgetfn}
@@ -67,6 +68,7 @@
 \alias{save2tabs}
 \alias{strat.collapse}
 \alias{subpsamp}
+\alias{subpsampCHNG}
 \alias{subpsampP2VEG}
 \alias{allin1f}
 \alias{crosstabx}
@@ -476,6 +478,18 @@ subpsamp(
   subpuniqueid = "PLT_CN",
   subpid = "SUBP",
   ACI = FALSE,
+  whereqry = NULL
+)
+
+subpsampCHNG(
+  sccm,
+  condu,
+  pltu,
+  data_dsn = NULL,
+  subpuniqueid = "PLT_CN",
+  subpid = "SUBP",
+  ACI = FALSE,
+  pfromqry = NULL,
   whereqry = NULL
 )
 

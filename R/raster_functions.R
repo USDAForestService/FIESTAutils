@@ -77,11 +77,12 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
       }
     }
   } else {
+
     if (!is.list(rastnmlst)) {
       rastnmlst <- as.list(rastnmlst)
     }
 
-    if (any(class(rastnmlst) %in% "SpatRaster")) {
+    if (any(lapply(rastnmlst, class) %in% "SpatRaster")) {
       for (rastnm in rastnmlst) {
         if (!class(rastnm) %in% "SpatRaster") {
           if (file.exists(rastnm[[1]])) {
@@ -97,7 +98,24 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
            stop(rastfn, "is invalid")
           }
         }
-      }
+      } 
+    } else if (any(lapply(rastnmlst, class) %in% c("RasterLayer", "RasterStack", "RasterBrick"))) {
+      for (rastnm in rastnmlst) {
+        if (!class(rastnm) %in% c("RasterLayer", "RasterStack", "RasterBrick")) {
+          if (file.exists(rastnm[[1]])) {
+            rastfnlst <- c(rastfnlst, rastnm)
+          } else {
+            message(rastnm[[1]], "is invalid")
+          }
+        } else {
+          rastfn <- rastnmlst[[1]]@file@name
+          if (file.exists(rastfn)) {
+           rastfnlst <- unique(c(rastfnlst, rastfn))
+          } else {
+           stop(rastfn, "is invalid")
+          }
+        }
+      } 
     } else {  ## !is.null(rastnmlst)
       if (!is.null(rastfolder)) {
         if (file.exists(rastfolder) && rastfolder != "") {

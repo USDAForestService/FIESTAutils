@@ -551,7 +551,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
     if (is.null(objx) && stopifnull) stop(paste(objnm, "is NULL"))
       return(NULL)
   }
-
+ 
   if (!is.null(obj)) {
     if (is.character(obj)) {
       if (exists(obj, envir=.GlobalEnv) && is.list(get(obj))) {
@@ -587,6 +587,11 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
     if (!all(list.items %in% names(objx))) {
       missitems <- list.items[!list.items %in% names(objx)]
       stop(objnm, " must include the following item in list: ", toString(missitems))
+    } else {
+      if (any(unlist(lapply(objx[list.items], is.null)))) {
+        listnames <- (names(objx)[which(unlist(lapply(objx[list.items], is.null)))])
+        stop("tables are null: ", toString(listnames))
+      }
     }
   }
 
