@@ -280,6 +280,18 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
         } else {
           tab <- data.frame(tab)
         }
+        if (!is.null(tabqry)) {
+          tabx2 <- tryCatch(sqldf::sqldf(tabqry, tab),
+			      error=function(e) {
+			      #print(e)
+			      return(NULL)})
+          if (is.null(tabx2)) {
+            message("tabqry is invalid")
+            tab <- tabx2
+          } else {
+            #message("tabqry applied to tab")
+          }
+        }
         return(tab)
       }
     } else if (!is.character(tab)) {
@@ -315,8 +327,32 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
 
   if (tabext == "shp") {
     tabx <- sf::st_read(tab_dsn, quiet=TRUE)
+
+    if (!is.null(tabqry)) {
+      tabx2 <- tryCatch(sqldf::sqldf(tabqry, tabx),
+			error=function(e) {
+			#print(e)
+			return(NULL)})
+      if (is.null(tabx2)) {
+        message("tabqry is invalid")
+        tabx <- tabx2
+      }
+    }
+
   } else if (tabext == "gdb") {
     tabx <- pcheck.spatial(tab, dsn=tab_dsn)
+
+    if (!is.null(tabqry)) {
+      tabx2 <- tryCatch(sqldf::sqldf(tabqry, tabx),
+			error=function(e) {
+			#print(e)
+			return(NULL)})
+      if (is.null(tabx2)) {
+        message("tabqry is invalid")
+        tabx <- tabx2
+      }
+    }
+
   } else if (tabext %in% tabdblst) {
     if (is.null(tab) || !is.character(tab)) {
       if (!stopifinvalid) {
@@ -354,6 +390,16 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
         stop("file format is currently not supported")
       } else {
         stop("file is invalid or does not exist")
+      }
+    }
+    if (!is.null(tabqry)) {
+      tabx2 <- tryCatch(sqldf::sqldf(tabqry, tabx),
+			error=function(e) {
+			#print(e)
+			return(NULL)})
+      if (is.null(tabx2)) {
+        message("tabqry is invalid")
+        tabx <- tabx2
       }
     }
   }
