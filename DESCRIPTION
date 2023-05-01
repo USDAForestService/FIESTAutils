@@ -42,6 +42,7 @@ Imports:
     sp,
     sqldf, 
     stats,
+    terra,
     units,
     utils,
     xml2,
