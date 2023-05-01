@@ -91,7 +91,7 @@ getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
             message(rastnm[[1]], "is invalid")
           }
         } else {
-          rastfn <- sources(rastnm)
+          rastfn <- terra::sources(rastnm)
           if (file.exists(rastfn)) {
            rastfnlst <- unique(c(rastfnlst, rastfn))
           } else {
