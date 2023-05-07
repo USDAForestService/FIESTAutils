@@ -999,7 +999,7 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 		dim(outrow) = c(1, ncols)
 		dst_ds$write(band = 1,
 						offx = 0,
-						offy = 1,
+						offy = row,
 						xsize = ncols,
 						ysize = 1,
 						outrow)
