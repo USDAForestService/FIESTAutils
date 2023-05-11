@@ -1483,7 +1483,7 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 			
 # deprecated/replaced by gdalraster::rasterToVRT()
 
-	return(gdalraster::rasterToVRT(srcfile, ...))
+	return(gdalraster::rasterToVRT(srcfile, src_align=align, ...))
 
 
 }
