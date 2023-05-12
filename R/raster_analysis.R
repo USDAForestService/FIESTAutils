@@ -62,7 +62,7 @@ getGDALformat <- function(file) {
 #' @rdname raster_desc
 #' @export
 basename.NoExt <- function(filepath) {
-	return( tools::file_path_sans_ext(basename(filepath)) )
+	sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 }
 
 #' @rdname raster_desc
