@@ -307,7 +307,7 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
   } else {
     var2 <- var1
   }
-
+ 
   ## Get unique values of matchcol in tab1
   if (length(var1) > 1) {
     tab1.vals <- unique(na.omit(tab1[, do.call(paste, .SD), .SDcols=var1]))
@@ -318,7 +318,7 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
     if (nbr.missval == length(tab1.vals)) {
       stop("no matching values in ", tab1txt, " and ", tab2txt)
     } else if (nbr.missval > 0) {
-      if (nbr.missval < 20) {
+      if (nbr.missval <= 25) {
         message(paste0(nbr.missval, " values in ", tab1txt, " not in ", tab2txt, ": ",
 	 	paste(missval, collapse=", ")))
       } else {
