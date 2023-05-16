@@ -20,7 +20,9 @@
 # xtabf
 # recodelut
 # findnm
-# chkdbtab
+# chkdbtab  Checks if table exists in list of database tables
+# RtoSQL    Convert logical R statement syntax to SQL syntax
+
 
 #' @rdname internal_desc
 #' @export
@@ -588,3 +590,80 @@ chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
     return(NULL)
   }
 }
+
+
+#' @rdname internal_desc
+#' @export
+RtoSQL <- function(filter, x=NULL) {
+  ## DESCRIPTION: Convert logical R statement syntax to SQL syntax
+
+  ## Check logic
+  if (!is.null(x)) {
+    sql <- check.logic(x=x, statement=filter)
+  } else {
+    sql <- filter
+  }
+
+
+  checkpart <- function(part) {
+    ## Function to convert logical statement by part
+    part <- trimws(part)
+
+
+    ## Check for !
+    not <- ifelse(grepl("\\!", part), TRUE, FALSE)
+
+    # Replace R comparison operators with SQL operators
+    if (grepl("==", part)) {
+      if (not) {
+        part <- gsub("!", "", part)
+        part <- gsub("==", "<>", part)
+      } else {
+        part <- gsub("==", "=", part)
+      } 
+    }
+    part <- gsub("!=", "<>", part)
+
+    if (grepl("%in%", part)) {
+      if (not) {
+        part <- gsub("!", "", part)
+        part <- gsub("%in% c", "not in", part)
+      } else {
+        part <- gsub("%in% c", "in", part)
+      }
+    }
+
+    # Replace is.na() and !is.na() with SQL equivalents
+    if (grepl("is.na", part)) {
+      pre <- strsplit(part, "is.na\\(")[[1]][1]
+      basetmp <- strsplit(part, "is.na\\(")[[1]][-1]
+      base <- strsplit(basetmp, "\\)")[[1]][1]
+      post <- ifelse (is.na(strsplit(basetmp, "\\)")[[1]][2]), "", strsplit(basetmp, "\\)")[[1]][2])
+
+      if (not) {
+        part <- paste0(pre, base, " is not NULL", post)
+        part <- gsub("!", "", part)
+      } else {
+        part <- paste0(pre, base, " is NULL", post)
+      }
+    }
+
+    return(part)
+  }
+
+  if (grepl("&", filter)) {
+    sql <- paste(sapply(unlist(strsplit(filter, "&")), checkpart), collapse = " and ")
+  } else {
+    sql <- checkpart(filter)
+  }
+  if (grepl("&", filter)) {
+    sql <- paste(sapply(unlist(strsplit(sql, "\\|")), checkpart), collapse = " or ")
+  }
+
+  return(sql)
+}
+
+
+
+  
+
