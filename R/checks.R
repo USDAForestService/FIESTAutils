@@ -35,7 +35,8 @@ check.numeric <- function(x) {
 #' @rdname checks_desc
 #' @export
 check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
-	stopifinvalid=TRUE, removeinvalid=FALSE, returnvar=FALSE, xvect=FALSE, syntax="R"){
+	stopifinvalid=TRUE, removeinvalid=FALSE, returnvar=FALSE, xvect=FALSE, 
+     syntax="R"){
   ## DESCRIPTION: checks logical statement
   ## ARGUMENTS"
   ## x 	- data frame to check column names
@@ -69,7 +70,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   fwarning <- paste(filternm, "is invalid")
 
   ## Check if x is data.frame or vector of names
-  if (!xvect) {
+  if (is.data.frame(x)) {
     x <- names(x)
   }
 
@@ -89,12 +90,23 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
     if (grepl("\\|\\|", statement)) {
       statement <- gsub("\\|\\|", "\\|", statement)
     }
+    ## Check parentheses
+    paren.left <- length(gregexpr("\\(", statement)[[1]])
+    paren.right <- length(gregexpr("\\)", statement)[[1]])
+    if (paren.left < paren.right) {
+      stop("invalid logical statement... missing left parenthesis")
+    } else if (paren.left > paren.right) {
+      stop("invalid logical statement... missing right parenthesis")
+    } 
+    
     if (grepl("&", statement) || grepl("\\|", statement)) {
       parts <- {}
       if (grepl("&", statement)) {
-        parts <- unlist(strsplit(statement, "&"))
+        parts <- strsplit(statement, "&")
+        parts <- unlist(sapply(parts, function(x) strsplit(x, "\\|")))
       } else if (grepl("\\|", statement)) {
-        parts <- unlist(strsplit(statement, "\\|"))
+        parts <- strsplit(statement, "|")
+        parts <- unlist(sapply(parts, function(x) strsplit(x, "\\&")))
       }
       ## Check if there are any variables in x that match filter
       chkparts <- sapply(parts, function(y, x){
