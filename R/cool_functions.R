@@ -597,6 +597,11 @@ chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
 RtoSQL <- function(filter, x=NULL) {
   ## DESCRIPTION: Convert logical R statement syntax to SQL syntax
 
+  ## Check filter
+  if (is.null(filter)) {
+    return(NULL)
+  }
+
   ## Check logic
   if (!is.null(x)) {
     sql <- check.logic(x=x, statement=filter)
