@@ -15,7 +15,7 @@ getRefobject <- function(xvar){
     if (grepl("PREV_", xvar)) {
       xvar <- sub("PREV_", "", xvar)
     }
-    if (!xvar %in% ref_codes[["VARIABLE"]]) {
+    if (!xvar %in% FIESTAutils::ref_codes[["VARIABLE"]]) {
       return(NULL)
     } else {
       return(xvar)
