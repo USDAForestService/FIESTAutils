@@ -17,11 +17,6 @@
 GDT_NAMES <- c('Unknown', 'Byte', 'UInt16', 'Int16', 'UInt32',
 				'Int32', 'Float32', 'Float64', 'CInt16', 'CInt32',
 				'CFloat32', 'CFloat64')
-				
-DEFAULT_NODATA = list('Byte'= 255, 'UInt16'= 65535, 'Int16'= -32767,
-						'UInt32'= 4294967293, 'Int32'= -2147483647, 
-						'Float32'= 3.402823466E+38, 
-						'Float64'= .Machine$double.xmax)
 
 #' @rdname raster_desc
 #' @export
@@ -32,7 +27,7 @@ getGDALDataTypeName <- function(GDT_number) {
 #' @rdname raster_desc
 #' @export
 getDefaultNodata <- function(GDT_name) {
-	return(DEFAULT_NODATA[[GDT_name]])
+	return(gdalraster::DEFAULT_NODATA[[GDT_name]])
 }
 
 #' @rdname raster_desc
@@ -62,7 +57,7 @@ getGDALformat <- function(file) {
 #' @rdname raster_desc
 #' @export
 basename.NoExt <- function(filepath) {
-	sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
+	return(tools::file_path_sans_ext(basename(filepath)))
 }
 
 #' @rdname raster_desc
@@ -859,166 +854,11 @@ rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
 						nodata_value=NULL, setRasterNodataValue=FALSE,
 						usePixelLonLat=FALSE) {
 						
-#Raster calculator
-#Evaluate an R expression for each pixel in a raster layer or stack of layers.
+# replaced by gdalraster::calc()
 
-#Layers are defined by: raster file, band, variable name.
-#Band defaults to 1 for each file in rasterfiles.
-#Variable names default to "A" (layer 1), "B" (layer 2), ..., but
-#can be set in var.names.
+	return(gdalraster::calc(expr=calc, rasterfiles=rasterfiles...))
 
-#To refer to specific bands in a multi-band file, repeat the file name in 
-#rasterfiles and specify corresponding band numbers in bands, along with
-#optional variable names in var.names, for example,
-#rasterfiles=c("file.img", "file.img"), bands=c(3,4), var.names=c("b3", "b4")
-
-#calc - R expression as character (e.g., calc="A+B")
-#Variables in calc are vectors of length n (rows of raster). Calc expresion
-#should return a vector also of length n (an output row).
-#Two special variable names are available in the calc expression by default:
-#"pixelX" and "pixelY" provide the pixel center coordinate in georeferenced
-#units. If usePixelLonLat=TRUE, the pixel XY coordinates will also be inverse
-#projected to geographical coordinates and available for use in calc as
-#"pixelLon" and "pixelLat".
-
-#rasterfiles - character vector of raster file names
-#bands - integer vector of band numbers
-#var.names - character vector of variable names
-#dstfile - destination raster (will be created)
-#fmt - GDAL raster format string, guessed from file extension if possible
-#dtName - GDAL data type name (Byte, Int16, UInt16, Int32, UInt32, Float32)
-#options - GDAL dataset creation options (driver-specific)
-#nodata_value - value to assign if calc returns an NA value
-#setRasterNodataValue - attempt to set the raster format nodata = nodata_value
-#usePixelLonLat = pixelX and pixelY will be inverse projected to geographic
-#coordinates and available as "pixelLon" and "pixelLat" in calc expression.
-
-	
-	calc_expr = parse(text=calc)
-
-	if ( !all(file.exists(rasterfiles)) ) {
-		message( rasterfiles[which(!file.exists(rasterfiles))] )
-		stop("file not found")
-	}
-	
-	nrasters = length(rasterfiles)
-
-	if (!is.null(bands)) {
-		if (length(bands) != nrasters) {
-			stop("list of band numbers must be same length as raster list")
-		}
-	}
-	else {
-		bands = rep(1, nrasters)
-	}
-	
-	if (!is.null(var.names)) {
-		if (length(var.names) != nrasters) {
-			stop("list of variable names must be same length as raster list")
-		}
-	}
-	else {
-		var.names=LETTERS[1:nrasters]
-	}
-	
-	if (is.null(fmt)) {
-		fmt = getGDALformat(dstfile)
-		if (is.null(fmt)) {
-			stop("Use fmt argument to specify a GDAL raster format code.")
-		}
-	}
-	
-	if (is.null(nodata_value)) {
-		nodata_value = getDefaultNodata(dtName)
-		if (is.null(nodata_value)) {
-			stop("Invalid output data type (dtName).")
-		}
-	}
-	
-	# use first raster as reference
-	ref = rasterInfo(rasterfiles[1])
-	if(is.null(ref)) stop(paste("Could not read raster info:", rasterfiles[1]))
-	nrows = ref$ysize
-	ncols = ref$xsize
-	cellsizeX = ref$cellsize[1]
-	cellsizeY = ref$cellsize[2]
-	xmin = ref$bbox[1]
-	ymax = ref$bbox[4]
-	
-	if(nrasters > 1) {
-		for(r in rasterfiles) {
-			ri = rasterInfo(r)
-			if(is.null(ri)) stop(paste("Raster info failed:", rasterfiles[r]))
-			if(ri$ysize != nrows || ri$xsize != ncols) {
-				message(rasterfiles[r])
-				stop("All input rasters must have the same dimensions.")
-			}
-		}
-	}
-	
-	#create the output raster
-	dstnodata = NULL
-	if(setRasterNodataValue) dstnodata = nodata_value
-	gdalraster::rasterFromRaster(rasterfiles[1], dstfile, fmt=fmt, 
-									nbands=1, dtName=dtName,
-									options=options, 
-									dstnodata=dstnodata)
-	dst_ds = new(GDALRaster, dstfile, read_only=FALSE)
-	
-	# list of GDAL dataset objects for each raster
-	gd_list <- list()
-	for (r in 1:nrasters)
-		gd_list[[r]] <- new(GDALRaster, rasterfiles[r], read_only=TRUE)
-	
-	x = seq(from=xmin+(cellsizeX/2), by=cellsizeX, length.out=ncols)
-	assign("pixelX", x)
-	
-	process_row <- function(row) {
-		y = rep(ymax-(cellsizeY/2)-(cellsizeY*row), ncols)
-		assign("pixelY", y)
-		
-		if(usePixelLonLat) {
-			lonlat = sf::sf_project(from = ref$crs, to = "EPSG:4326", cbind(x,y))
-			assign("pixelLon", lonlat[,1])
-			assign("pixelLat", lonlat[,2])
-		}
-		
-		for (r in 1:nrasters) {
-			inrow = gd_list[[r]]$read(band=bands[r], 
-										xoff = 0,
-										yoff = row,
-										xsize = ncols,
-										ysize = 1,
-										out_xsize = ncols,
-										out_ysize = 1)
-			assign(var.names[r], inrow)
-		}
-		
-		outrow = eval(calc_expr)
-		outrow = ifelse(is.na(outrow), nodata_value, outrow)
-		dim(outrow) = c(1, ncols)
-		dst_ds$write(band = 1,
-						offx = 0,
-						offy = row,
-						xsize = ncols,
-						ysize = 1,
-						outrow)
-		
-		setTxtProgressBar(pb, row+1)
-		return()
-	}
-	
-	message(paste("Calculating from", nrasters, "input layers..."))
-	pb <- txtProgressBar(min=0, max=nrows)
-	lapply(0:(nrows-1), process_row)
-	close(pb)
-
-	message(paste("Output written to:", dstfile))
-	dst_ds$close()
-	for (r in 1:nrasters)
-		gd_list[[r]]$close()
-		
-	invisible(dstfile)
+}
 }
 
 #' @rdname raster_desc
@@ -1032,7 +872,7 @@ rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL,
 # optionally write the combination IDs to an output raster
 # output data type should be Byte, UInt16, or UInt32, appropriate for number of combinations
 
-# deprecated/replaced by gdalraster::combine()
+# replaced by gdalraster::combine()
 
 	return(gdalraster::combine(rasterfiles, ...))
 
@@ -1481,7 +1321,7 @@ rasterToVRT <- function(srcfile, relativeToVRT=0,
 				resampling="nearest") {
 				
 			
-# deprecated/replaced by gdalraster::rasterToVRT()
+# replaced by gdalraster::rasterToVRT()
 
 	return(gdalraster::rasterToVRT(srcfile, src_align=align, ...))
 
