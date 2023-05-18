@@ -43,6 +43,7 @@
 \alias{recodelut}
 \alias{findnm}
 \alias{chkdbtab}
+\alias{RtoSQL}
 \alias{strat.pivot}
 \alias{makedummy}
 \alias{preds.standardize}
@@ -268,6 +269,8 @@ recodelut(lut, minvar = "min", maxvar = "max", classvar = "class")
 findnm(x, xvect, returnNULL = FALSE)
 
 chkdbtab(dbtablst, tab, stopifnull = FALSE)
+
+RtoSQL(filter, x = NULL)
 
 getext(x)
 

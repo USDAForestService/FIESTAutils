@@ -301,7 +301,6 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
   if (is.null(tab_dsn)) {
     tab_dsn <- tab
   }
-
   if (!is.null(tab_dsn) && !file.exists(tab_dsn)) {
     ext <- extlst[sapply(extlst, function(x, tab_dsn)
 				file.exists(paste(tab_dsn, x, sep=".")), tab_dsn)]
@@ -361,12 +360,15 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
         stop("tab is invalid")
       }
     }
+
     if (tabext %in% c("sqlite", "sqlite3", "db", "db3", "gpkg")) {
       dbconn <- DBtestSQLite(tab_dsn, dbconnopen=TRUE, showlist=FALSE)
       tablst <- DBI::dbListTables(dbconn)
       if (!tab %in% tablst) {
         if (tolower(tab) %in% tablst) {
           tab <- tolower(tab)
+        } else if (toupper(tab) %in% tablst) {
+          tab <- toupper(tab)
         } else {
           stop(tab, " not in ", tab_dsn)
         }
