@@ -29,13 +29,8 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP _rcpp_module_boot_mod_cmb_table();
-RcppExport SEXP _rcpp_module_boot_mod_running_stats();
-
 static const R_CallMethodDef CallEntries[] = {
     {"_FIESTAutils_RasterizePolygon", (DL_FUNC) &_FIESTAutils_RasterizePolygon, 8},
-    {"_rcpp_module_boot_mod_cmb_table", (DL_FUNC) &_rcpp_module_boot_mod_cmb_table, 0},
-    {"_rcpp_module_boot_mod_running_stats", (DL_FUNC) &_rcpp_module_boot_mod_running_stats, 0},
     {NULL, NULL, 0}
 };
 
