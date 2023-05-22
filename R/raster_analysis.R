@@ -450,14 +450,11 @@ extractPtsFromRasterList <- function(ptdata, rasterfiles, bands=NULL, var.names=
 rasterInfo <- function(srcfile) {
 	ds = new(GDALRaster, srcfile, T)
 	ri = list()
+	ri$format = ds$getDriverShortName()
 	ri$xsize = ds$getRasterXSize()
 	ri$ysize = ds$getRasterYSize()
 	ri$geotransform = ds$getGeoTransform()
-	xmin = ds$bbox()[1]
-	xmax = ds$bbox()[3]
-	ymax = ds$bbox()[4]
-	ymin = ds$bbox()[2]
-	ri$bbox = c(xmin,ymin,xmax,ymax)
+	ri$bbox = ds$bbox()
 	ri$cellsize = ds$res()
 	ri$crs = ds$getProjectionRef()
 	ri$nbands = ds$getRasterCount()
@@ -545,16 +542,6 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 	
 	return(gdalraster::warp(srcfile, dstfile, t_srs, options=opt))
 
-}
-
-#' @rdname raster_desc
-#' @export
-rasterFromRaster <- function(srcfile, dstfile, fmt=NULL, nbands=NULL,
-								dtName=NULL, options=NULL, init=NULL,
-								dstnodata=init) {
-
-##    *** replaced by gdalraster::rasterFromRaster() ***
-	gdalraster::rasterFromRaster(...)
 }
 
 #' @rdname raster_desc
@@ -845,39 +832,6 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	invisible(dstfile)
 }
 
-
-#' @rdname raster_desc
-#' @export
-rasterCalc <- function(calc, rasterfiles, bands=NULL, var.names=NULL,
-						dstfile=tempfile("rastcalc", fileext=".img"),
-						fmt=NULL, dtName="Int16", options=NULL,
-						nodata_value=NULL, setRasterNodataValue=FALSE,
-						usePixelLonLat=FALSE) {
-						
-# replaced by gdalraster::calc()
-
-	return(gdalraster::calc(expr=calc, rasterfiles=rasterfiles...))
-
-}
-}
-
-#' @rdname raster_desc
-#' @export
-rasterCombine <- function(rasterfiles, var.names=NULL, bands=NULL, 
-					dstfile=NULL, fmt=NULL, dtName="UInt32", options=NULL) {
-# find and count unique combinations of pixel values across a set of thematic rasters
-# returns a data frame of combination ID, count, var1, var2, ...
-# all input rasters are assumed to have the same coordinate system, extent and cell size
-# input rasters will be read as integer
-# optionally write the combination IDs to an output raster
-# output data type should be Byte, UInt16, or UInt32, appropriate for number of combinations
-
-# replaced by gdalraster::combine()
-
-	return(gdalraster::combine(rasterfiles, ...))
-
-}
-
 #' @rdname raster_desc
 #' @export
 recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
@@ -1095,7 +1049,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	ymin = ds$bbox()[2]
 	
 	if (is.null(src)) {
-		src <- sf::st_read(dsn, layer, stringsAsFactors=F, quiet=T)
+		src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
 		src = sf::as_Spatial(sf::st_zm(src))
 	}
 	else {
@@ -1309,21 +1263,3 @@ zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 	return(df_out)
 }
 
-
-
-
-#' Write a GDAL virtual raster file (VRT)
-rasterToVRT <- function(srcfile, relativeToVRT=0, 
-				vrtfile = tempfile("tmprast", fileext=".vrt"), 
-				resolution=NULL, 
-				subwindow=NULL, 
-				align=TRUE, 
-				resampling="nearest") {
-				
-			
-# replaced by gdalraster::rasterToVRT()
-
-	return(gdalraster::rasterToVRT(srcfile, src_align=align, ...))
-
-
-}
