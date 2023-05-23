@@ -3,7 +3,6 @@
 \name{spatial_desc}
 \alias{spatial_desc}
 \alias{polyfix.sf}
-\alias{build.prj4str}
 \alias{trunc10shp}
 \alias{merge_extents}
 \alias{check.extents}
@@ -19,16 +18,6 @@
 \title{Spatial Data Functions}
 \usage{
 polyfix.sf(x)
-
-build.prj4str(
-  prj,
-  datum = NULL,
-  ellps = NULL,
-  zone = NULL,
-  zoneS = FALSE,
-  aea.param = "USGS",
-  gui = FALSE
-)
 
 trunc10shp(x)
 
