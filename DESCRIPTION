@@ -45,7 +45,6 @@ Imports:
     terra,
     units,
     utils,
-    largeList
 Suggests:
     knitr
 Additional_repositories: https://github.com/USDAForestService/gdalraster
