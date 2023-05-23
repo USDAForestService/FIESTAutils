@@ -28,9 +28,7 @@
 #' spMakeSpatial_options()
 #' 
 #' @export spMakeSpatial_options
-spMakeSpatial_options <- function(xvar=NULL, yvar=NULL, xy.crs=4269,
-                                  prj=NULL, datum=NULL, zone=NULL,
-                                  zoneS=FALSE, aea.param="USGS", ...) {
+spMakeSpatial_options <- function(xvar=NULL, yvar=NULL, xy.crs=4269, ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(spMakeSpatial_options)))

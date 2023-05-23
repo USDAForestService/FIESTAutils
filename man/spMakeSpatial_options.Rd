@@ -4,17 +4,7 @@
 \alias{spMakeSpatial_options}
 \title{Make SpatialPoints options}
 \usage{
-spMakeSpatial_options(
-  xvar = NULL,
-  yvar = NULL,
-  xy.crs = 4269,
-  prj = NULL,
-  datum = NULL,
-  zone = NULL,
-  zoneS = FALSE,
-  aea.param = "USGS",
-  ...
-)
+spMakeSpatial_options(xvar = NULL, yvar = NULL, xy.crs = 4269, ...)
 }
 \arguments{
 \item{xvar}{String. Name of variable in xyplt defining x coordinate.}
@@ -24,6 +14,8 @@ spMakeSpatial_options(
 \item{xy.crs}{PROJ.4 String or CRS object or Integer EPSG code defining
 Coordinate Reference System. (e.g., EPSG:4269-Geodetic coordinate system for
 North America, NAD83).}
+
+\item{...}{For extendibility.}
 
 \item{prj}{String. Projection, or coordinate system of the X/Y coordinates
 ("longlat", "utm", "aea"). If other, include PROJ.4 string in prj4str.}
@@ -38,8 +30,6 @@ hemisphere.}
 \item{aea.param}{String. If prj="aea", the associated lat/lon parameters
 (USGS: " +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0").  If
 other, include PROJ.4 string in prj4str.}
-
-\item{...}{For extendibility.}
 }
 \value{
 A list of user-supplied parameters and parameter values for strata.
