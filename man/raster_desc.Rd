@@ -6,11 +6,6 @@
 \alias{getDefaultNodata}
 \alias{getOffset}
 \alias{getGDALformat}
-\alias{getRasterYSize}
-\alias{getRasterXSize}
-\alias{getRasterCount}
-\alias{getGeoTransform}
-\alias{getRasterBandInfo}
 \alias{basename.NoExt}
 \alias{Mode}
 \alias{Modes}
@@ -25,12 +20,9 @@
 \alias{extractPtsFromRasterList}
 \alias{rasterInfo}
 \alias{reprojectRaster}
-\alias{rasterFromRaster}
 \alias{rasterFromVectorExtent}
 \alias{rasterizePolygons}
 \alias{clipRaster}
-\alias{rasterCalc}
-\alias{rasterCombine}
 \alias{recodeRaster}
 \alias{pixelCount}
 \alias{focalRaster}
@@ -40,7 +32,6 @@
 \alias{zonalMajority}
 \alias{zonalMinority}
 \alias{zonalVariety}
-\alias{ptCsvToVRT}
 \alias{raster_desc}
 \alias{getrastlst.rgdal}
 \alias{areacalc.pixel}
@@ -55,16 +46,6 @@ getDefaultNodata(GDT_name)
 getOffset(coord, origin, gt_pixel_size)
 
 getGDALformat(file)
-
-getRasterYSize(ds)
-
-getRasterXSize(ds)
-
-getRasterCount(ds)
-
-getGeoTransform(ds)
-
-getRasterBandInfo(ds, b = 1)
 
 basename.NoExt(filepath)
 
@@ -85,7 +66,7 @@ TPI(x, na.rm = FALSE, asInt = TRUE)
 getPixelValue(
   pt,
   ds,
-  ri,
+  ri = NULL,
   band = 1,
   interpolate = FALSE,
   windowsize = 1,
@@ -137,17 +118,6 @@ reprojectRaster(
   addOptions = NULL
 )
 
-rasterFromRaster(
-  srcfile,
-  dstfile,
-  fmt = NULL,
-  nbands = NULL,
-  dtName = NULL,
-  options = NULL,
-  init = NULL,
-  dstnodata = init
-)
-
 rasterFromVectorExtent(
   src,
   dstfile,
@@ -174,30 +144,6 @@ clipRaster(
   init = NULL,
   dstnodata = NULL,
   maskByPolygons = TRUE
-)
-
-rasterCalc(
-  calc,
-  rasterfiles,
-  bands = NULL,
-  var.names = NULL,
-  dstfile = tempfile("rastcalc", fileext = ".img"),
-  fmt = NULL,
-  dtName = "Int16",
-  options = NULL,
-  nodata_value = NULL,
-  setRasterNodataValue = FALSE,
-  usePixelLonLat = FALSE
-)
-
-rasterCombine(
-  rasterfiles,
-  var.names = NULL,
-  bands = NULL,
-  dstfile = NULL,
-  fmt = NULL,
-  dtName = "UInt32",
-  options = NULL
 )
 
 recodeRaster(srcfile, dstfile, lut, srcband = 1, ...)
@@ -291,8 +237,6 @@ zonalVariety(
   lut = NULL,
   ...
 )
-
-ptCsvToVRT(csvfile, layer_srs, xfield = "Lon", yfield = "Lat", readvrt = TRUE)
 
 getrastlst.rgdal(
   rastnmlst,
