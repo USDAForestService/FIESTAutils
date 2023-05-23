@@ -26,6 +26,7 @@ Depends:
 Imports:
     data.table,
     DBI,
+    gdalraster,
     graphics,
     hbsae,
     JoSAE,
@@ -34,20 +35,20 @@ Imports:
     nlme,
     Rcpp,
     RColorBrewer,
+    rgdal,
     RPostgreSQL,
     RSQLite,
     sae,
     sf,
-    sp,
     sqldf, 
     stats,
     terra,
     units,
     utils,
-    xml2,
     largeList
 Suggests:
     knitr
+Additional_repositories: https://github.com/USDAForestService/gdalraster
 License: GPL-3
 Copyright: See file COPYRIGHTS for details. 
 URL: https://github.com/USDAForestService/FIESTAutils
