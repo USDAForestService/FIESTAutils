@@ -16,20 +16,6 @@ Coordinate Reference System. (e.g., EPSG:4269-Geodetic coordinate system for
 North America, NAD83).}
 
 \item{...}{For extendibility.}
-
-\item{prj}{String. Projection, or coordinate system of the X/Y coordinates
-("longlat", "utm", "aea"). If other, include PROJ.4 string in prj4str.}
-
-\item{datum}{String. Datum of projection ("WGS84", "NAD83", "NAD27").}
-
-\item{zone}{Integer. If prj="utm", the UTM zone.}
-
-\item{zoneS}{Logical. If prj="utm", if the UTM zone is in the Southern
-hemisphere.}
-
-\item{aea.param}{String. If prj="aea", the associated lat/lon parameters
-(USGS: " +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0").  If
-other, include PROJ.4 string in prj4str.}
 }
 \value{
 A list of user-supplied parameters and parameter values for strata.
