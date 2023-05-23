@@ -202,5 +202,155 @@ NULL
 NULL
 
 
+#' Reference table - Metadata for cond default variables output from
+#' DBgetPlots()
+#' 
+#' Data frame with variable names and descriptions
+#' 
+#' 
+#' @name ref_cond
+#' @docType data
+#' @format A data frame with 61 rows and 3 columns VARIABLE - Variable in cond
+#' data frame DESCRIPTION - Description of variable in cond data frame TABLE -
+#' Table in database where variable originates or if derived
+#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
+#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
+#' Forest Inventory and Analysis Database: Database Description and Users
+#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
+#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
+#' manual_5-1-2_p2_07_2012.pdf)
+#' @source FIA look-up table
+#' @keywords datasets
+NULL
+
+
+#' Reference table - Metadata for plt default variables output from
+#' DBgetPlots()
+#' 
+#' Data frame with variable names and descriptions.
+#' 
+#' 
+#' @name ref_plt
+#' @docType data
+#' @format A data frame with 43 rows and 3 columns VARIABLE - Variable in plt
+#' data frame DESCRIPTION - Description of variable in plt data frame TABLE -
+#' Table in database where variable originates or if derived
+#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
+#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
+#' Forest Inventory and Analysis Database: Database Description and Users
+#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
+#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
+#' manual_5-1-2_p2_07_2012.pdf)
+#' @source FIA look-up table
+#' @keywords datasets
+NULL
+
+
+#' Reference table - Metadata for tree default variables output from
+#' DBgetPlots()
+#' 
+#' Data frame with variable names and descriptions
+#' 
+#' 
+#' @name ref_tree
+#' @docType data
+#' @format A data frame with 72 rows and 3 columns VARIABLE - Variable in tree
+#' data frame DESCRIPTION - Description of variable in tree data frame TABLE -
+#' Table in database where variable originates
+#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
+#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
+#' Forest Inventory and Analysis Database: Database Description and Users
+#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
+#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
+#' manual_5-1-2_p2_07_2012.pdf)
+#' @source FIA look-up table
+#' @keywords datasets
+NULL
+
+
+
+#' Reference table - Metadata for shp_* default variables output from
+#' DBgetPlots()
+#' 
+#' Data frame with variable names and descriptions
+#' 
+#' 
+#' @name ref_shp
+#' @docType data
+#' @format A dataframe with 63 rows and 4 columns VARIABLE - Variable in plt
+#' data frame DESCRIPTION - Description of variable in plt data frame TABLE -
+#' Table in database where variable originates or if derived SHPEXPORT - Name
+#' of variable for exported shapefile (<= 10 characters)
+#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
+#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
+#' Forest Inventory and Analysis Database: Database Description and Users
+#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
+#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
+#' manual_5-1-2_p2_07_2012.pdf)
+#' @source FIA look-up table
+#' @keywords datasets
+NULL
+
+
+#' Reference table - Code definitions.
+#'
+#' Table with species information downloaded from datamart FIADB_REFERENCES, 
+#' subset from REF_SPECIES TABLE.
+#'
+#'
+#' @name ref_species
+#' @docType data
+#' @format A dataframe with 14 columns: SPCD, COMMON_NAME, GENUS, SPECIES, 
+#' 		SPECIES_SYMBOL, E_SPGRCD, W_SPGRPCD, C_SPGRPCD, P_SPGRPCD, 
+#'         MAJOR_SPGRPCD, JENKINS_TOTAL_B1, JENKINS_TOTAL_B2, 
+#'         DRYWT_TO_GREENWT_CONERSION, SCIENTIFIC_NAME (GENUS + SPECIES).
+#' @references O'Connell, B.M.; LaPoint, E.B.; Turner, J.A.; Ridley, T.; Boyer,
+#' D.; Wilson, A.M.; Waddell, K.L.; Christensen, G.; Conkling, B.L. 2012. The
+#' Forest Inventory and Analysis Database: Database Description and Users
+#' Manual Version 5.1.2 for Phase 2. U.S. Department of Agriculture.
+#' (http://fia.fs.fed.us/library/database-documentation/current/ver5-2012/FIADB_user
+#' manual_5-1-2_p2_07_2012.pdf)
+#' @source Imported from comma-delimited file.
+#' @keywords datasets
+NULL
+
+
+#' Reference table - for generating tables.
+#' 
+#' Table conversion factors from English to metric units.
+#' 
+#' 
+#' @name ref_conversion
+#' @docType data
+#' @format A dataframe with 4 columns: TYPE, ENGLISH, METRIC, CONVERSION.
+#' @source Conversion table.
+#' @keywords datasets
+NULL
+
+
+#' Reference table - Variable titles.
+#' 
+#' Table with variable name (VARNM) and associated title (TITLE).
+#' 
+#' 
+#' @name ref_titles
+#' @docType data
+#' @format A dataframe with 2 columns, VARNM and TITLE.
+#' @source Comma-delimited file.
+#' @keywords datasets
+NULL
+
+
+#' Reference table - popType codes.
+#' 
+#' Table with population type (popType) and associated evaluation code (EVAL_TYP_CD).
+#' 
+#' 
+#' @name ref_popType
+#' @docType data
+#' @format A dataframe with 2 columns, VARNM and TITLE.
+#' @source Comma-delimited file.
+#' @keywords datasets
+NULL
 
 
