@@ -772,7 +772,7 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	}
 	if (is.null(init)) init = dstnodata
 	
-	srs = src_dsgetProjectionRef()
+	srs = src_ds$getProjectionRef()
 
 	#create dst raster file
 	gdalraster::create(fmt, dstfile, clip_ncols, clip_nrows, nbands, dtName, options)
