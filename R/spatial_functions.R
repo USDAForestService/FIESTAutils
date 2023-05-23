@@ -1,5 +1,4 @@
 ## polyfix.sf
-## build.prj4str	- builds PROJ.4 projections string from input parameters
 ## trunc10shp - truncates all variables in Spatial object to 10 characters of less
 ## getESPG - gets table of ESPG codes, filtering with input parameters
 ## merge_extents - merge extents of 2 spatial layers

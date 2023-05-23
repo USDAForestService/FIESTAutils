@@ -1,4 +1,4 @@
-## getrastlst.rgdal - verifies a list of raster or raster files.
+## getrastlst - verifies a list of raster or raster files.
 ## areacalc.pixel - calculates area of raster pixels and appends to polygon attribute table.
 ## aspect_transform - transforms aspect, in degrees, to easting and northing units.
 ## checkrast.longlat - checks of raster has long/lat crs
@@ -6,7 +6,7 @@
 
 #' @rdname raster_desc
 #' @export
-getrastlst.rgdal <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
+getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
 	stopifnull=FALSE, gui=TRUE, quiet=FALSE){
 
   #########################################################################
@@ -247,7 +247,7 @@ checkrast.longlat <- function(rastfn, dstfile=NULL, nolonglat=TRUE, crs.default=
     crs.default <- crs.albersUS
   crs.default <- sf::st_crs(crs.default)
 
-  rastfn <- getrastlst.rgdal(rastfn)
+  rastfn <- getrastlst(rastfn)
   rast.prj <- rasterInfo(rastfn)$crs
   rast.name <- basename.NoExt(rastfn)
   #rast.dirname <- dirname(nlcdfn)

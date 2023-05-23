@@ -33,7 +33,7 @@
 \alias{zonalMinority}
 \alias{zonalVariety}
 \alias{raster_desc}
-\alias{getrastlst.rgdal}
+\alias{getrastlst}
 \alias{areacalc.pixel}
 \alias{aspect_transform}
 \alias{checkrast.longlat}
@@ -238,7 +238,7 @@ zonalVariety(
   ...
 )
 
-getrastlst.rgdal(
+getrastlst(
   rastnmlst,
   rastfolder = NULL,
   stopifLonLat = FALSE,
