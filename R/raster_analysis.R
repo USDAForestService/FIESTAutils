@@ -462,8 +462,10 @@ rasterInfo <- function(srcfile) {
 	ri$has_nodata_value = c()
 	ri$nodata_value = c()
 	for (b in 1:ri$nbands) {
+		ri$datatype = c(ri$datatype, ds$getDataTypeName(b))
 		ri$nodata_value = c(ri$nodata_value, ds$getNoDataValue(b))
-		ri$has_nodata_value = c(ri$has_nodata_value, anyNA(ds$getNoDataValue(b)))
+		ri$has_nodata_value = c(ri$has_nodata_value, 
+								!is.na(ds$getNoDataValue(b)))
 	}
 	ds$close()
 	return(ri)
