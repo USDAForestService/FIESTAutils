@@ -34,7 +34,6 @@ Imports:
     nlme,
     Rcpp,
     RColorBrewer,
-    rgdal,
     RPostgreSQL,
     RSQLite,
     sae,
