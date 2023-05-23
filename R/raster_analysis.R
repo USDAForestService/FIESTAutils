@@ -462,8 +462,10 @@ rasterInfo <- function(srcfile) {
 	ri$has_nodata_value = c()
 	ri$nodata_value = c()
 	for (b in 1:ri$nbands) {
+		ri$datatype = c(ri$datatype, ds$getDataTypeName(b))
 		ri$nodata_value = c(ri$nodata_value, ds$getNoDataValue(b))
-		ri$has_nodata_value = c(ri$has_nodata_value, anyNA(ds$getNoDataValue(b)))
+		ri$has_nodata_value = c(ri$has_nodata_value, 
+								!is.na(ds$getNoDataValue(b)))
 	}
 	ds$close()
 	return(ri)
@@ -540,7 +542,7 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 	if (length(opt) == 0)
 		opt = NULL
 	
-	return(gdalraster::warp(srcfile, dstfile, t_srs, options=opt))
+	return(gdalraster::warp(srcfile, dstfile, t_srs, cl_arg=opt))
 
 }
 
@@ -867,8 +869,8 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 		a2 = lut[,2][match(a, lut[,1])]
 		a2 = ifelse(is.na(a2), a, a2)
 		dst_ds$write(band=1,
-						offx = 0,
-						offy = row,
+						xoff = 0,
+						yoff = row,
 						xsize = dim(a2)[2],
 						ysize = dim(a2)[1],
 						a2)
@@ -1157,7 +1159,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	ymin = ds$bbox()[2]
 
 	if (is.null(src)) {
-		src <- sf::st_read(dsn, layer, stringsAsFactors=F, quiet=T)
+		src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
 		src = sf::as_Spatial(sf::st_zm(src))
 	}
 	else {
@@ -1220,7 +1222,10 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 		df_out <- merge(df_agg, df_out)
 	}
 	else {
-		df_out <- transform(df_out, zoneprop = ave(count, zoneid, FUN = function(x) round(x/sum(x), 9)))
+		df_out <- transform(df_out, zoneprop = 
+									ave(count, 
+										zoneid, 
+										FUN = function(x) round(x/sum(x), 9)))
 	}
 	
 	src <- NULL
