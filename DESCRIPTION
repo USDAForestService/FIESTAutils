@@ -43,7 +43,7 @@ Imports:
     stats,
     terra,
     units,
-    utils,
+    utils
 Suggests:
     knitr
 License: GPL-3
