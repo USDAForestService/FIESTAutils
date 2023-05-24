@@ -22,7 +22,7 @@ Description: A set of tools for data wrangling, spatial data analysis,
     aimed to help Foresters, Analysts, and Scientists extract and perform
     analyses on USDA Forest Service data.
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.2.0)
 Imports:
     data.table,
     DBI,
