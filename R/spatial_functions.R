@@ -40,6 +40,118 @@ polyfix.sf <- function(x) {
   return(x)
 }
 
+#' @rdname spatial_desc
+#' @export
+build.prj4str <- function(prj, datum=NULL, ellps=NULL, zone=NULL, zoneS=FALSE,
+                          aea.param="USGS", gui=FALSE) {
+  
+  #######################################################################
+  ## DESCRIPTION:
+  ## Builds the proj4string from input parameters.
+  ##
+  ## ARGUMENTS:
+  ## prj - String. Projection
+  ## datum - String. Datum
+  ## zone - String. If prj="utm", UTM zone
+  ## zoneS - Logical. If prj="utm", if UTM zone is in Southern hemisphere
+  ## aea.param - If prj="aea", parameters
+  #######################################################################
+  
+  ## Set variable lists
+  prjlst <- c(
+   "adams_hemi", "adams_ws1", "adams_ws2", "aea", "aeqd", "affine",
+   "airy", "aitoff", "alsk", "apian", "august", "axisswap",
+   "bacon", "bertin1953", "bipc", "boggs", "bonne", "calcofi", 
+   "cart", "cass", "cc", "ccon", "cea", "chamb", 
+   "collg", "col_urban", "comill", "crast", "defmodel", "deformation",
+   "denoy", "eck1", "eck2", "eck3", "eck4", "eck5", 
+   "eck6", "eqearth", "eqc", "eqdc", "euler", "etmerc", 
+   "fahey", "fouc", "fouc_s", "gall", "geoc", "geogoffset", 
+   "geos", "gins8", "gn_sinu", "gnom", "goode", "gs48", 
+   "gs50", "guyou", "hammer", "hatano", "healpix", "rhealpix",
+   "helmert", "hgridshift", "horner", "igh", "igh_o", "imoll",
+   "imoll_o", "imw_p", "isea", "kav5", "kav7", "krovak",
+   "labrd", "laea", "lagrng", "larr", "lask", "lonlat",
+   "latlon", "lcc", "lcca", "leac", "lee_os", "loxim",
+   "lsat", "mbt_s", "mbt_fps", "mbtfpp", "mbtfpq", "mbtfps",
+   "merc", "mil_os", "mill", "misrsom", "moll", "molobadekas",
+   "molodensky", "murd1", "murd2", "murd3", "natearth", "natearth2",
+   "nell", "nell_h", "nicol", "nsper", "nzmg", "noop",
+   "ob_tran", "ocea", "oea", "omerc", "ortel", "ortho",
+   "pconic", "patterson", "peirce_q", "pipeline", "poly", "pop",
+   "push", "putp1", "putp2", "putp3", "putp3p", "putp4p",
+   "putp5", "putp5p", "putp6", "putp6p", "qua_aut", "qsc",
+   "robin", "rouss", "rpoly", "s2", "sch", "set",
+   "sinu", "somerc", "stere", "sterea", "gstmerc", "tcc",
+   "tcea", "times", "tinshift", "tissot", "tmerc", "tobmerc",
+   "topocentric", "tpeqd", "tpers", "unitconvert", "ups", "urm5",
+   "urmfps", "utm", "vandg", "vandg2", "vandg3", "vandg4",
+   "vertoffset", "vitk1", "vgridshift", "wag1", "wag2", "wag3",
+   "wag4", "wag5", "wag6", "wag7", "webmerc", "weren",
+   "wink1", "wink2", "wintri", "xyzgridshift")
+  #datumlst <- as.character(rgdal::projInfo(type="datum")$name)
+  ellpslst <- c(
+    "MERIT", "SGS85", "GRS80", "IAU76", "airy", "APL4.9", "NWL9D", "mod_airy",
+    "andrae", "danish", "aust_SA", "GRS67", "GSK2011", "bessel", "bess_nam", "clrk66",
+    "clrk80", "clrk80ign", "CPM", "delmbr", "engelis", "evrst30", "evrst48", "evrst56", 
+    "evrst69", "evrstSS", "fschr60", "fschr60m", "fschr68", "helmert", "hough", "intl",
+    "krass", "kaula", "lerch", "mprts", "new_intl", "plessis", "PZ90", "SEasia",
+    "walbeck", "WGS60", "WGS66", "WGS72", "WGS84", "sphere"   
+  )
+  zonelst <- c(1:60)
+  
+  
+  prj <- pcheck.varchar(var2check=prj, varnm="prj", checklst=prjlst,
+                        caption="Projection?", gui=gui, stopifnull=TRUE)
+  if (prj == "latlong") prj <- "longlat"
+  
+  #  datum <- pcheck.varchar(var2check=datum, varnm="datum", checklst=datumlst,
+  #		caption="Datum?", gui=gui)
+  ellps.gui <- ifelse(is.null(datum), TRUE, FALSE)
+  ellps <- pcheck.varchar(var2check=ellps, varnm="ellps", checklst=ellpslst,
+                          caption="Ellipse?", gui=ellps.gui)
+  if (is.null(ellps))
+    stop("both datum and ellpse are NULL.. cannot reproject")
+  
+  if (prj == "utm") {
+    zone <- pcheck.varchar(var2check=as.character(zone), varnm="zone",
+                           checklst=zonelst, caption="UTM zone?", gui=gui)
+    if (is.null(zone)) stop("must include zone number")
+    
+    zoneS <- pcheck.logical(zoneS, varnm="zoneS", title="UTM South?",
+                            first="NO", gui=gui)
+  }
+  
+  ###########################################
+  prj4str <- paste0("+proj=", prj)
+  
+  if (prj == "longlat") {
+    if (!is.null(datum)) {
+      prj4str = paste0(prj4str, " +datum=", datum, " +no_defs")
+    } else {
+      prj4str = paste0(prj4str, " +ellps=", ellps, " +no_defs")
+    }
+  } else if (prj == "utm") {
+    prj4str <- paste0(prj4str, " +zone=", zone, " +datum=", datum)
+    if (zoneS) prj4str <- paste(prj4str, "+south")
+  } else if (prj == "aea") {
+    if (aea.param == "USGS") {
+      prj4str <- paste("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0",
+                       "+ellps=GRS80 +towgs84=0,0,0,-0,-0,-0,0 +units=m +no_defs")
+    } else {
+      param <- " +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0"
+      
+      if (!is.null(datum)) {
+        prj4str <- paste0(prj4str, param, " +datum=", datum, " +units=m +no_defs")
+      } else {
+        prj4str = paste0(prj4str, param, " +ellps=", ellps, " +no_defs")
+      }
+    }
+  }
+  
+  return(prj4str)
+}
+
 
 #' @rdname spatial_desc
 #' @export
