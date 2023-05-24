@@ -15,8 +15,6 @@ NULL
 
 
 
-
-
 #' Class \code{"Rcpp_RunningStats"}
 #'
 #' C++ program to calculate mean and variance on a data stream.
@@ -30,19 +28,6 @@ NULL
 #' \code{"\linkS4class{envRefClass}"}.
 #' @author Chris Toney
 #' @keywords classes
-NULL
-
-
-#' Reference tables - NODATA Values.
-#'
-#' List of NODATA Values based on data type.
-#'
-#'
-#' @name DEFAULT_NODATA
-#' @docType data
-#' @format A list of 6 components.
-#' @source gdal values.
-#' @keywords datasets
 NULL
 
 
