@@ -35,7 +35,6 @@ Imports:
     nlme,
     Rcpp,
     RColorBrewer,
-    rgdal,
     RPostgreSQL,
     RSQLite,
     sae,
@@ -47,7 +46,6 @@ Imports:
     utils,
 Suggests:
     knitr
-Additional_repositories: https://github.com/USDAForestService/gdalraster
 License: GPL-3
 Copyright: See file COPYRIGHTS for details. 
 URL: https://github.com/USDAForestService/FIESTAutils
