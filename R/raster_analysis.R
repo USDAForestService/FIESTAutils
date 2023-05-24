@@ -623,7 +623,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 	ymin = ds$bbox()[2]
 
 	if (is.null(src)) {
-		src <- sf::st_read(dsn, layer, stringsAsFactors=F, quiet=T)
+		src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
 		src = sf::as_Spatial(sf::st_zm(src))
 	}
 	else {
@@ -636,7 +636,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 
 	# write function for the C++ rasterizer
 	writeRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
-		a <- array(burn_value, dim=(c((xoff2-xoff1)+1, 1)))
+		a <- array(burn_value, dim=(c(1, xoff2-xoff1+1)))
 		ds$write(band=1, xoff1, yoff, dim(a)[2], dim(a)[1], a)
 		return()
 	}
@@ -871,8 +871,8 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 		dst_ds$write(band=1,
 						xoff = 0,
 						yoff = row,
-						xsize = dim(a2)[2],
-						ysize = dim(a2)[1],
+						xsize = ncols,
+						ysize = 1,
 						a2)
 		setTxtProgressBar(pb, row+1)
 		return()
