@@ -29,7 +29,7 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
     Filters <- rbind(Filters,tif=c("GeoTIFF (*.tif)", "*.tif"))
     Filters <- rbind(Filters,bil=c("Binary (*.bil)", "*.bil"))
   }
-
+ 
   rastfnlst <- {}
   if (is.null(rastnmlst)) {
     if (gui) {
@@ -79,7 +79,11 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
   } else {
 
     if (!is.list(rastnmlst)) {
-      rastnmlst <- as.list(rastnmlst)
+      if (class(rastnmlst) %in% c("RasterLayer", "RasterStack", "RasterBrick")) {
+        rastnmlst <- list(rastnmlst)
+      } else {
+        rastnmlst <- as.list(rastnmlst)
+      }
     }
 
     if (any(lapply(rastnmlst, class) %in% "SpatRaster")) {
@@ -93,9 +97,11 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
         } else {
           rastfn <- terra::sources(rastnm)
           if (file.exists(rastfn)) {
-           rastfnlst <- unique(c(rastfnlst, rastfn))
+            rastfnlst <- unique(c(rastfnlst, rastfn))
+            rm(rastnm)
+            gc()
           } else {
-           stop(rastfn, "is invalid")
+            stop(rastfn, "is invalid")
           }
         }
       } 
@@ -108,11 +114,13 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
             message(rastnm[[1]], "is invalid")
           }
         } else {
-          rastfn <- rastnmlst[[1]]@file@name
+          rastfn <- rastnm[[1]]@file@name
           if (file.exists(rastfn)) {
-           rastfnlst <- unique(c(rastfnlst, rastfn))
+            rastfnlst <- unique(c(rastfnlst, rastfn))
+            rm(rastnm)
+            gc()
           } else {
-           stop(rastfn, "is invalid")
+            stop(rastfn, "is invalid")
           }
         }
       } 
