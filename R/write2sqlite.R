@@ -1,8 +1,8 @@
 #' @rdname write2_desc
 #' @export
-write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
+write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
  	outfolder=NULL, overwrite=FALSE, append_layer=FALSE, createnew=FALSE,
-	dbconnopen=FALSE, index.unique=NULL, index=NULL, dbconn=NULL){
+	dbconn=NULL, dbconnopen=FALSE, index.unique=NULL, index=NULL){
   ###################################################################################
   ## DESCRIPTION: Internal function to write to csv file.
   ##
