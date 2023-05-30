@@ -2,7 +2,7 @@
 #' @export
 write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
  	outfolder=NULL, overwrite=FALSE, append_layer=FALSE, createnew=FALSE,
-	dbconnopen=FALSE, index.unique=NULL, index=NULL){
+	dbconnopen=FALSE, index.unique=NULL, index=NULL, dbconn=NULL){
   ###################################################################################
   ## DESCRIPTION: Internal function to write to csv file.
   ##
@@ -18,14 +18,16 @@ write2sqlite <- function(layer, SQLitefn, out_name=NULL, gpkg=FALSE,
   ####################################################################################
   appendtext <- ifelse(append_layer, "appending", "writing")
 
-  ## Check SQLite connection
-  ###########################################################
-  if (createnew) {
-    dbconn <- DBcreateSQLite(SQLitefn=SQLitefn, outfolder=outfolder, dbconnopen=TRUE,
+  if (is.null(dbconn) || !DBI::dbIsValid(dbconn)) {
+    ## Check SQLite connection
+    ###########################################################
+    if (createnew) {
+      dbconn <- DBcreateSQLite(SQLitefn=SQLitefn, outfolder=outfolder, dbconnopen=TRUE,
 		gpkg=gpkg, overwrite=overwrite)
-  } else {
-    dbconn <- DBtestSQLite(SQLitefn=SQLitefn, outfolder=outfolder, dbconnopen=TRUE,
+    } else {
+      dbconn <- DBtestSQLite(SQLitefn=SQLitefn, outfolder=outfolder, dbconnopen=TRUE,
 		gpkg=gpkg, showlist=FALSE)
+    }
   }
 
   ## Check out_name
