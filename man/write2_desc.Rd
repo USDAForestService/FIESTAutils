@@ -23,13 +23,14 @@ write2csv(
 
 write2sqlite(
   layer,
-  SQLitefn,
+  SQLitefn = NULL,
   out_name = NULL,
   gpkg = FALSE,
   outfolder = NULL,
   overwrite = FALSE,
   append_layer = FALSE,
   createnew = FALSE,
+  dbconn = NULL,
   dbconnopen = FALSE,
   index.unique = NULL,
   index = NULL
