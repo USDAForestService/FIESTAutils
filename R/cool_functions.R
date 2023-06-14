@@ -678,7 +678,8 @@ RtoSQL <- function(filter, x=NULL) {
   return(sql)
 }
 
-
+#' @rdname int64tochar
+#' @export
 int64tochar <- function(df) {
   ## DESCRIPTION: convert columns with class integer64 to character
   if (any(grepl("integer64", lapply(df, class)))) {
