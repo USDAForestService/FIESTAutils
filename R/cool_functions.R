@@ -22,7 +22,7 @@
 # findnm
 # chkdbtab  Checks if table exists in list of database tables
 # RtoSQL    Convert logical R statement syntax to SQL syntax
-
+# int64tochar  convert columns with class integer64 to character
 
 #' @rdname internal_desc
 #' @export
@@ -177,7 +177,17 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
 					message(err)
 			} )
       if (is.null(test)) {
-        stop("permission denied")
+        test <- tryCatch(
+          unlink(nm),
+			warning=function(war) {
+             			#stop(war,"\n")
+             			stop("cannot overwrite file... permission denied\n")
+			}, error=function(err) {
+					message(err)
+			} )
+        if (is.null(test)) {
+          stop("permission denied")
+        }
       }
       message("overwriting ", nm, "...")
     }
@@ -668,6 +678,16 @@ RtoSQL <- function(filter, x=NULL) {
   return(sql)
 }
 
+
+int64tochar <- function(df) {
+  ## DESCRIPTION: convert columns with class integer64 to character
+  if (any(grepl("integer64", lapply(df, class)))) {
+    int64cols <- names(df)[grepl("integer64", lapply(df, class))]
+    df <- setDF(df)
+    df[int64cols] <- lapply(df[int64cols], as.character)
+  }
+  return(df)
+}
 
 
   

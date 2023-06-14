@@ -694,7 +694,6 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
   ## Check file name
   ###########################################################
   chkfn <- checkfilenm(out_dsn, outfolder=outfolder)
-
   if (is.null(chkfn)) {
     ext <- "db"
     if (is.null(out_dsn)) {
@@ -719,12 +718,11 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
   } else {
     ext <- getext(chkfn)
   }
-
+ 
   if (is.null(chkfn) || overwrite_dsn || !overwrite_dsn) {
     out_dsn <- getoutfn(out_dsn, outfn.pre=outfn.pre, outfolder=outfolder,
 		outfn.date=outfn.date, overwrite=overwrite_dsn, outfn.default="data",
 		ext=ext, add=add_layer, append=append_layer)
-
     if (any(out_fmt %in% c("sqlite", "gpkg")) && createSQLite) {
       gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
       out_dsn <- DBcreateSQLite(out_dsn, gpkg=gpkg)
