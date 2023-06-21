@@ -51,7 +51,7 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
   message(paste(appendtext, out_name, "to", SQLitefn))
 
   if (!is.null(index.unique) && !all(index.unique %in% names(layer))) {
-    message("invalid index.unique... names not in ", out_name)
+    warning("invalid index.unique... names not in ", out_name)
     index.unique <- NULL
   }
  
@@ -74,7 +74,7 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
     }
   }
   if (!is.null(index) && !all(index %in% names(layer))) {
-    message("invalid index... names not in layer")
+    warning("invalid index... names not in layer")
     index <- NULL
   }
 
