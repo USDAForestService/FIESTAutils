@@ -44,6 +44,8 @@
 \alias{findnm}
 \alias{chkdbtab}
 \alias{RtoSQL}
+\alias{int64tochar}
+\alias{messagedf}
 \alias{strat.pivot}
 \alias{makedummy}
 \alias{preds.standardize}
@@ -271,6 +273,10 @@ findnm(x, xvect, returnNULL = FALSE)
 chkdbtab(dbtablst, tab, stopifnull = FALSE)
 
 RtoSQL(filter, x = NULL)
+
+int64tochar(df)
+
+messagedf(df)
 
 getext(x)
 

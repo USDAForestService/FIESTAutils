@@ -73,7 +73,7 @@ DBtestSQLite <- function(SQLitefn = NULL,
       SQLitefn <- paste0(SQLitefn, dbext)
     }
     if (DBI::dbCanConnect(RSQLite::SQLite(), SQLitepath)) {
-      message("SQLite connection successful")
+      message("SQLite connection successful: ", SQLitefn)
       sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
       tablst <- DBI::dbListTables(sqlconn)
       if (length(tablst) != 0 && "SpatialIndex" %in% tablst) {

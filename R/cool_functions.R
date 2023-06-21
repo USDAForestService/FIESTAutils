@@ -23,6 +23,7 @@
 # chkdbtab  Checks if table exists in list of database tables
 # RtoSQL    Convert logical R statement syntax to SQL syntax
 # int64tochar  convert columns with class integer64 to character
+# messagedf - write a df to screen
 
 #' @rdname internal_desc
 #' @export
@@ -678,7 +679,7 @@ RtoSQL <- function(filter, x=NULL) {
   return(sql)
 }
 
-#' @rdname int64tochar
+#' @rdname internal_desc
 #' @export
 int64tochar <- function(df) {
   ## DESCRIPTION: convert columns with class integer64 to character
@@ -690,6 +691,10 @@ int64tochar <- function(df) {
   return(df)
 }
 
+#' @rdname internal_desc
+#' @export
+messagedf <- function(df) {
+  message(paste0(utils::capture.output(df), collapse = "\n"))
+}
 
-  
 
