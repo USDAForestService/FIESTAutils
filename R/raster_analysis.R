@@ -636,8 +636,8 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
 
 	# write function for the C++ rasterizer
 	writeRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
-		a <- array(burn_value, dim=(c(1, xoff2-xoff1+1)))
-		ds$write(band=1, xoff1, yoff, dim(a)[2], dim(a)[1], a)
+		a <- rep(burn_value, (xoff2-xoff1+1))
+		ds$write(band=1, xoff1, yoff, (xoff2-xoff1+1), 1, a)
 		return()
 	}
 	
@@ -791,13 +791,18 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 	writeRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
 		for (b in 1:nbands) {
 			a = src_ds$read(band=src_band[b],
-								xoff = (xoff1+xminOff),
-								yoff = (yoff+ymaxOff), 
-								xsize = ((xoff2-xoff1)+1),
-								ysize = 1,
-								out_xsize = ((xoff2-xoff1)+1),
-								out_ysize = 1)
-			dst_ds$write(band=b, xoff1, yoff, dim(a)[2], dim(a)[1], a)
+								xoff=(xoff1+xminOff),
+								yoff=(yoff+ymaxOff), 
+								xsize=(xoff2-xoff1+1),
+								ysize=1,
+								out_xsize=(xoff2-xoff1+1),
+								out_ysize=1)
+			dst_ds$write(band=b,
+							xoff=xoff1,
+							yoff=yoff,
+							xsize=(xoff2-xoff1+1),
+							ysize=1,
+							rasterData=a)
 		}
 		return()
 	}
