@@ -27,7 +27,7 @@
 # getSPGRPCD - get spgrpcd attribute(s) in ref_species from ref_statecd
 
 
-#' @rdname exit
+#' @rdname internal_desc
 #' @export
 exit <- function() { invokeRestart("abort") }
 
