@@ -156,7 +156,7 @@ pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
 
 #' @rdname pcheck_desc
 #' @export
-pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
+pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
 	caption=NULL, returnsf=TRUE, factors=FALSE, returnDT=TRUE, warn=NULL,
 	stopifnull=FALSE, stopifinvalid=FALSE, nullcheck=FALSE, obj=FALSE, gui=FALSE){
 
@@ -206,7 +206,25 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
   if (gui && !.Platform$OS.type=="windows") {
     stop("gui not supported")
   }
-  if (is.null(tab) && is.null(tab_dsn)) {
+  if (!is.null(conn)) {
+    if (!DBI::dbIsValid(conn)) {
+      warning("invalid database connection")
+      exit()
+    } else {
+      tablst <- DBI::dbListTables(conn)
+      if (is.character(tab) && length(tab) == 1) {
+        tab <- findnm(tab, tablst, returnNULL=TRUE)
+        if (is.null(tab) && stopifnull) {
+          warning("tab is NULL")
+          exit()
+        }
+        return(tab)
+      } else {
+        warning("invalid tab... must be character name in database")
+        exit()
+      }
+    }
+  } else if (is.null(tab) && is.null(tab_dsn)) {
     if (gui) {
       tabresp <- select.list(selectlst, title=caption, multiple=FALSE)
       if (tabresp=="") {
