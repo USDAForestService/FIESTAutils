@@ -238,12 +238,19 @@ pcheck.table <- function(tab=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
     }
     if (is.null(tabx) && stopifnull) {
       stop(paste(tabnm, "is NULL"))
-      return(NULL)
     }
   }
 
   if (!is.null(tab)) {
     if (is.character(tab)) {
+      if (length(tab) > 1) {
+        if (stopifinvalid) {
+          stop("x has length > 1")
+        } else {
+          return(NULL)
+        }
+      }
+        
       if (obj && exists(tab, envir=.GlobalEnv) && is.data.frame(get(tab))) {
         #message(tab, " exists in Global Environment")
         return(get(tab))

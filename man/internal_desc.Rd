@@ -22,6 +22,7 @@
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
+\alias{exit}
 \alias{getext}
 \alias{getoutfn}
 \alias{addcommas}
@@ -46,6 +47,7 @@
 \alias{RtoSQL}
 \alias{int64tochar}
 \alias{messagedf}
+\alias{getSPGRPCD}
 \alias{strat.pivot}
 \alias{makedummy}
 \alias{preds.standardize}
@@ -217,6 +219,8 @@ addCI(x, estnm, senm = NULL, conf.level = c(99, 95, 68), gainloss = FALSE)
 
 change10char(xnms)
 
+exit()
+
 getext(x)
 
 getoutfn(
@@ -277,6 +281,8 @@ RtoSQL(filter, x = NULL)
 int64tochar(df)
 
 messagedf(df)
+
+getSPGRPCD(states)
 
 getext(x)
 
