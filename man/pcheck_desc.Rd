@@ -55,6 +55,7 @@ pcheck.dsn(dsn, dbconnopen = TRUE)
 
 pcheck.table(
   tab = NULL,
+  conn = NULL,
   tab_dsn = NULL,
   tabnm = NULL,
   tabqry = NULL,

@@ -556,7 +556,8 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
     if (returnNULL) {
       return(NULL)
     } else {
-      stop("variable is NULL")
+      warning("variable is NULL")
+      exit()
     }
   }
   test <- grepl(x, xvect, ignore.case=TRUE)
@@ -564,7 +565,8 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
     if (returnNULL) {
       return(NULL)
     }
-    stop("name not found")
+    warning("name not found")
+    exit()
   } else {
     testnames <- xvect[test]
     test <- match(tolower(x), tolower(testnames))
@@ -573,7 +575,8 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
         if (returnNULL) {
           return(NULL)
         } else {
-          stop("no matching names found")
+          warning("no matching names found")
+          exit()
         }
       }
       return(testnames[test])
@@ -581,7 +584,8 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
       if (returnNULL) {
         return(NULL)
       } else {
-        stop("more than 1 name found")
+        warning("more than 1 name found")
+        exit()
       }
     }
   } 
