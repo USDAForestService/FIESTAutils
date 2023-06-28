@@ -24,6 +24,13 @@
 # RtoSQL    Convert logical R statement syntax to SQL syntax
 # int64tochar  convert columns with class integer64 to character
 # messagedf - write a df to screen
+# getSPGRPCD - get spgrpcd attribute(s) in ref_species from ref_statecd
+
+
+#' @rdname exit
+#' @export
+exit <- function() { invokeRestart("abort") }
+
 
 #' @rdname internal_desc
 #' @export
@@ -696,5 +703,28 @@ int64tochar <- function(df) {
 messagedf <- function(df) {
   message(paste0(utils::capture.output(df), collapse = "\n"))
 }
+
+
+#' @rdname internal_desc
+#' @export
+getSPGRPCD <- function(states) {
+  ## DESCRIPTION: get spgrpcd attribute(s) in ref_species from ref_statecd
+  ##				ordered by majority
+
+  states <- pcheck.states(states)
+  ref_state <- FIESTAutils::ref_statecd[FIESTAutils::ref_statecd$MEANING %in% states, ]
+
+  if (length(unique(ref_state$REGION_SPGRPCD)) == 1) {
+    grpnames <- paste0(unique(ref_state$REGION), "_SPGRPCD")
+    #grpcode <- grpnames
+  } else {
+    grpnames <- paste0(names(table(ref_state$REGION_SPGRPCD))[
+	   table(ref_state$REGION_SPGRPCD) == max(table(ref_state$REGION_SPGRPCD))], 
+			"_SPGRPCD")
+    #grpcode <- grpnames[1]
+  } 
+  return(grpnames)
+}
+
 
 
