@@ -5,7 +5,7 @@
 \alias{DEFAULT_NODATA}
 \title{List of default nodata values by raster data type}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{list} of length 8.
 }
 \usage{
 DEFAULT_NODATA
