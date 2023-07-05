@@ -48,7 +48,7 @@ check.matchval(
 
 checkfilenm(fn, outfolder = NULL, ext = NULL, stopifnull = FALSE)
 
-checknm(nm, nmlst)
+checknm(nm, nmlst, ignore.case = TRUE)
 
 check.namedlist(xlst, checknms = NULL, modetype = "numeric")
 }
