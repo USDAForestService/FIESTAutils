@@ -30,7 +30,7 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
     rm(dunitlut.unit)
     rm(fmla.dom.unit)
     rm(pltdat.unit)
-    gc()
+    # gc()
 
     return(est.unit)
   }
@@ -58,7 +58,7 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
     rm(dunitlut.unit)
     rm(fmla.dom.unit)
     rm(pltdat.unit)
-    gc()
+    # gc()
 
     return(est.unit)
   }
@@ -104,7 +104,7 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
     rm(dunitlut.unit)
     rm(fmla.dom.unit)
     rm(pltdat.unit)
-    gc()
+    # gc()
 
     return(est.unit)
   }
@@ -164,7 +164,7 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
     rm(dunitlut.area)
     rm(fmla.dom.area)
     rm(pltdat.area)
-    gc()
+    # gc()
 
     return(list(JoSAEest=est.area, JoSAE.al=dat.al))
   }
@@ -194,7 +194,7 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
     rm(dunitlut.area)
     rm(fmla.dom.area)
     rm(pltdat.area)
-    gc()
+    # gc()
 
     return(est.area)
   }
@@ -244,7 +244,7 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
     rm(dunitlut.area)
     rm(fmla.dom.area)
     rm(pltdat.area)
-    gc()
+    # gc()
 
     return(est.area)
   }
@@ -989,7 +989,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     }
   }
 
-  gc()
+  # gc()
 
   returnlst <- list(est=est, pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom)
 
@@ -1183,7 +1183,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   setkeyv(setDT(dunitlut.dom), dunitvar)
 
   #rm(estlst)
-  gc()
+  # gc()
 
   returnlst <- list(est.large=est.large,
 			pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom)

@@ -99,7 +99,7 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
           if (file.exists(rastfn)) {
             rastfnlst <- unique(c(rastfnlst, rastfn))
             rm(rastnm)
-            gc()
+            # gc()
           } else {
             stop(rastfn, "is invalid")
           }
@@ -118,7 +118,7 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
           if (file.exists(rastfn)) {
             rastfnlst <- unique(c(rastfnlst, rastfn))
             rm(rastnm)
-            gc()
+            # gc()
           } else {
             stop(rastfn, "is invalid")
           }
