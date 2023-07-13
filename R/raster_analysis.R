@@ -531,7 +531,8 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 		opt = c(opt, "-dstnodata", as.character(dstnodata))
 	}
 	if(!is.null(co)) {
-		opt = c(opt, "-co", as.character(co))
+		for (this_co in co)
+			opt = c(opt, "-co", as.character(this_co))
 	}
 	if(overwrite) {
 		opt = c(opt, "-overwrite")
@@ -543,7 +544,6 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
 		opt = NULL
 	
 	return(gdalraster::warp(srcfile, dstfile, t_srs, cl_arg=opt))
-
 }
 
 #' @rdname raster_desc
@@ -1011,7 +1011,6 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 						function(p, ...) {fun((rowdata[,p:(p+kernelsize-1)] * w), ...)},
 						0, na.rm=na.rm, ...)
 			outrow = ifelse(is.na(outrow), nodata_value, outrow)
-			dim(outrow) <- c(1, ncols)
 			
 			# write a row of output
 			dst_ds$write(band = b,
