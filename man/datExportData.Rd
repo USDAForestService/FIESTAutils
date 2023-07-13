@@ -9,7 +9,9 @@ datExportData(
   create_dsn = FALSE,
   index.unique = NULL,
   index = NULL,
-  savedata_opts = savedata_options()
+  savedata_opts = savedata_options(),
+  dbconn = NULL,
+  dbconnopen = FALSE
 )
 }
 \arguments{
@@ -21,10 +23,15 @@ datExportData(
 index.}
 
 \item{index}{String. Name of variable(s) in dfobj to make (non-unique)
-index.}
+index.
+dbconnopen Logical. If TRUE, keep database connection open.}
 
 \item{savedata_opts}{List. See help(savedata_options()) for a list
 of options.}
+
+\item{dbconn}{Open database connection.}
+
+\item{dbconnopen}{Logical. If TRUE, keep database connection open.}
 }
 \value{
 An sf spatial object is written to the out_dsn.

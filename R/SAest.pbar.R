@@ -707,6 +707,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 
       est <- merge(est, unit.JoSAE, by=dunitvar, all.x=TRUE)
       SAobjlst$unit.JoSAE.obj <- unit.JoSAE.obj
+
+      rm(unit.JoSAE)
     }
 
     ## unit-level - hbsae estimates               
@@ -743,7 +745,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       est <- merge(est, unit.hbsae[, c(dunitvar, "hbsaeU", "hbsaeU.se")], by=dunitvar)
       SAobjlst$unit.hbsae.obj <- unit.hbsae.obj
   
-      rm(unit.JoSAE)
       rm(unit.hbsae)
     }
   } else {

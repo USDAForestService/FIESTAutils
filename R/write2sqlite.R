@@ -17,7 +17,7 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
   ##  Writes data frame to SQLite database.
   ####################################################################################
   appendtext <- ifelse(append_layer, "appending", "writing")
-
+ 
   if (is.null(dbconn) || !DBI::dbIsValid(dbconn)) {
     ## Check SQLite connection
     ###########################################################
@@ -86,9 +86,14 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
     DBI::dbExecute(dbconn, idxsql)
     message(sub("create", "creating", idxsql))
   }
-
+ 
   ## If closedb is TRUE, close the sql database dbconnection.
-  if (!dbconnopen) {
-    DBI::dbDisconnect(dbconn)
-  }
+  if (!is.null(dbconn)) {
+    if (!dbconnopen) {
+      DBI::dbDisconnect(dbconn)
+      return(NULL)
+    } else {
+      return(dbconn)
+    }
+  }  
 }

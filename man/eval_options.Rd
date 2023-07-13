@@ -37,11 +37,11 @@ in database (annual inventory only).}
 
 \item{Type}{String vector. Evaluation types ('ALL','CURR','VOL','P2VEG',
 DWM','INV','CHNG','GRM','REGEN'). If eval='FIA', Type is equivalent to
-plots for FIA Evaluations where 'ALL' includes nonsampled plots; 'VOL' 
-and 'CURR' include plots used for area or tree estimates; Type = 'GRM' 
-includes plots used for growth, removals, mortality; and Type = 'CHNG' 
-includes plots used for change estimates (See FIA database manual for 
-regioin availability and/or differences 
+plots for FIA Evaluations where 'ALL' includes nonsampled plots; 'CURR' 
+and 'VOL' include plots used for area or tree estimates, respectively; 
+Type = 'GRM' includes plots used for growth, removals, mortality; and 
+Type = 'CHNG' includes plots used for change estimates (See FIA database 
+manual for regioin availability and/or differences 
 (https://www.fia.fs.usda.gov/library/database-documentation/index.php) 
 If eval='custom', the associated tables are extracted for each Type. 
 Multiple Types are accepted.}

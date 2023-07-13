@@ -6,12 +6,15 @@
 #'
 #' @param dfobj Data.frame class R object. Data frame object to export.
 #' @param create_dsn Boolean.
-#' @param savedata_opts List. See help(savedata_options()) for a list
-#' of options.
 #' @param index.unique String. Name of variable(s) in dfobj to make unique
 #' index.
 #' @param index String. Name of variable(s) in dfobj to make (non-unique)
 #' index.
+#' dbconnopen Logical. If TRUE, keep database connection open.
+#' @param savedata_opts List. See help(savedata_options()) for a list
+#' of options.
+#' @param dbconn Open database connection.
+#' @param dbconnopen Logical. If TRUE, keep database connection open.
 #' @return An sf spatial object is written to the out_dsn.
 #' @note If out_fmt='shp':\cr The ESRI shapefile driver truncates variable
 #' names to 10 characters or less.  Variable names are changed before export
@@ -22,8 +25,14 @@
 #' @author Tracey S. Frescino
 #' @keywords data
 #' @export datExportData
-datExportData <- function(dfobj, create_dsn=FALSE,
-	index.unique=NULL, index=NULL, savedata_opts=savedata_options()) {
+datExportData <- function(dfobj, 
+                          create_dsn = FALSE,
+                          index.unique = NULL, 
+                          index = NULL, 
+                          savedata_opts = savedata_options(),
+                          dbconn = NULL,
+                          dbconnopen = FALSE
+                          ) {
   ###########################################################################
   ## DESCRIPTION: Exports a data.frame to file or database.
   ## out_fmt	Output format ('csv', 'sqlite', 'gpkg', 'shp', 'rda', 'rds', 'llo')
@@ -80,19 +89,19 @@ datExportData <- function(dfobj, create_dsn=FALSE,
       assign(names(savedata_opts)[[i]], savedata_opts[[i]])
     }
   }
-
+ 
   ## Check output data
   outlst <- pcheck.output(out_fmt=out_fmt, outfolder=outfolder,
 	out_dsn=out_dsn, overwrite_dsn=overwrite_dsn, overwrite_layer=overwrite_layer,
 	outfn.date=outfn.date, add_layer=add_layer, append_layer=append_layer,
-	outfn.pre=outfn.pre)
+	outfn.pre=outfn.pre, out_conn=dbconn, dbconnopen=TRUE)
   out_fmt <- outlst$out_fmt
   out_dsn <- outlst$out_dsn
   outfolder <- outlst$outfolder
   overwrite_layer <- outlst$overwrite_layer
   append_layer <- outlst$append_layer
-
-
+  out_conn <- outlst$out_conn
+ 
   ## Check out_layer
   ####################################################
   if (is.null(out_dsn) && is.null(out_layer)) {
@@ -110,19 +119,12 @@ datExportData <- function(dfobj, create_dsn=FALSE,
   ########################################################
   if (out_fmt %in% c("sqlite", "gpkg")) {
     gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
-    if (create_dsn) {
-      out_dsn <- DBcreateSQLite(out_dsn, gpkg=gpkg, outfolder=outfolder,
-		overwrite=overwrite_dsn, outfn.date=outfn.date,
-		returnpath=TRUE)
-    } else {
-      out_dsn <- suppressMessages(
-           DBtestSQLite(out_dsn, gpkg=gpkg, outfolder=outfolder,
-		   returnpath=TRUE, showlist=FALSE))
-    }
-    suppressMessages(
-      write2sqlite(setDT(dfobj), SQLitefn=out_dsn, out_name=out_layer, gpkg=gpkg,
-		overwrite=overwrite_layer, append_layer=append_layer,
-		index.unique=index.unique, index=index))
+ 
+    dbconn <- write2sqlite(setDT(dfobj), SQLitefn=out_dsn, 
+          out_name=out_layer, gpkg=gpkg,
+          overwrite=overwrite_layer, append_layer=append_layer,
+          index.unique=index.unique, index=index, createnew=create_dsn, 
+          dbconn=out_conn, dbconnopen=TRUE)
 
   } else if (out_fmt == "gdb") {
      stop("cannot write to a geodatabase")
@@ -152,4 +154,13 @@ datExportData <- function(dfobj, create_dsn=FALSE,
   } else {
     stop(out_fmt, " currently not supported")
   }
+ 
+  if (!is.null(dbconn)) {
+    if (!dbconnopen) {
+      DBI::dbDisconnect(dbconn)
+      return(NULL)
+    } else {
+      return(dbconn)
+    }
+  }  
 }

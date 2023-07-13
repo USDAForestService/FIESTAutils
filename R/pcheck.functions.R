@@ -1,5 +1,5 @@
 # pcheck.logical	- Checks logical function parameters
-# pcheck.unique	- Check for unique records
+# pcheck.unique	     - Check for unique records
 # pcheck.varchar	- Checks string variable parameter
 # pcheck.table
 # pcheck.outfolder
@@ -206,22 +206,30 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
   if (gui && !.Platform$OS.type=="windows") {
     stop("gui not supported")
   }
+
+
   if (!is.null(conn)) {
-    if (!DBI::dbIsValid(conn)) {
-      warning("invalid database connection")
-      exit()
+    conntest <- tryCatch(DBI::dbIsValid(conn),
+                         error=function(err) {
+                           message("invalid database connection: ", conn, "\n")
+                           return(NULL)
+                           } )
+    if (is.null(conntest)) {
+      if (stopifnull) {
+        stop()
+      } else {
+        return(NULL)
+      }
     } else {
       tablst <- DBI::dbListTables(conn)
       if (is.character(tab) && length(tab) == 1) {
         tab <- findnm(tab, tablst, returnNULL=TRUE)
         if (is.null(tab) && stopifnull) {
-          warning("tab is NULL")
-          exit()
+          stop("tab is NULL")
         }
         return(tab)
       } else {
-        warning("invalid tab... must be character name in database")
-        exit()
+        stop("invalid tab... must be character name in database")
       }
     }
   } else if (is.null(tab) && is.null(tab_dsn)) {
@@ -272,7 +280,7 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
       if (obj && exists(tab, envir=.GlobalEnv) && is.data.frame(get(tab))) {
         #message(tab, " exists in Global Environment")
         return(get(tab))
-      } else if (file.exists(tab)) {
+      } else if (file.exists(tab) && !is.null(tab_dsn)) {
         tab_dsn <- tab
       }
     }
@@ -666,7 +674,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
 pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 	outfn.pre=NULL, outfn.date=FALSE, overwrite_dsn=FALSE,
 	overwrite_layer=TRUE, add_layer=TRUE, append_layer=FALSE,
-	createSQLite=TRUE, gui=FALSE) {
+	createSQLite=TRUE, out_conn=NULL, dbconnopen=FALSE, gui=FALSE) {
 
   ## Check out_fmt
   ###########################################################
@@ -705,6 +713,19 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
   #if (!is.null(layer.pre) && (!is.vector(layer.pre) || length(layer.pre) > 1)) {
   #  stop("invalid layer.pre")
   #}
+ 
+  if (!is.null(out_conn) && DBI::dbIsValid(out_conn)) {
+    out_dsn <- DBI::dbGetInfo(out_conn)$dbname
+    outfolder <- NULL
+    if (append_layer) {
+      overwrite_layer <- FALSE
+    }
+ 
+    return(list(out_dsn=out_dsn, outfolder=outfolder, out_fmt=out_fmt,
+		overwrite_layer=overwrite_layer, append_layer=append_layer,
+		outfn.date=outfn.date, outfn.pre=outfn.pre, out_conn=out_conn))
+  }
+
 
   if (out_fmt %in% c("csv", "shp")) {
     outfolder <- pcheck.outfolder(outfolder)
@@ -751,6 +772,11 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
     if (any(out_fmt %in% c("sqlite", "gpkg")) && createSQLite) {
       gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
       out_dsn <- DBcreateSQLite(out_dsn, gpkg=gpkg)
+
+      if (dbconnopen) {
+        out_conn <- DBI::dbConnect(RSQLite::SQLite(), out_dsn, 
+                    loadable.extensions = TRUE)
+      }
     }
   } else {
     out_dsn <- chkfn
@@ -769,7 +795,8 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 
   return(list(out_fmt=out_fmt, outfolder=outfolder, out_dsn=out_dsn,
 	overwrite_dsn=overwrite_dsn, overwrite_layer=overwrite_layer,
-	add_layer=add_layer, append_layer=append_layer, outfn.date=outfn.date))
+	add_layer=add_layer, append_layer=append_layer, outfn.date=outfn.date,
+      out_conn=out_conn))
 }
 
 #' @rdname pcheck_desc

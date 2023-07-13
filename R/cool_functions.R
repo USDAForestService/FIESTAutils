@@ -27,10 +27,6 @@
 # getSPGRPCD - get spgrpcd attribute(s) in ref_species from ref_statecd
 
 
-#' @rdname internal_desc
-#' @export
-exit <- function() { invokeRestart("abort") }
-
 
 #' @rdname internal_desc
 #' @export
@@ -557,8 +553,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
     if (returnNULL) {
       return(NULL)
     } else {
-      warning("variable is NULL")
-      exit()
+      stop("variable is NULL")
     }
   }
   test <- grepl(x, xvect, ignore.case=TRUE)
@@ -566,8 +561,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
     if (returnNULL) {
       return(NULL)
     }
-    warning("name not found")
-    exit()
+    stop("name not found")
   } else {
     testnames <- xvect[test]
     test <- match(tolower(x), tolower(testnames))
@@ -576,8 +570,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
         if (returnNULL) {
           return(NULL)
         } else {
-          warning("no matching names found")
-          exit()
+          stop("no matching names found")
         }
       }
       return(testnames[test])
@@ -585,8 +578,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
       if (returnNULL) {
         return(NULL)
       } else {
-        warning("more than 1 name found")
-        exit()
+        stop("more than 1 name found")
       }
     }
   } 

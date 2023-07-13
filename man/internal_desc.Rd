@@ -22,7 +22,6 @@
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
-\alias{exit}
 \alias{getext}
 \alias{getoutfn}
 \alias{addcommas}
@@ -218,8 +217,6 @@ Ratio2Size(
 addCI(x, estnm, senm = NULL, conf.level = c(99, 95, 68), gainloss = FALSE)
 
 change10char(xnms)
-
-exit()
 
 getext(x)
 
