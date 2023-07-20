@@ -490,6 +490,8 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     message("using all plots in database")
     pfromqry <- paste0(SCHEMA., plotnm, " p")
   }
+   if (!is.null(dsn))
+     DBI::dbDisconnect(dbconn)
    return(pfromqry)
 }
 
@@ -746,9 +748,10 @@ DBgetbyids <- function(dbconn, ids, layernm, layerid="PLT_CN") {
   ## DESCRIPTION: gets data from database from ids (e.g., CN)
   qry <- paste0("select * from ", layernm, " where ",
 		layerid, " in(", addcommas(ids, quotes=TRUE), ")")
-  rs <- DBI::dbSendQuery(dbconn, qry)
-  dat <- DBI::dbFetch(rs)
-  DBI::dbClearResult(rs)
+  #rs <- DBI::dbSendQuery(dbconn, qry)
+  #dat <- DBI::dbFetch(rs)
+  #DBI::dbClearResult(rs)
+  dat <- DBI::dbGetQuery(dbconn, qry)
   return(dat)
 }
 
