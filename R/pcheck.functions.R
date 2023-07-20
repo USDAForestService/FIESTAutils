@@ -223,13 +223,34 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
     } else {
       tablst <- DBI::dbListTables(conn)
       if (is.character(tab) && length(tab) == 1) {
-        tab <- findnm(tab, tablst, returnNULL=TRUE)
-        if (is.null(tab) && stopifnull) {
+        tabnm <- findnm(tab, tablst, returnNULL=TRUE)
+        if (is.null(tabnm) && stopifnull) {
           stop("tab is NULL")
         }
-        return(tab)
+        if (!is.null(tabqry)) {
+          tabx <- tryCatch(DBI::dbGetQuery(conn, tabqry),
+			      error=function(e) {
+			      #print(e)
+			      return(NULL)})
+          if (is.null(tabx)) {
+            message("tabqry is invalid")
+          } else {
+            tab <- tabx
+          }
+        } else {
+          tab <- DBI::dbReadTable(conn, tabnm)
+        }
+        if (returnDT) {
+          return(setDT(tab))
+        } else {
+          return(tab)
+        }
       } else {
-        stop("invalid tab... must be character name in database")
+        if (stopifnull) {
+          stop("invalid tab... must be character name in database")
+        } else {
+          return(NULL)
+        }
       }
     }
   } else if (is.null(tab) && is.null(tab_dsn)) {

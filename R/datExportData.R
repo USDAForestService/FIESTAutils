@@ -155,7 +155,7 @@ datExportData <- function(dfobj,
     stop(out_fmt, " currently not supported")
   }
  
-  if (!is.null(dbconn)) {
+  if (!is.null(dbconn) && DBI::dbIsValid(dbconn)) {   
     if (!dbconnopen) {
       DBI::dbDisconnect(dbconn)
       return(NULL)
