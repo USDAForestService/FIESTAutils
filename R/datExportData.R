@@ -40,8 +40,12 @@ datExportData <- function(dfobj,
   ## out_layer	Only include if out_dsn is a database (e.g., *.db, *.gdb)
   ##			If NULL, basename of out_dsn is used
   ## outfn.pre	Add a prefix to layer name
-  ## index.unique Unique index for dfobj (if out_fmt = "sqlite")
-  ## index 		Index for dfobj (if out_fmt = "sqlite")
+  ## index.unique String vector or List. A unique index containing one or more 
+  ##                 variables in dfobj (e.g., c('PLT_CN', 'CONDID')) or
+  ##                 a list of one or more unique indices (if out_fmt = "sqlite").
+  ## index  String vector or List. A non-unique index containing one or more 
+  ##             variables in dfobj (e.g., c('STATECD', 'UNITCD', 'COUNTYCD', 'PLOT'))
+  ##             or a list of one or more non-unique indices (if out_fmt = "sqlite").
   ###########################################################################
 
   ##################################################################

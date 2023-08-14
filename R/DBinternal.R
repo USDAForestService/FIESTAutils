@@ -343,13 +343,35 @@ getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1
 
 #' @rdname internal_desc
 #' @export
-getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid, 
-	varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
-	subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, chk=FALSE,
-	syntax="sql", plotnm="plot", ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN",
-	surveynm="survey", plotobj=NULL) {
+getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
+     varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
+     subcycle99=FALSE, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, 
+     chk=FALSE, Type="VOL", syntax="sql", plotnm="plot", 
+     ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN", surveynm="survey", 
+     plotobj=NULL) {
   ## DESCRIPTION: gets from statement for database query
   ## syntax - ('sql', 'R')
+  ## evalid - Integer. EVALID code defining FIA Evaluation
+  ## plotCur - Logical. If TRUE, gets most current plot
+  ## pjoinid - String. Name of variable in plot table to join
+  ## varCur - String. Name of variable to use for most current plot
+  ##            ('MEASYEAR', 'INVYR')
+  ## Endyr - Integer. Year to determine most current measurement
+  ## invyrs - Integer vector. Inventory years to query
+  ## allyrs - Logical. All years in database
+  ## SCHEMA. - Oracle schema
+  ## subcycle99 - Logical. If TRUE, include plots with subcycle=99
+  ## designcd1 - Logical. If TRUE, include only plots with DESIGNCD = 1
+  ## intensity1 - Logical. If TRUE, include only plots with INTENSITY = 1
+  ## popSURVEY - Logical. If TRUE, include SURVEY table in query
+  ## chk - Logical. If TRUE, check for variables 
+  ## Type - Logical. Type of query ('All', 'Vol')
+  ## syntax - String. SQL or R query syntax ('sql', 'R')
+  ## plotnm - String. Name of plot table in database or as R object.
+  ## ppsanm - String. Name of plot_pop_stratum_assgn table
+  ## ppsaid - String. Name of unique id in ppsa
+  ## surveynm - String. Name of survey table 
+  ## plotobj - R object. Plot table if exists as R object
 
   ## set global variables
   #where.qry <- ""
@@ -377,8 +399,12 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
   }
 
   if (plotCur) {
-    where.qry <- "PLOT_STATUS_CD != 3"
-    if (!is.null(subcycle99) && subcycle99) {
+    if (Type != "All") {
+      where.qry <- "PLOT_STATUS_CD != 3"
+    } else {
+      where.qry <- ""
+    }
+    if (!is.null(subcycle99) && !subcycle99) {
       subcycle.filter <- "SUBCYCLE <> 99"
       if (syntax == 'R') gsub("<>", "!=", subcycle.filter)
       if (where.qry == "") {
@@ -436,8 +462,9 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
       }
     }
 
-    if (!is.null(where.qry) && any(where.qry != ""))
-      where.qry <- paste(" where", where.qry)
+    if (!is.null(where.qry) && any(where.qry != "")) {
+      where.qry <- paste(" WHERE", where.qry)
+    }
 
     ## create pfromqry
 #    if (varCur != "INVYR") {
@@ -455,19 +482,20 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 #    } else {
 
       pfromqry <- paste0(SCHEMA., plotnm, " p
-		LEFT JOIN
-		(select statecd, unitcd, countycd, plot, max(", varCur, ") maxyr
-		from ", SCHEMA., plotnm, where.qry,
-		" group by statecd, unitcd, countycd, plot) pp
-		ON p.statecd = pp.statecd and
-			p.unitcd = pp.unitcd and
-				p.countycd = pp.countycd and
-					p.plot = pp.plot and p.", varCur, " = pp.maxyr")
+		INNER JOIN
+		  (SELECT statecd, unitcd, countycd, plot, MAX(", varCur, ") maxyr
+		  FROM ", SCHEMA., plotnm, 
+             where.qry,
+		  " \n  GROUP BY statecd, unitcd, countycd, plot) pp
+		       ON p.statecd = pp.statecd AND
+                         p.unitcd = pp.unitcd AND
+                             p.countycd = pp.countycd AND
+                                 p.plot = pp.plot AND p.", varCur, " = pp.maxyr")
 #    }
 
     if (popSURVEY) {
-      pfromqry <- paste0(pfromqry, " JOIN ", SCHEMA., surveynm,
-		" survey on (survey.CN = p.SRV_CN and survey.ANN_INVENTORY = 'Y')")
+      pfromqry <- paste0(pfromqry, " \nJOIN ", SCHEMA., surveynm,
+		" survey ON (survey.CN = p.SRV_CN AND survey.ANN_INVENTORY = 'Y')")
     }
 
   } else if (allyrs) {
@@ -476,7 +504,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
   } else if (!is.null(invyrs)) {
 
     if (chk) {
-      invyrlst.qry <- paste("select distinct INVYRS from", plotnm, "order by INVYR")
+      invyrlst.qry <- paste("SELECT DISTINCT invyr FROM", plotnm, "ORDER BY invyr")
       pltyrs <- DBI::dbGetQuery(dbconn, invyrlst.qry)
 
       invyrs.miss <- invyrs[which(!invyrs %in% pltyrs)]
