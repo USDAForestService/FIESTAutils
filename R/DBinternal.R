@@ -1081,9 +1081,16 @@ chkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
   if (is.null(tbl)) {
     return(indices)
   }
-  tblnm <- findnm(tbl, indices$tbl_name, returnNULL=TRUE)
+
+  tblnm <- findnm(tbl, DBI::dbListTables(dbconn), returnNULL=TRUE)
   if (is.null(tblnm)) {
     warning(tbl, " does not exist")
+    return(NULL)
+  }
+
+  tblnm <- findnm(tbl, indices$tbl_name, returnNULL=TRUE)
+  if (is.null(tblnm)) {
+    message(tbl, " has no indices in database")
     return(NULL)
   }
 
