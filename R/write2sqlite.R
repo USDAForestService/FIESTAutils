@@ -101,8 +101,14 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
         message("adding index: ", indxnm, " to ", out_name)
         idxsql <- paste0("create index ", indxnm, " ON ",
 				out_name, "(",  paste(indexi, collapse=","), ")")
-        DBI::dbExecute(dbconn, idxsql)
-        message(sub("create", "creating", idxsql))
+        test <- tryCatch(
+          DBI::dbExecute(dbconn, idxsql),
+		    error=function(err) {
+				message(err, "\n")
+		    } )
+        if (!is.null(test)) {
+          message(sub("create", "creating", idxsql))
+        }
       }
     }
   }
