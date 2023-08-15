@@ -35,6 +35,8 @@
 #' definition of INVYR. 
 #' @param measyrs Integer vector. eval='custom': defines specific
 #' measurement years of data (e.g., 2010:2015).
+#' @param varCur String. Name of variable to use for most current plot
+#'            ('MEASYEAR', 'INVYR').
 #' @param evalType Deprecated. Use Type instead.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
@@ -52,7 +54,8 @@ eval_options <- function(Cur = FALSE,
                          evalid = NULL, 
                          invyrs = NULL, 
                          measyrs = NULL, 
-                         evalType = "VOL",                        
+                         varCur = "INVYR",                        
+                         evalType = "VOL",
                          ...) {
 
   # Check input parameters

@@ -54,18 +54,15 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
   DBI::dbWriteTable(dbconn, out_name, layer, append=append_layer, overwrite=overwrite)
   message(paste(appendtext, out_name, "to", SQLitefn))
 
-  if (!is.null(index.unique) && !all(index.unique %in% names(layer))) {
+  if (!all(index.unique %in% names(layer))) {
     warning("invalid index.unique... names not in ", out_name)
-    index.unique <- NULL
   }
- 
   if (!is.null(index.unique)) {
     if (!is.list(index.unique)) {
       index.unique <- list(index.unique)
     }
     for (i in 1:length(index.unique)) {
       indexu <- index.unique[[i]]
-
       if (!all(indexu %in% names(layer))) {
         warning("invalid index.unique... names not in layer: ", toString(indexu))
       } else {
@@ -83,7 +80,9 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
 		    error=function(err) {
 				message(err, "\n")
 		    } )
-          message(sub("create", "creating", idxsql))
+          if (!is.null(test)) {
+            message(sub("create", "creating", idxsql))
+          }
         }
       }
     }
@@ -101,7 +100,7 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
         indxnm <- paste0(out_name, "_", paste(tolower(indexi), collapse="_"), "_idx")
         message("adding index: ", indxnm, " to ", out_name)
         idxsql <- paste0("create index ", indxnm, " ON ",
-				out_name, "(",  paste(index, collapse=","), ")")
+				out_name, "(",  paste(indexi, collapse=","), ")")
         DBI::dbExecute(dbconn, idxsql)
         message(sub("create", "creating", idxsql))
       }

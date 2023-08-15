@@ -13,6 +13,7 @@ eval_options(
   evalid = NULL,
   invyrs = NULL,
   measyrs = NULL,
+  varCur = "INVYR",
   evalType = "VOL",
   ...
 )
@@ -55,6 +56,9 @@ definition of INVYR.}
 
 \item{measyrs}{Integer vector. eval='custom': defines specific
 measurement years of data (e.g., 2010:2015).}
+
+\item{varCur}{String. Name of variable to use for most current plot
+('MEASYEAR', 'INVYR').}
 
 \item{evalType}{Deprecated. Use Type instead.}
 

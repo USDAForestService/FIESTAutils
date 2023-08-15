@@ -9,6 +9,7 @@
 ## changeclass
 ## customEvalchk
 ## addftypgrp         ## Appends forest type group codes to table
+## chkindex           ## Check index for a table in database
 
 
 #' @rdname internal_desc
@@ -345,7 +346,7 @@ getspconddat <- function(cond=NULL, ACTUALcond=NULL, cuniqueid="PLT_CN", condid1
 #' @export
 getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
      varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, allyrs=FALSE, SCHEMA.=NULL,
-     subcycle99=FALSE, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, 
+     subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, 
      chk=FALSE, Type="VOL", syntax="sql", plotnm="plot", 
      ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN", surveynm="survey", 
      plotobj=NULL) {
@@ -1058,6 +1059,81 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 		measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
 		invyrs=invyrs, measyrs=measyrs, 
            invyrlst=invyrlst, measyrlst=measyrlst)
+}
+
+
+
+#' @rdname internal_desc
+#' @export
+chkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
+  ## DESCRIPTION: checks table in database
+
+  if (!DBI::dbIsValid(dbconn)) {
+    message("dbconn is not valid")
+    return(NULL)
+  }
+  
+  index.qry <- "SELECT name, tbl_name, sql 
+                FROM sqlite_master 
+                WHERE type = 'index'"
+     
+  indices <- DBI::dbGetQuery(dbconn, index.qry)
+  if (is.null(tbl)) {
+    return(indices)
+  }
+  tblnm <- findnm(tbl, indices$tbl_name, returnNULL=TRUE)
+  if (is.null(tblnm)) {
+    warning(tbl, " does not exist")
+    return(NULL)
+  }
+
+  indices <- indices[indices$tbl_name == tblnm, ]
+
+  if (!is.null(index_cols)) {
+    index_test <- data.frame(sapply(index_cols, 
+             function(x) grepl(x, indices$sql, ignore.case=TRUE)))
+    index_test$TEST <- apply(index_test, 1, all)
+    if (!any(index_test$TEST)) {
+      message("index does not exist")
+      return(NULL)
+    } else {
+      return(indices$name[index_test$TEST])
+    } 
+  } else {
+    return(indices[, c("name", "sql")])
+  }
+}
+
+#' @rdname internal_desc
+#' @export
+createidx <- function(dbconn, tbl, index_cols, unique=FALSE) {
+  ## DESCRIPTION: create index
+
+  if (!DBI::dbIsValid(dbconn)) {
+    message("dbconn is not valid")
+    return(NULL)
+  }
+  flds <- DBI::dbListTables(dbconn)
+
+  tblnm <- findnm(tbl, flds, returnNULL=TRUE)
+  indxnm <- paste0(tblnm, "_", paste(tolower(index_cols), collapse="_"), "_idx")
+ 
+  if (unique) {
+    idxsql <- paste0("create unique index ", indxnm, " ON ", tbl,
+				"(", paste(index_cols, collapse=","), ")")
+  } else {
+    idxsql <- paste0("create index ", indxnm, " ON ", tbl,
+				"(", paste(index_cols, collapse=","), ")")
+  }
+
+  test <- tryCatch(
+            DBI::dbExecute(dbconn, idxsql),
+		    error=function(err) {
+				message(err, "\n")
+		    } )
+  if (!is.null(test)) {
+    message(sub("create", "creating", idxsql))
+  }
 }
 
 

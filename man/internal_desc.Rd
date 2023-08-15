@@ -19,6 +19,8 @@
 \alias{DBcreateSQLite}
 \alias{changeclass}
 \alias{customEvalchk}
+\alias{chkidx}
+\alias{createidx}
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
@@ -137,7 +139,7 @@ getpfromqry(
   invyrs = NULL,
   allyrs = FALSE,
   SCHEMA. = NULL,
-  subcycle99 = FALSE,
+  subcycle99 = NULL,
   designcd1 = FALSE,
   intensity1 = NULL,
   popSURVEY = FALSE,
@@ -197,6 +199,10 @@ customEvalchk(
   invyrtab = NULL,
   gui = FALSE
 )
+
+chkidx(dbconn, tbl = NULL, index_cols = NULL)
+
+createidx(dbconn, tbl, index_cols, unique = FALSE)
 
 Ratio2Size(
   yn,
