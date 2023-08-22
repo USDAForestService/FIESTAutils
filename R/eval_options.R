@@ -55,12 +55,12 @@ eval_options <- function(Cur = FALSE,
                          invyrs = NULL, 
                          measyrs = NULL, 
                          varCur = "INVYR",                        
-                         evalType = "VOL",
+                         evalType = NULL,
                          ...) {
 
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
-  formallst <- c(names(formals(eval_options)), "evalType")
+  formallst <- c(names(formals(eval_options)))
   if (!all(input.params %in% formallst)) {
     miss <- input.params[!input.params %in% formallst]
     stop("invalid parameter: ", toString(miss))
@@ -71,8 +71,8 @@ eval_options <- function(Cur = FALSE,
   
   # create list from input parameters
   l <- c(as.list(environment()), list(...))
-
-  if ("evalType" %in% names(l)) {
+ 
+  if ("evalType" %in% names(l) && !is.null(l$evalType)) {
     if ("Type" %in% names(l) && (length(Type) > 1 || l$Type != "VOL")) {
       l$Type <- l$Type
     } else {
@@ -88,4 +88,5 @@ eval_options <- function(Cur = FALSE,
   # return list
   return(l)
 }
+eval_options(Endyr=c(2017,2019), Type="VOL")
 
