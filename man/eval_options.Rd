@@ -14,7 +14,7 @@ eval_options(
   invyrs = NULL,
   measyrs = NULL,
   varCur = "INVYR",
-  evalType = "VOL",
+  evalType = NULL,
   ...
 )
 }

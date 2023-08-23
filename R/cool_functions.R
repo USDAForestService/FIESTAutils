@@ -108,9 +108,11 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   extfn <- getext(outfn)
 
   ## Check ext
+  DefaultExt <- c("grd", "asc", "sdat", "rst", "nc", "tif", "envi", 
+		"bil", "img", "vrt")
   extlst <- c("sqlite", "sqlite3", "db", "db3", "csv", "txt", "gdb",
 		"shp", "gpkg", "jpg", "png", "pdf", "rda", "rds", "llo",
-           drivers[, "DefaultExt"])
+           DefaultExt)
   if (!is.na(extfn) && extfn %in% extlst) {
     ext <- extfn
   } else if (!is.null(ext)) {

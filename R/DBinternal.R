@@ -9,7 +9,7 @@
 ## changeclass
 ## customEvalchk
 ## addftypgrp         ## Appends forest type group codes to table
-## chkindex           ## Check index for a table in database
+## chkidx           ## Check index for a table in database
 
 
 #' @rdname internal_desc
@@ -1068,7 +1068,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 chkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
   ## DESCRIPTION: checks table in database
 
-  if (!DBI::dbIsValid(dbconn)) {
+  if (is.null(dbconn) || !DBI::dbIsValid(dbconn)) {
     message("dbconn is not valid")
     return(NULL)
   }
