@@ -53,9 +53,9 @@ checkfilenm <- function(fn, outfolder=NULL, ext=NULL,
   }
   if (is.null(outfolder)) {
     if (file.exists(fn)) {
-      return(normalizePath(fn))
+      return(fn)
     } else {
-      outfolder <- normalizePath(dirname(fn))
+      outfolder <- dirname(fn)
       fn <- basename(fn)
     }
   }
@@ -203,7 +203,7 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   if (!baseonly) {
     ## Check outfolder
     #outfolder <- pcheck.outfolder(outfolder, gui=gui)
-    outfilenm <- file.path(normalizePath(outfolder), outfn.base)
+    outfilenm <- file.path(outfolder, outfn.base)
   } else {
     outfilenm <- outfn.base
   }
