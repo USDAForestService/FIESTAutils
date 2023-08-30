@@ -503,7 +503,7 @@ pcheck.outfolder <- function(outfolder, default=getwd(), gui=FALSE) {
       stop("invalid outfolder")
     }
   }
-  return(outfolder)
+  return(normalizePath(outfolder))
 }
 
 #' @rdname pcheck_desc
