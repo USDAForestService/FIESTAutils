@@ -149,7 +149,7 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
     return(outfn)
   }
   if (is.null(outfolder)) {
-    if (!dir.exists(dirname(outfn)) && !dir.exists(dirname(normalizePath(outfn))) {
+    if (!dir.exists(dirname(outfn)) && !dir.exists(dirname(normalizePath(outfn)))) {
       stop(outfn, " does not exist")
     } else if (dir.exists(dirname(outfn))) {
       outfolder <- dirname(outfn)
