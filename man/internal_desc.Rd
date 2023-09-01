@@ -19,7 +19,7 @@
 \alias{DBcreateSQLite}
 \alias{changeclass}
 \alias{customEvalchk}
-\alias{chkidx}
+\alias{checkidx}
 \alias{createidx}
 \alias{Ratio2Size}
 \alias{addCI}
@@ -200,7 +200,7 @@ customEvalchk(
   gui = FALSE
 )
 
-chkidx(dbconn, tbl = NULL, index_cols = NULL)
+checkidx(dbconn, tbl = NULL, index_cols = NULL)
 
 createidx(dbconn, tbl, index_cols, unique = FALSE)
 

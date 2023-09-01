@@ -1,16 +1,16 @@
 ## DBvars.default	## Set default variable lists for extracting data from database
 ## DBgetfn			## Gets file name for Plot and Strata files.
 ## getspconddat
-## getpfromqry      	## Get pfromqry for extracting data
+## getpfromqry      ## Get pfromqry for extracting data
 ## getplotCur
-## getEvalid.ppsa     ## Get Evalid from pop_plot_stratum_assgn
+## getEvalid.ppsa   ## Get Evalid from pop_plot_stratum_assgn
 ## gui_filterdf		## Get filter from a data frame
 ## DBgetbyids		## Gets data from database from ids
 ## changeclass
 ## customEvalchk
-## addftypgrp         ## Appends forest type group codes to table
-## chkidx           ## Check index for a table in database
-
+## addftypgrp       ## Appends forest type group codes to table
+## checkidx           ## Check index for a table in database
+## createidx        ## Create index for a table in database
 
 #' @rdname internal_desc
 #' @export
@@ -1065,8 +1065,13 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 
 #' @rdname internal_desc
 #' @export
-chkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
+checkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
   ## DESCRIPTION: checks table in database
+  
+  if (is.character(dbconn)) {
+    message("must check an open connection")
+	return(NULL)
+  }
 
   if (is.null(dbconn) || !DBI::dbIsValid(dbconn)) {
     message("dbconn is not valid")
@@ -1115,6 +1120,11 @@ chkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
 #' @export
 createidx <- function(dbconn, tbl, index_cols, unique=FALSE) {
   ## DESCRIPTION: create index
+
+  if (is.character(dbconn)) {
+    message("must check an open connection")
+	return(NULL)
+  }
 
   if (!DBI::dbIsValid(dbconn)) {
     message("dbconn is not valid")

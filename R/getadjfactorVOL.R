@@ -190,7 +190,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
       ## Define a column in tree table, adjfact, to specify adjustment factor based on
       ##	the size of the plot it was measure on (identified by TPA_UNADJ)
       ## (SUBPLOT: TPA_UNADJ=6.018046; MICROPLOT: TPA_UNADJ=74.965282; MACROPLOT: TPA_UNADJ=0.999188
-      setkeyv(treex, tuniqueid)
+      setkeyv(treex, c(tuniqueid, condid))
 
       if ("TPROP_BASIS" %in% names(treex)) {
         treex[pltadj, tadjfac := ifelse(TPROP_BASIS == "MICR", get(tvaradj[["MICR"]]),
