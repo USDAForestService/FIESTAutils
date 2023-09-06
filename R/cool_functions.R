@@ -591,19 +591,27 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
 chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
   ## DESCRIPTION: checks if table exists in list of database tables
   ## 		If doesn't exist, returns NULL, else returns table name
+  
+  ## check tab
   if (is.null(tab)) {
     if (stopifnull) {
       stop(tab, "is NULL")
     } else {
       return(NULL)
     }
+  } else if (!is.character(tab)) {
+	return(NULL)
   }
+  
+  ## check dtablst
+  if (!is.vector(dbtablst) || !is.character(dbtablst)) {
+	return(NULL)
+  }
+  
   if (tolower(tab) %in% tolower(dbtablst)) {
     return(dbtablst[tolower(dbtablst) == tolower(tab)])
   } else {
-    if (stopifnull) {
-      stop(tab, " does not exist in database")
-    }
+    message(tab, " does not exist in database")
     return(NULL)
   }
 }

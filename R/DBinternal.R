@@ -9,8 +9,10 @@
 ## changeclass
 ## customEvalchk
 ## addftypgrp       ## Appends forest type group codes to table
-## checkidx           ## Check index for a table in database
+## checkidx         ## Check index for a table in database
 ## createidx        ## Create index for a table in database
+## dbclassify       ## Add a column with classified values 
+
 
 #' @rdname internal_desc
 #' @export
@@ -394,7 +396,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
       evalidlst <- DBI::dbGetQuery(dbconn, evalidlst.qry)[[1]]
       if (!all(evalid %in% evalidlst)) stop("invalid evalid")
     }
-    pfromqry <- paste0(SCHEMA., ppsanm, " ppsa JOIN ",
+    pfromqry <- paste0(SCHEMA., ppsanm, " ppsa \nJOIN ",
 			SCHEMA., plotnm, " p ON (p.", pjoinid, " = ppsa.", ppsaid, ")")
     return(pfromqry)
   }
@@ -449,7 +451,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     if (!is.null(Endyr)) {
       #if (!is.numeric(Endyr)) stop("Endyr must be numeric year")
       if (chk) {
-        yrlst.qry <- paste("select distinct", varCur, "from", plotnm, "order by INVYR")
+        yrlst.qry <- paste("select distinct", varCur, "\nfrom", plotnm, "order by INVYR")
         pltyrs <- DBI::dbGetQuery(dbconn, yrlst.qry)
 
         if (Endyr <= min(pltyrs, na.rm=TRUE))
@@ -464,7 +466,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     }
 
     if (!is.null(where.qry) && any(where.qry != "")) {
-      where.qry <- paste(" WHERE", where.qry)
+      where.qry <- paste(" \nWHERE", where.qry)
     }
 
     ## create pfromqry
@@ -483,9 +485,9 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 #    } else {
 
       pfromqry <- paste0(SCHEMA., plotnm, " p
-		INNER JOIN
+		\nINNER JOIN
 		  (SELECT statecd, unitcd, countycd, plot, MAX(", varCur, ") maxyr
-		  FROM ", SCHEMA., plotnm, 
+		  \nFROM ", SCHEMA., plotnm, 
              where.qry,
 		  " \n  GROUP BY statecd, unitcd, countycd, plot) pp
 		       ON p.statecd = pp.statecd AND
@@ -1100,6 +1102,19 @@ checkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
   }
 
   indices <- indices[indices$tbl_name == tblnm, ]
+  
+  ## Add a column with index column names as character
+  ## Use strsplit(indices$cols, "\\,") to create a vector of attributes
+  indices$cols <- NA
+  if (grepl(paste(tblnm, "\\("), indices$sql)) {
+    split1 <- strsplit(indices$sql, paste(tblnm, "\\("))[[1]][2]
+    split2 <- strsplit(split1, "\\)")[[1]][1]
+	indices$cols <- split2
+  } else if (grepl(paste0(tblnm, "\\("), indices$sql)) {
+    split1 <- strsplit(indices$sql, paste0(tblnm, "\\("))[[1]][2]
+    split2 <- strsplit(split1, "\\)")[[1]][1]
+	indices$cols <- split2
+  }
 
   if (!is.null(index_cols)) {
     index_test <- data.frame(sapply(index_cols, 
@@ -1112,7 +1127,7 @@ checkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
       return(indices$name[index_test$TEST])
     } 
   } else {
-    return(indices[, c("name", "sql")])
+    return(indices[, c("name", "sql", "cols")])
   }
 }
 
@@ -1154,3 +1169,218 @@ createidx <- function(dbconn, tbl, index_cols, unique=FALSE) {
 }
 
 
+#' @rdname internal_desc
+#' @export
+dbclassify <- function(dbconn, 
+                       tabnm, 
+                       classcol,
+                       cutbreaks,
+                       cutlabels,
+                       classnm = NULL, 
+                       overwrite = TRUE, 
+                       NAto0 = FALSE,
+                       dbconnopen = TRUE,
+					   quiet = FALSE) {
+  ## DESCRIPTION: Add a column with classified values to tabnm
+  ## dbconn - open database connection
+  ## tabnm - String. table in database with column to classify
+  ## classcol - String. column in table to classify
+  ## cutbreaks - Numeric vector. Breakpoints in classcol for classifying
+  ## cutlabels - String vector. 
+
+  if (!DBI::dbIsValid(dbconn)) {
+    message("invalid database dbconnection") 
+    return(NULL)
+  }
+
+  ## Get list of tables in dbconn
+  tablst <- DBI::dbListTables(dbconn)
+  if (length(tablst) == 0) {
+    message("no tables in database")
+    return(NULL)
+  }
+     
+  ## Get list of fields in tabnm
+  tab <- chkdbtab(tablst, tabnm)
+  tabflds <- DBI::dbListFields(dbconn, tab)  
+
+  ## Check classcol
+  if (!classcol %in% tabflds) {
+    message(classcol, " not in ", tabnm)
+    return(NULL)
+  }
+
+  ## Check classnm
+  if (is.null(classnm)) {
+    classnm <- paste0(classcol, "CL")
+  } 
+   
+  ## If duplicate column...
+  if (classnm %in% tabflds) {
+    if (overwrite) {
+      dropcol.qry <- paste("ALTER TABLE", tabnm, 
+                          "DROP COLUMN", classnm)
+      DBI::dbExecute(dbconn, dropcol.qry)
+    } else {   
+      classnm <- checknm(classnm, tabflds)
+    }
+  }
+
+  ## Add empty column to table
+  datatype <- class(cutlabels)
+  if (datatype == "numeric") {
+    if (all(!grepl("\\.", cutlabels))) {
+      type <- "integer"
+    } else {
+      type <- "numeric"
+    }  
+  } else {
+    type <- paste0("varchar(", max(nchar(cutlabels)) + 3, ")")
+  } 
+
+  alter.qry <- paste("ALTER TABLE", tabnm, 
+                     "ADD", classnm, type)
+  DBI::dbExecute(dbconn, alter.qry)
+
+  ## Build classify query
+  classify1.qry <- paste("UPDATE", tabnm, "SET", classnm, "= (CASE")
+
+  classify2.qry <- {}
+  if (NAto0) {
+    classify2.qry <- paste("   WHEN", classcol, "is null THEN '0'")
+  }
+  
+  for (i in 1:(length(cutbreaks)-1)) {    
+    classify2.qry <- paste(classify2.qry, 
+                         "\n  WHEN", classcol, ">=", cutbreaks[i], "AND", 
+                              xvar, "<", cutbreaks[i+1], "THEN", 
+                              paste0("'", cutlabels[i], "'"))
+  }
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END)")
+  if (!quiet) {
+    message(classify.qry)
+  }
+  
+  nbrrows <- DBI::dbExecute(dbconn, classify.qry)
+  message("updated ", nbrrows, " rows")
+
+  tabcnt.qry <- paste("select", classnm, ", count(*) COUNT from", tabnm,
+                       "group by", classnm)
+  tabcnt <- DBI::dbGetQuery(dbconn, tabcnt.qry)
+  if (!quiet) {
+    messagedf(tabcnt)
+  }
+
+  if (!dbconnopen) {
+    DBI::dbDisconnect(dbconn)
+  }
+  return(0)
+}
+
+
+#' @rdname internal_desc
+#' @export
+dbclass <- function(dbconn, 
+                    tabnm, 
+                    classcol,
+                    classvals,
+                    classlabels,
+                    classnm = NULL, 
+                    overwrite = TRUE, 
+                    NAto0 = FALSE,
+                    dbconnopen = TRUE,
+					quiet = FALSE) {
+  ## DESCRIPTION: Add a column with classified values to tabnm
+  ## dbconn - open database connection
+  ## tabnm - String. table in database with column to classify
+  ## classcol - String. column in table to classify
+  ## cutbreaks - Numeric vector. Breakpoints in classcol for classifying
+  ## cutlabels - String vector. 
+
+  if (!DBI::dbIsValid(dbconn)) {
+    message("invalid database dbconnection") 
+    return(NULL)
+  }
+
+  ## Get list of tables in dbconn
+  tablst <- DBI::dbListTables(dbconn)
+  if (length(tablst) == 0) {
+    message("no tables in database")
+    return(NULL)
+  }
+     
+  ## Get list of fields in tabnm
+  tab <- chkdbtab(tablst, tabnm)
+  tabflds <- DBI::dbListFields(dbconn, tab)  
+
+  ## Check classcol
+  if (!classcol %in% tabflds) {
+    message(classcol, " not in ", tabnm)
+    return(NULL)
+  }
+
+  ## Check classnm
+  if (is.null(classnm)) {
+    classnm <- paste0(classcol, "CL")
+  } 
+   
+  ## If duplicate column...
+  if (classnm %in% tabflds) {
+    if (overwrite) {
+      dropcol.qry <- paste("ALTER TABLE", tabnm, 
+                          "DROP COLUMN", classnm)
+      DBI::dbExecute(dbconn, dropcol.qry)
+    } else {   
+      classnm <- checknm(classnm, tabflds)
+    }
+  }
+
+  ## Add empty column to table
+  datatype <- class(classlabels)
+  if (datatype == "numeric") {
+    if (all(!grepl("\\.", classlabels))) {
+      type <- "integer"
+    } else {
+      type <- "numeric"
+    }  
+  } else {
+    type <- paste0("varchar(", max(nchar(classlabels)) + 3, ")")
+  } 
+
+  alter.qry <- paste("ALTER TABLE", tabnm, 
+                     "ADD", classnm, type)
+  DBI::dbExecute(dbconn, alter.qry)
+
+  ## Build classify query
+  classify1.qry <- paste("UPDATE", tabnm, "SET", classnm, "= (CASE")
+
+  classify2.qry <- {}
+  if (NAto0) {
+    classify2.qry <- paste("   WHEN", classcol, "is null THEN '0'")
+  }
+  
+  for (i in 1:(length(classvals)-1)) {    
+    classify2.qry <- paste(classify2.qry, 
+                         "\n  WHEN", classcol, "=", classvals[i], "THEN", 
+                              paste0("'", classlabels[i], "'"))
+  }
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END)")
+  if (!quiet) {
+    message(classify.qry)
+  }
+  
+  nbrrows <- DBI::dbExecute(dbconn, classify.qry)
+  message("updated ", nbrrows, " rows")
+
+  tabcnt.qry <- paste("select", classnm, ", count(*) COUNT from", tabnm,
+                       "group by", classnm)
+  tabcnt <- DBI::dbGetQuery(dbconn, tabcnt.qry)
+  if (!quiet) {
+    messagedf(tabcnt)
+  }
+
+  if (!dbconnopen) {
+    DBI::dbDisconnect(dbconn)
+  }
+  return(0)
+}

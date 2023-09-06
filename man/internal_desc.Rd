@@ -21,6 +21,8 @@
 \alias{customEvalchk}
 \alias{checkidx}
 \alias{createidx}
+\alias{dbclassify}
+\alias{dbclass}
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
@@ -203,6 +205,32 @@ customEvalchk(
 checkidx(dbconn, tbl = NULL, index_cols = NULL)
 
 createidx(dbconn, tbl, index_cols, unique = FALSE)
+
+dbclassify(
+  dbconn,
+  tabnm,
+  classcol,
+  cutbreaks,
+  cutlabels,
+  classnm = NULL,
+  overwrite = TRUE,
+  NAto0 = FALSE,
+  dbconnopen = TRUE,
+  quiet = FALSE
+)
+
+dbclass(
+  dbconn,
+  tabnm,
+  classcol,
+  classvals,
+  classlabels,
+  classnm = NULL,
+  overwrite = TRUE,
+  NAto0 = FALSE,
+  dbconnopen = TRUE,
+  quiet = FALSE
+)
 
 Ratio2Size(
   yn,
