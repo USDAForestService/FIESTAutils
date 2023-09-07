@@ -1104,14 +1104,15 @@ checkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
   indices <- indices[indices$tbl_name == tblnm, ]
   
   ## Add a column with index column names as character
-  ## Use strsplit(indices$cols, "\\,") to create a vector of attributes
-  indices$cols <- NA
-  if (grepl(paste(tblnm, "\\("), indices$sql)) {
-    split1 <- strsplit(indices$sql, paste(tblnm, "\\("))[[1]][2]
+  ## Use strsplit(indices$cols, "\\,") to create a vector of attributes 
+  if (any(grepl(paste(tblnm, "\\("), indices$sql, ignore.case=TRUE))) {
+    idx <- indices$sql[1]
+    split1 <- strsplit(idx, paste(tblnm, "\\("))[[1]][2]
     split2 <- strsplit(split1, "\\)")[[1]][1]
 	indices$cols <- split2
-  } else if (grepl(paste0(tblnm, "\\("), indices$sql)) {
-    split1 <- strsplit(indices$sql, paste0(tblnm, "\\("))[[1]][2]
+  } else if (any(grepl(paste0(tblnm, "\\("), indices$sql, ignore.case=TRUE))) {
+    idx <- indices$sql[1]
+    split1 <- strsplit(idx, paste0(tblnm, "\\("))[[1]][2]
     split2 <- strsplit(split1, "\\)")[[1]][1]
 	indices$cols <- split2
   }
