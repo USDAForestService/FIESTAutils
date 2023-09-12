@@ -54,7 +54,6 @@ MAest.greg(
   x_pop,
   FIA = TRUE,
   save4testing = TRUE,
-  modelselect = FALSE,
   getweights = FALSE,
   var_method = "LinHTSRS"
 )
@@ -95,7 +94,6 @@ MAest(
   ratiotype = "PERACRE",
   N,
   FIA = TRUE,
-  modelselect = FALSE,
   getweights = FALSE,
   var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
@@ -114,7 +112,6 @@ MAest.dom(
   N,
   response = NULL,
   FIA = TRUE,
-  modelselect = FALSE,
   getweights = FALSE,
   var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
@@ -133,7 +130,6 @@ MAest.unit(
   response,
   npixels,
   FIA = TRUE,
-  modelselect = TRUE,
   getweights = FALSE,
   var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
