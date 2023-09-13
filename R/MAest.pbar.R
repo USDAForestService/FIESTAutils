@@ -130,6 +130,7 @@ MAest.greg <- function(y,
     x_pop <- x_pop[ , names(x_sample), drop = F]
   }
   
+  predselect <- x_pop[FALSE, , drop=FALSE]
   
   estgreg <- tryCatch(mase::greg(y = y,
                                  xsample = x_sample,
