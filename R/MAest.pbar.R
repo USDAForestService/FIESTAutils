@@ -123,7 +123,13 @@ MAest.greg <- function(y,
   NBRPLT <- length(y)
   NBRPLT.gt0 <- sum(y > 0)
   
-  predselect <- x_pop[FALSE, , drop=FALSE]
+  # it's possible that too many predictors are selected when model selection was done
+  # and when estimating on a subset of sample data we have fewer plots than predictors...
+  if (length(y) <= ncol(x_sample)) {
+    x_sample <- x_sample[ , 1:(length(y) - 1), drop = F]
+    x_pop <- x_pop[ , names(x_sample), drop = F]
+  }
+  
   
   estgreg <- tryCatch(mase::greg(y = y,
                                  xsample = x_sample,
