@@ -127,7 +127,8 @@ MAest.greg <- function(y,
   # and when estimating on a subset of sample data we have fewer plots than predictors...
   if (length(y) <= ncol(x_sample)) {
     x_sample <- x_sample[ , 1:(length(y) - 1), drop = F]
-    x_pop <- x_pop[ , names(x_sample), drop = F]
+    x_pop <- x_pop[ , names(x_sample), with = F, drop = F]
+    warning("There are fewer plots than predictors, predictors will be removed by order of highest index position in xsample until the model can be fit. \n")
   }
   
   predselect <- x_pop[FALSE, , drop=FALSE]
