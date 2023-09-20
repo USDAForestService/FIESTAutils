@@ -65,6 +65,19 @@ getadjfactorPLOT <- function(condx = NULL, treex = NULL, seedx = NULL,
     varlst <- c(varlst, tvarlst)
     varsumlst <- c(varsumlst, unlist(tvarsum))
     varadjlst <- c(varadjlst, unlist(tvaradj))
+  } else if (!is.null(seedx)) {
+    tvarlst <- "MICRPROP_UNADJ"
+    tvarlst2 <- tvarlst[which(tvarlst%in% names(condx))]
+    if (length(tvarlst2) == 0) {
+      stop("must include unadjusted variables in cond")
+    }
+    tvarsum <- lapply(tpropvars[names(tpropvars) == "MICR"], 
+						function(x) paste0(x, "_SUM"))
+    tvaradj <- lapply(tpropvars[names(tpropvars) == "MICR"], 
+						function(x) paste0("ADJ_FACTOR_", sub("PROP_UNADJ", "", x)))
+    varlst <- c(varlst, tvarlst)
+    varsumlst <- c(varsumlst, unlist(tvarsum))
+    varadjlst <- c(varadjlst, unlist(tvaradj))
   }
 
 
@@ -119,12 +132,13 @@ getadjfactorPLOT <- function(condx = NULL, treex = NULL, seedx = NULL,
     }
     treex[, tadjfac := ifelse(tadjfac > 0, tadjfac, 1)]
 
-    if (!is.null(seedx)) {
-      setkeyv(seedx, c(tuniqueid))
-      seedx[pltadj, tadjfac := get(tvaradj[["MICR"]])]
-      seedx[, tadjfac := ifelse(tadjfac > 0, tadjfac, 1)]
-    }
+  }  
+  if (!is.null(seedx)) {
+    setkeyv(seedx, c(tuniqueid))
+    seedx[pltadj, tadjfac := get(tvaradj[["MICR"]])]
+    seedx[, tadjfac := ifelse(tadjfac > 0, tadjfac, 1)]
   }
+
   ## Remove summed variables from condx
   vars2remove <- c(varsumlst, cadjfacnm, varadjlst)
   vars2remove <- vars2remove[vars2remove %in% names(condx)]
