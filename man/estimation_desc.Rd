@@ -42,7 +42,7 @@ MAest.ps(
   x_sample,
   x_pop,
   FIA = TRUE,
-  save4testing = TRUE,
+  save4testing = FALSE,
   getweights = FALSE,
   var_method = "SRSunconditional"
 )
@@ -133,7 +133,7 @@ MAest.unit(
   response,
   npixels,
   FIA = TRUE,
-  modelselect = TRUE,
+  modelselect = FALSE,
   getweights = FALSE,
   var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
 )
