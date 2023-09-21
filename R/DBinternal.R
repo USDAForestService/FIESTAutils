@@ -402,10 +402,10 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
   }
 
   if (plotCur) {
-    if (Type != "All") {
-      where.qry <- "PLOT_STATUS_CD != 3"
-    } else {
+    if (any(Type == "All")) {
       where.qry <- ""
+	} else {
+       where.qry <- "PLOT_STATUS_CD != 3"
     }
     if (!is.null(subcycle99) && !subcycle99) {
       subcycle.filter <- "SUBCYCLE <> 99"

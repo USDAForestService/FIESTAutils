@@ -300,18 +300,30 @@ NULL
 NULL
 
 
-#' Reference table - for generating tables.
+#' Reference table - for conversion factors.
 #' 
-#' Table conversion factors from English to metric units.
+#' Table with conversion factors from English to metric units.
 #' 
 #' 
 #' @name ref_conversion
 #' @docType data
-#' @format A dataframe with 4 columns: TYPE, ENGLISH, METRIC, CONVERSION.
+#' @format A dataframe with 6 columns: TYPE, ENGLISH, ENGLISH_ABBR, METRIC, METRIC_ABBR, CONVERSION.
 #' @source Conversion table.
 #' @keywords datasets
 NULL
 
+
+#' Reference table - for variable units.
+#' 
+#' Table with units for TREE variables.
+#' 
+#' 
+#' @name ref_units
+#' @docType data
+#' @format A dataframe with 3 columns: VARIABLE, UNITS, METRICUNITS.
+#' @source Units table.
+#' @keywords datasets
+NULL
 
 #' Reference table - Variable titles.
 #' 

@@ -3,14 +3,14 @@
 \docType{data}
 \name{ref_conversion}
 \alias{ref_conversion}
-\title{Reference table - for generating tables.}
+\title{Reference table - for conversion factors.}
 \format{
-A dataframe with 4 columns: TYPE, ENGLISH, METRIC, CONVERSION.
+A dataframe with 6 columns: TYPE, ENGLISH, ENGLISH_ABBR, METRIC, METRIC_ABBR, CONVERSION.
 }
 \source{
 Conversion table.
 }
 \description{
-Table conversion factors from English to metric units.
+Table with conversion factors from English to metric units.
 }
 \keyword{datasets}
