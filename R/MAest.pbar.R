@@ -579,7 +579,7 @@ MAest.unit <- function(unit,
                        response,
                        npixels,
                        FIA = TRUE, 
-                       modelselect = TRUE,
+                       modelselect = FALSE,
                        getweights = FALSE,
                        var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
 
