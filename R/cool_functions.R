@@ -25,7 +25,7 @@
 # int64tochar  convert columns with class integer64 to character
 # messagedf - write a df to screen
 # getSPGRPCD - get spgrpcd attribute(s) in ref_species from ref_statecd
-
+# date2char - convert date columns (POSIXct) to formatted character
 
 
 #' @rdname internal_desc
@@ -660,6 +660,13 @@ RtoSQL <- function(filter, x=NULL) {
         part <- gsub("%in% c", "not in", part)
       } else {
         part <- gsub("%in% c", "in", part)
+		if (grepl(":", part)) {
+		  p1 <- strsplit(part, ":")[[1]][1]
+		  p1 <- strsplit(p1, "\\(")[[1]][2]
+		  p2 <- strsplit(part, ":")[[1]][2]
+		  p2 <- strsplit(p2, "\\)")[[1]][1]
+		  part <- gsub(paste0(p1, ":", p2), toString(seq(p1,p2)), part)	
+        }		  
       }
     }
 
@@ -734,4 +741,15 @@ getSPGRPCD <- function(states) {
 }
 
 
+#' @rdname internal_desc
+#' @export
+date2char <- function(df, col, formatstr = '%Y-%m-%d') {
+  ## DESCRIPTION: convert date columns (POSIXct) to formatted character
 
+  if (is.null(formatstr)) {
+    df[[col]] <- as.character(df[[col]])
+  } else {
+    df[[col]] <- as.character(format(df[[col]], formatstr))
+  }
+  return(df)
+}

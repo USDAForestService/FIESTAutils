@@ -110,6 +110,20 @@ NULL
 NULL
 
 
+#' Reference table - for generating tables.
+#'
+#' Table with row/column domain (VARNM) and their pretty names for table output
+#' (TABLENM).
+#'
+#'
+#' @name ref_evaltyp
+#' @docType data
+#' @format A dataframe with 3 columns, EVAL_TYP_CD, EVAL_TYP, DESCRIPTION.
+#' @source FIA look-up table.
+#' @keywords datasets
+NULL
+
+
 #' Reference table - state codes (STATECD).
 #'
 #' Table with state codes (VALUE), name (MEANING), abbreviation (ABBR), and

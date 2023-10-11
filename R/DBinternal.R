@@ -28,13 +28,17 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
   ########################################################################
   ##  DEFINE VARIABLES
   ########################################################################
-  volvars <- c("VOLCFNET", "VOLCFGRS", "VOLBFNET", "VOLBFGRS", "VOLCSNET", "VOLCSGRS")
-  growvars <- c("GROWCFGS", "GROWCFAL", "FGROWCFGS", "FGROWCFAL")
-  mortvars <- c("MORTCFGS", "MORTCFAL", "FMORTCFGS", "FMORTCFAL")
-  remvars <- c("REMVCFGS", "REMVCFAL", "FREMVCFGS", "FREMVCFAL")
-  tpavars <- c("TPA_UNADJ", "TPAGROW_UNADJ", "TPAMORT_UNADJ", "TPAREMV_UNADJ")
-  biovars <- c("DRYBIO_BOLE", "DRYBIO_STUMP", "DRYBIO_TOP", "DRYBIO_SAPLING",
-		"DRYBIO_WDLD_SPP", "DRYBIO_BG", "DRYBIO_AG")
+  #volvars <- c("VOLCFNET", "VOLCFGRS", "VOLBFNET", "VOLBFGRS", "VOLCSNET", "VOLCSGRS")
+  volvars <- c("VOLCFNET", "VOLCFGRS", "VOLBFNET", "VOLBFGRS", 
+               "VOLCSNET", "VOLCSGRS", "VOLTSGRS", "VOLTSSND")
+  #growvars <- c("GROWCFGS", "GROWCFAL", "FGROWCFGS", "FGROWCFAL")
+  #mortvars <- c("MORTCFGS", "MORTCFAL", "FMORTCFGS", "FMORTCFAL")
+  #remvars <- c("REMVCFGS", "REMVCFAL", "FREMVCFGS", "FREMVCFAL")
+  #tpavars <- c("TPA_UNADJ", "TPAGROW_UNADJ", "TPAMORT_UNADJ", "TPAREMV_UNADJ")
+  tpavars <- "TPA_UNADJ"
+#  biovars <- c("DRYBIO_BOLE", "DRYBIO_STUMP", "DRYBIO_TOP", "DRYBIO_SAPLING",
+#		"DRYBIO_WDLD_SPP", "DRYBIO_BG", "DRYBIO_AG")
+  biovars <- c("DRYBIO_BOLE", "DRYBIO_STUMP", "DRYBIO_STEM", "DRYBIO_BG", "DRYBIO_AG")
   carbonvars <- c("CARBON_BG", "CARBON_AG")
 
 
@@ -67,9 +71,10 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
 	"TRTCD1", "TRTYR1", "TRTCD2", "TRTYR2", "TRTCD3", "TRTYR3", "PRESNFCD",
 	"BALIVE", "FLDAGE", "FORTYPCDCALC", "HABTYPCD1", "HABTYPCD2", "LIVE_CANOPY_CVR_PCT",
 	"LIVE_MISSING_CANOPY_CVR_PCT", "CANOPY_CVR_SAMPLE_METHOD_CD",
-	"CARBON_DOWN_DEAD", "CARBON_LITTER", "CARBON_SOIL_ORG", "CARBON_STANDING_DEAD",
+	"CARBON_DOWN_DEAD", "CARBON_LITTER", "CARBON_SOIL_ORG",
 	"CARBON_UNDERSTORY_AG", "CARBON_UNDERSTORY_BG", "NF_COND_STATUS_CD",
 	"NF_COND_NONSAMPLE_REASN_CD","LAND_COVER_CLASS_CD")
+  ## Note: CARBON_STANDING_DEAD was removed Oct 2023 Version 9.1
 
   if (regionVars && regionVarsRS == "RMRS") {
     condvarlst <- c(condvarlst, "LAND_USECD_RMRS", "PCTBARE_RMRS",
@@ -98,7 +103,7 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
 		"STANDING_DEAD_CD", "PREV_STATUS_CD", "PREV_WDLDSTEM", "RECONCILECD", "PREVDIA")
 
     ## Tree summary variables
-    tsumvarlst <- c(volvars, growvars, mortvars, remvars, tpavars, biovars, carbonvars)
+    tsumvarlst <- c(volvars, tpavars, biovars, carbonvars)
 
     if (regionVars && regionVarsRS == "RMRS") {
       treevarlst <- c(treevarlst, "TREECLCD_RMRS", "DAMAGE_AGENT_CD1",
@@ -188,7 +193,9 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
     ## Variables from TREE_GRM_COMPONENT
     grmvarlst <- c("PLT_CN", "TRE_CN", "DIA_BEGIN", "DIA_MIDPT", "DIA_END",
 	"SUBP_COMPONENT_AL_FOREST", "SUBP_SUBPTYP_GRM_AL_FOREST", 
-	"SUBP_TPAGROW_UNADJ_AL_FOREST", "SUBP_TPAMORT_UNADJ_AL_FOREST")
+	"SUBP_TPAGROW_UNADJ_AL_FOREST", "SUBP_TPAMORT_UNADJ_AL_FOREST",
+	"MICR_COMPONENT_AL_FOREST", "MICR_SUBPTYP_GRM_AL_FOREST",
+	"MICR_TPAGROW_UNADJ_AL_FOREST")
     
     ## Set to NULL for now
     grmbeginvarlst <- NULL
@@ -397,7 +404,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
       if (!all(evalid %in% evalidlst)) stop("invalid evalid")
     }
     pfromqry <- paste0(SCHEMA., ppsanm, " ppsa \nJOIN ",
-			SCHEMA., plotnm, " p ON (p.", pjoinid, " = ppsa.", ppsaid, ")")
+			SCHEMA., plotnm, " p ON (ppsa.", ppsaid, " = p.", pjoinid, ")")
     return(pfromqry)
   }
 

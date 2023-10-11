@@ -51,6 +51,7 @@
 \alias{int64tochar}
 \alias{messagedf}
 \alias{getSPGRPCD}
+\alias{date2char}
 \alias{strat.pivot}
 \alias{makedummy}
 \alias{preds.standardize}
@@ -315,6 +316,8 @@ int64tochar(df)
 messagedf(df)
 
 getSPGRPCD(states)
+
+date2char(df, col, formatstr = "\%Y-\%m-\%d")
 
 getext(x)
 
