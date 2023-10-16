@@ -5,12 +5,16 @@
 \alias{ref_units}
 \title{Reference table - for variable units.}
 \format{
-A dataframe with 3 columns: VARIABLE, UNITS, METRICUNITS.
+A dataframe with 4 columns: VARIABLE, UNITS, METRICUNITS, 
+WOODLAND, kg2tons.
 }
 \source{
 Units table.
 }
 \description{
-Table with units for TREE variables.
+Table with units for TREE variables. The WOODLAND column was added
+to identify which variables include woodland species.The kg2tons
+column was added to identify which variables are commonly converted
+from kilograms to tons in estimation process.
 }
 \keyword{datasets}
