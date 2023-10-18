@@ -28,9 +28,9 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
   ########################################################################
   ##  DEFINE VARIABLES
   ########################################################################
+  ref_units <- FIESTAutils::ref_units
   #volvars <- c("VOLCFNET", "VOLCFGRS", "VOLBFNET", "VOLBFGRS", "VOLCSNET", "VOLCSGRS")
-  volvars <- c("VOLCFNET", "VOLCFGRS", "VOLBFNET", "VOLBFGRS", 
-               "VOLCSNET", "VOLCSGRS", "VOLTSGRS", "VOLTSSND")
+  volvars <- ref_units$VARIABLE[grepl("VOL", ref_units$VARIABLE)]
   #growvars <- c("GROWCFGS", "GROWCFAL", "FGROWCFGS", "FGROWCFAL")
   #mortvars <- c("MORTCFGS", "MORTCFAL", "FMORTCFGS", "FMORTCFAL")
   #remvars <- c("REMVCFGS", "REMVCFAL", "FREMVCFGS", "FREMVCFAL")
@@ -38,8 +38,8 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
   tpavars <- "TPA_UNADJ"
 #  biovars <- c("DRYBIO_BOLE", "DRYBIO_STUMP", "DRYBIO_TOP", "DRYBIO_SAPLING",
 #		"DRYBIO_WDLD_SPP", "DRYBIO_BG", "DRYBIO_AG")
-  biovars <- c("DRYBIO_BOLE", "DRYBIO_STUMP", "DRYBIO_STEM", "DRYBIO_BG", "DRYBIO_AG")
-  carbonvars <- c("CARBON_BG", "CARBON_AG")
+  biovars <- ref_units$VARIABLE[grepl("DRYBIO", ref_units$VARIABLE)]
+  carbonvars <- ref_units$VARIABLE[grepl("CARBON", ref_units$VARIABLE)]
 
 
   ################################  PLOT VARIABLES ##################################
