@@ -153,7 +153,8 @@ getpfromqry(
   ppsanm = "pop_plot_stratum_assgn",
   ppsaid = "PLT_CN",
   surveynm = "survey",
-  plotobj = NULL
+  plotobj = NULL,
+  dbconn = NULL
 )
 
 getEvalid.ppsa(

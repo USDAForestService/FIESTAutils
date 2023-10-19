@@ -207,7 +207,6 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
     stop("gui not supported")
   }
 
-
   if (!is.null(conn)) {
     conntest <- tryCatch(DBI::dbIsValid(conn),
                          error=function(err) {
@@ -224,9 +223,14 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
       tablst <- DBI::dbListTables(conn)
       if (is.character(tab) && length(tab) == 1) {
         tabnm <- findnm(tab, tablst, returnNULL=TRUE)
-        if (is.null(tabnm) && stopifnull) {
-          stop("tab is NULL")
-        }
+        if (is.null(tabnm)) {
+		  if (stopifnull) {
+            stop(tab, " is not in database")
+          } else {
+		    message(tab, " is not in database")
+		    return(NULL)
+		  }
+		}
         if (!is.null(tabqry)) {
           tabx <- tryCatch(DBI::dbGetQuery(conn, tabqry),
 			      error=function(e) {

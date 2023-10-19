@@ -358,7 +358,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
      subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, 
      chk=FALSE, Type="VOL", syntax="sql", plotnm="plot", 
      ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN", surveynm="survey", 
-     plotobj=NULL) {
+     plotobj=NULL, dbconn=NULL) {
   ## DESCRIPTION: gets from statement for database query
   ## syntax - ('sql', 'R')
   ## evalid - Integer. EVALID code defining FIA Evaluation
@@ -386,7 +386,10 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
   ## set global variables
   #where.qry <- ""
 
-  if (!is.null(dsn)) {
+  if (!is.null(dbconn)) {
+    tablst <- DBI::dbListTables(dbconn)
+    SCHEMA.=NULL
+  } else if (!is.null(dsn)) {
     dbconn <- DBtestSQLite(dsn, dbconnopen=TRUE)
     tablst <- DBI::dbListTables(dbconn)
     SCHEMA.=NULL
