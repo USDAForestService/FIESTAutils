@@ -623,7 +623,7 @@ RtoSQL <- function(filter, x=NULL) {
   ## DESCRIPTION: Convert logical R statement syntax to SQL syntax
 
   ## Check filter
-  if (is.null(filter)) {
+  if (is.null(filter) || filter == "") {
     return(NULL)
   }
 

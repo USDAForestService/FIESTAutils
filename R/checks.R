@@ -51,9 +51,9 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   ##		"STATUSCD == 1 & SPCD = 475". Since there is no STATUSCD == 1 in
   ##		the seedling table, it is removed from logical statement.
   ## syntax - syntax of query ('R' or 'sql')
-
-  if (is.null(statement)) return(NULL)
-
+  
+  if (is.null(statement) || statement == "") return(NULL)
+ 
   ## Define potential characters in logical statement
   if (syntax == "R") {
     equalsign <- "=="
