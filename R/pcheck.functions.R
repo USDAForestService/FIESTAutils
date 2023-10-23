@@ -238,6 +238,7 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
 			      return(NULL)})
           if (is.null(tabx)) {
             message("tabqry is invalid")
+			return(NULL)
           } else {
             tab <- tabx
           }

@@ -358,7 +358,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
      subcycle99=NULL, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, 
      chk=FALSE, Type="VOL", syntax="sql", plotnm="plot", 
      ppsanm="pop_plot_stratum_assgn", ppsaid="PLT_CN", surveynm="survey", 
-     plotobj=NULL, dbconn=NULL) {
+     plotobj=NULL, dbconn=NULL, dbconnopen=TRUE) {
   ## DESCRIPTION: gets from statement for database query
   ## syntax - ('sql', 'R')
   ## evalid - Integer. EVALID code defining FIA Evaluation
@@ -531,9 +531,11 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     message("using all plots in database")
     pfromqry <- paste0(SCHEMA., plotnm, " p")
   }
-   if (!is.null(dsn))
-     DBI::dbDisconnect(dbconn)
-   return(pfromqry)
+  
+  if (!is.null(dbconn) && !dbconnopen) {
+    DBI::dbDisconnect(dbconn)
+  }
+  return(pfromqry)
 }
 
 
