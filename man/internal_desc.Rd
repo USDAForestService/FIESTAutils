@@ -154,7 +154,8 @@ getpfromqry(
   ppsaid = "PLT_CN",
   surveynm = "survey",
   plotobj = NULL,
-  dbconn = NULL
+  dbconn = NULL,
+  dbconnopen = TRUE
 )
 
 getEvalid.ppsa(
