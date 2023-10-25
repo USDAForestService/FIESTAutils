@@ -26,7 +26,7 @@ Depends:
 Imports:
     data.table,
     DBI,
-    gdalraster (>= 1.5.1),
+    gdalraster,
     graphics,
     hbsae,
     JoSAE,
@@ -44,7 +44,6 @@ Imports:
     terra,
     units,
     utils
-Remotes: USDAForestService/gdalraster
 Suggests:
     knitr
 License: GPL-3
