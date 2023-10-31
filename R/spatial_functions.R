@@ -25,17 +25,26 @@ polyfix.sf <- function(x) {
   if (suppressWarnings(sum(sf::st_is_valid(x) == FALSE)) > 0) {
     message("poly invalid")
 
-    if (sf::st_is_longlat(x))
-      stop("polygons layer must be projected")
+    ## Remove empty geometries
+ 	if (sum(sf::st_is_empty(x)) > 0) {
+	  x <- x[!sf::st_is_empty(x),]
+	}
 
+    ## Check 
+    if (sf::st_is_longlat(x)) {
+      stop("polygons layer must be projected")
+    }
+	
     # this is a well known R / GEOS hack (usually combined with the above) to
     # deal with "bad" polygons
     message("buffering poly with 0 width...")
     x <- sf::st_buffer(x[!is.na(valid)], 0.0)
 
     message("checking polygons after buffer...")
-    if (sum(sf::st_is_valid(x) == FALSE) > 0)
-      stop("bad polys")
+    if (sum(sf::st_is_valid(x) == FALSE) > 0) {
+	  message("invalid polygons exist")
+	  sf::st_make_valid(x)
+	}
   }
   return(x)
 }

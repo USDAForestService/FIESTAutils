@@ -256,7 +256,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 	dunitlut, prednames=NULL, dunitvar="DOMAIN",
 	SAmethod="unit", SApackage="JoSAE", yd=NULL, ratiotype="PERACRE",
 	largebnd.val=NULL, showsteps=FALSE, savesteps=FALSE, stepfolder=NULL,
-	prior=NULL, modelselect=TRUE, multest=TRUE) {
+	prior=NULL, modelselect=TRUE, multest=TRUE, save4testing=FALSE) {
 
   ########################################################################################
   ## DESCRIPTION: Gets estimates from JoSAE
@@ -289,25 +289,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   dunitlut.dom <- DT_NAto0(dunitlut.dom, c("mean", "mean.var"))
   setnames(dunitlut.dom, c("mean", "mean.var"), c(yn, paste0(yn, ".var")))
 
-  oldpar <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(oldpar))
-
-
-###################
-##### TESTING #####
-###################
-#pltdom <- fread("E:/workspace/FIESTA/FIESTA_SA/ecosubsection_test/pltdom.csv")
-#dunitlut <- fread("E:/workspace/FIESTA/FIESTA_SA/ecosubsection_test/dunitlut.csv")
-#pltdat.dom <- pltdom[pltdom$PROVINCE == 251, ]
-#dunitlut.dom <- dunitlut[dunitlut$PROVINCE == 251, ]
-#dunitvar <- "DOMAIN"
-#yn <- "DRYBIO_AG_TPA_ADJ"
-#prednames <- c("tcc", "elev", "ppt", "tmean", "tmin01", "tnt2")
-#standardize <- TRUE
-#modelselect <- TRUE
-#SApackage <- "JoSAE"
-#SAmethod <- "area"
-#cuniqueid <- "PLT_CN"
+  #oldpar <- graphics::par(no.readonly = TRUE)
+  #on.exit(graphics::par(oldpar))
 
   if (!"data.table" %in% class(pltdat.dom)) {
     pltdat.dom <- setDT(pltdat.dom)
@@ -320,7 +303,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   NBRPLT.gt0 <- pltdat.dom[, sum(get(yn) > 0), by=dunitvar]
   setnames(NBRPLT.gt0, "V1", "NBRPLT.gt0")
   setkeyv(NBRPLT.gt0, dunitvar)
-
 
   ## Check if all plots are zero
   if (sum(pltdat.dom[[yn]]) == 0) {
@@ -392,15 +374,21 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     }
     returnlst$SAobjlst <- NA
 
-
     return(returnlst)
   }
 
+  if (save4testing) {
+    message("saving objects to working directory for testing: dunitlut.dom, pltdat.dom")
+    save(data.frame(dunitlut.dom), file=file.path(getwd(), "dunitlut.dom.rda"))
+    save(data.frame(pltdat.dom), file=file.path(getwd(), "pltdat.dom.rda"))
+  }
+    
   ## Variable selection for area and unit-level estimators
   ## Check number of predictors... must be n-1 less than number of dunits
   ## using variable selection - mase::gregElasticNet.
 
   if (multest || SAmethod == "unit") {
+    ## Define empty table of predictors
     predselect.unitdt <- dunitlut.dom[FALSE, prednames, with=FALSE, drop=FALSE]
 
     ## Define number of maximum predictors for unit-level models
@@ -423,8 +411,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       }
 
       ## Define number cvfolds for area-level model selection
-      cvfolds <- ifelse(nrow(pltdat.dom) <= 40, round(nrow(pltdat.dom)/4), 10)
-
+      #cvfolds <- ifelse(nrow(pltdat.dom) <= 40, round(nrow(pltdat.dom)/4), 10)
+      cvfolds <- ifelse(nrow(dunitlut.dom) >= 50, 20, 10)
+	  
       ## Select predictors for unit-level models using elastic net via mase
       predselect.unitlst <- suppressMessages(preds.select(y=yn,
                             plt=pltdat.dom, auxlut=dunitlut.dom, 
@@ -460,9 +449,10 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     } 
   }
   if (multest || SAmethod == "area") {
+    ## Define empty table of predictors
     predselect.areadt <- dunitlut.dom[FALSE, prednames, with=FALSE, drop=FALSE]
 
-    ## Define number of maximum predictors for area-level models
+    ## Get number of maximum predictors for area-level models
     maxpreds.area <- length(unique(dunitlut.dom[[dunitvar]])) - 2
 
     ## Variable selection for area and unit-level estimators
@@ -482,7 +472,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       }
 
       ## Define number cvfolds for area-level model selection
-      cvfolds <- ifelse(nrow(dunitlut.dom) <= 40, round(nrow(dunitlut.dom)/4), 10)
+      #cvfolds <- ifelse(nrow(dunitlut.dom) <= 40, round(nrow(dunitlut.dom)/4), 10)
+      cvfolds <- ifelse(nrow(dunitlut.dom) >= 50, 20, 10)
 
       ## Select predictors for area-level models using elastic net via mase
       predselect.arealst <- suppressMessages(preds.select(y=yn,
@@ -514,6 +505,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         prednames.cor <- names(sort(abs(cor(dunitlut.dom[[yn]], 
 				dunitlut.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
         prednames <- prednames.cor[1:maxpreds.area]
+        predselect.area <- prednames
       } else {
         predselect.area <- prednames
       }
@@ -691,13 +683,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         setnames(unit.JoSAE, "DOMAIN", dunitvar)
       } else {
         ## subset dataframe before returning
-#        unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", "n.i.sample",
-#                         yn, "sample.se", "Synth",
-#                         "GREG", "GREG.se",
-#                         "EBLUP","EBLUP.se.1")]
-#        names(unit.JoSAE) <- c("DOMAIN", "NBRPLT", "DIR", "DIR.se", "JU.Synth", "JU.GREG",
-#                      "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
-
         unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", 
                          "Synth", "GREG", "GREG.se",
                          "EBLUP","EBLUP.se.1")]
@@ -750,7 +735,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   } else {
 
     #message("no predictors were selected for unit-level models... returning NAs")
-
     if (multest) {
       est <- data.frame(est, JU.Synth=NA, 
                       JU.GREG=NA, JU.GREG.se=NA, 
@@ -770,14 +754,13 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       }
     }   
   }
- 
+
   if (length(predselect.area) > 0) {
-    message("using following predictors for area-level models...", toString(predselect.unit))
+    message("using following predictors for area-level models...", toString(predselect.area))
 
     ## create model formula with predictors
     ## note: the variables selected can change depending on the order in original formula (fmla)
     fmla.dom.area <- stats::as.formula(paste(yn, paste(predselect.area, collapse= "+"), sep="~"))
-    
     
     dunitlut.dom <- data.frame(dunitlut.dom)
     nm.var <- paste0(yn, ".var")
@@ -787,10 +770,15 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     dunitids <-  dunitlut.dom[!dunitlut.dom[[dunitvar]] %in% dunitNAids, dunitvar]
     dunitlut.area <- dunitlut.dom[dunitlut.dom[[dunitvar]] %in% dunitids, ]
     pltdat.area <- data.frame(pltdat.dom[pltdat.dom[[dunitvar]] %in% dunitids, ])
-    
+	
+	if (save4testing) {
+      message("saving objects to working directory for testing: dunitlut.area, pltdat.area")
+      save(data.frame(dunitlut.area), file=file.path(getwd(), "dunitlut.area.rda"))
+      save(data.frame(pltdat.area), file=file.path(getwd(), "pltdat.area.rda"))
+    }
+
     ## area-level - JoSAE estimates   
     if (multest || SApackage == "JoSAE") {  
- 
       area.JoSAE.objlst <- tryCatch(SAest.area(fmla.dom.area=fmla.dom.area,
                                       pltdat.area=pltdat.area,
                                       dunitlut.area=dunitlut.area,
@@ -802,14 +790,10 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
                              message(err, "\n")
                              return(NULL)
                              } )
+
       if (is.null(area.JoSAE.objlst)) {
-#        area.JoSAE <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]],
-#                               NBRPLT=dunitlut.dom$n.total,
-#                               DIR=NA, DIR.se=NA, JFH=NA, JFH.se=NA,
-#                               JA.synth=NA, JA.synth.se=NA)
         area.JoSAE.obj <- NULL
         area.JoSAE <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]],
-#                               NBRPLT=dunitlut.dom$n.total,
                                JFH=NA, JFH.se=NA,
                                JA.synth=NA, JA.synth.se=NA)
         setnames(area.JoSAE, "DOMAIN", dunitvar)
@@ -817,27 +801,14 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
         area.JoSAE.obj <- area.JoSAE.objlst$JoSAEest
         area.JoSAE.al <- area.JoSAE.objlst$JoSAE.al
         area.JoSAE <- area.JoSAE.obj$results[,c(1, 4:7)]
-#        names(area.JoSAE) <- c("DOMAIN", "DIR", "DIR.se", "JFH", "JFH.se",
-#                      "JA.synth", "JA.synth.se")
         names(area.JoSAE) <- c("DOMAIN", "JFH", "JFH.se",
                       "JA.synth", "JA.synth.se")
         ## To add space to messages
         message("\n")
-      
-#        area.JoSAE <- merge(area.JoSAE, area.JoSAE.al[, c("domain.id", "n.i")],
-#                   by.x="DOMAIN", by.y="domain.id")
-#        names(area.JoSAE)[names(area.JoSAE) == "DOMAIN"] <- dunitvar
-#        names(area.JoSAE)[names(area.JoSAE) == "n.i"] <- "NBRPLT"
-#        area.JoSAE <- area.JoSAE[, c(dunitvar, "NBRPLT", "DIR", "DIR.se", "JFH", "JFH.se",
-#                     "JA.synth", "JA.synth.se")]
         area.JoSAE <- area.JoSAE[, c(dunitvar, "JFH", "JFH.se",
                      "JA.synth", "JA.synth.se")]
- 
-     
+    
         if (nrow(dunitlut.NA) > 0) {
-#          est.NA <- data.table(dunitlut.NA[[dunitvar]], NBRPLT=dunitlut.NA$n.total,
-#                             DIR=NA, DIR.se=NA,
-#                             JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
           est.NA <- data.table(dunitlut.NA[[dunitvar]], 
                              JFH=NA, JFH.se=NA, JA.synth=NA, JA.synth.se=NA)
 
@@ -902,7 +873,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       SAobjlst$area.sae.obj <- area.sae.obj
       rm(area.sae)
     }
-
+ 
     ## area-level - bsae estimates   
     if (multest || SApackage == "hbsae") {            
       area.hbsae.obj <- tryCatch(SAest.area(fmla.dom.area=fmla.dom.area, 
@@ -974,7 +945,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     est <- merge(est, est.NA, by="DOMAIN")
   }
 
-
   ## Merge NBRPLT.gt0
   est <- merge(est, NBRPLT.gt0, by="DOMAIN", all.x=TRUE)
   est <- DT_NAto0(est, "NBRPLT.gt0")
@@ -1008,7 +978,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       returnlst$predselect.area <- predselect.areadt
     } else {
       returnlst$predselect.area <- NULL
-    }     
+    }  
+	
   } else {
     if (multest || SAmethod == "unit") {
       preds.unit <- data.frame(t(ifelse(names(predselect.unitdt) %in% predselect.unit, 1, 0)))
@@ -1025,7 +996,7 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       returnlst$predselect.area <- predselect.areadt
     } else {
       returnlst$predselect.area <- NULL
-    }     
+    }   
   }
   returnlst$SAobjlst <- SAobjlst
 

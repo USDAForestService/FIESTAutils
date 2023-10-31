@@ -203,7 +203,8 @@ SAest(
   stepfolder = NULL,
   prior = NULL,
   modelselect = TRUE,
-  multest = TRUE
+  multest = TRUE,
+  save4testing = FALSE
 )
 
 SAest.dom(

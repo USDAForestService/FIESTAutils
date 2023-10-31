@@ -953,7 +953,7 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
       }
     } else if (methods::canCoerce(layer, "sf")) {
       return(sf::st_as_sf(layer, stringsAsFactors=stringsAsFactors))
-    } else if (is.character(layer) && file.exists(layer)) {
+    } else if (is.character(layer) && is.null(dsn) && file.exists(layer)) {
       dsn <- layer
     }
   }
@@ -1169,7 +1169,13 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
     ## If polyfix
     ############################################################
     if (polyfix) {
-      splayer <- polyfix.sf(splayer)
+	
+	  ## check for empty geometry
+	  if (sum(sf::st_is_empty(splayer)) > 0) {
+	    splayer <- splayer[!sf::st_is_empty(splayer),]
+	  }
+      #splayer <- polyfix.sf(splayer)
+	  splayer <- sf::st_make_valid(splayer)
     }
 
     ## Drop geometry in table
