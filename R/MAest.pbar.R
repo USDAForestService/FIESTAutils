@@ -688,14 +688,20 @@ MAest.unit <- function(unit,
                        prednames = NULL,
                        domain,
                        response,
+                       response_d = NULL,
                        npixels,
+                       unitarea = NULL,
                        FIA = TRUE, 
                        modelselect = FALSE,
                        getweights = FALSE,
                        var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
 
- 
-  dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE]
+  # if gregRatio, aggregate by both response variables
+  if (MAmethod == "gregRatio") {
+    dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response, response_d), with=FALSE]
+  } else {
+    dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE] 
+  }
   
   if (nrow(dat.unit) == 0 || sum(!is.na(dat.unit[[domain]])) == 0) {
     
@@ -728,6 +734,12 @@ MAest.unit <- function(unit,
   unitlut.unit <- unitlut[unitlut[[unitvar]] == unit, ]
   N.unit <-  npixels[["npixels"]][npixels[[unitvar]] == unit]
 
+  if (MAmethod == "gregRatio") {
+    area.unit <- unitarea[["AREAUSED"]][unitarea[[unitvar]] == unit]
+  } else {
+    area.unit <- NULL
+  }
+  
   doms <- unique(dat.unit[!is.na(get(domain)) & get(domain) != "NA NA"][[domain]])
 
   unitestlst <- lapply(doms, MAest.dom,
@@ -741,7 +753,9 @@ MAest.unit <- function(unit,
                              prednames = prednames,
                              domain = domain,
                              N = N.unit,
+                             area = area.unit,
                              response = response,
+                             response_d = response_d,
                              FIA = FIA,
                              modelselect = modelselect,
                              getweights = getweights,
