@@ -366,6 +366,94 @@ MAest.gregEN <- function(y,
 
 }
 
+#' @rdname estimation_desc
+#' @export
+MAest.gregRatio <- function(yn,
+                            yd,
+                            N,
+                            area,
+                            x_sample,
+                            x_pop,
+                            FIA = TRUE,
+                            save4testing = FALSE,
+                            modelselect = FALSE,
+                            getweights = FALSE,
+                            var_method = "LinHTSRS") {
+  
+  nhat.var <- NULL
+  
+  NBRPLT <- length(yn)
+  NBRPLT.gt0 <- sum(yn > 0)
+  gt0.ratio <- (NBRPLT - NBRPLT.gt0)/NBRPLT
+  
+  # don't trust these estimates
+  if (NBRPLT < 5 || NBRPLT.gt0 < 2 || gt0.ratio > 0.9){
+    estgregRatio <- data.table(matrix(c(NA, NA, NA, NA), 1, 4))
+    setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+    returnlst <- list(est = estgregRatio)
+    return(returnlst)
+  } 
+  
+  estgregRatio <- tryCatch(
+    {
+      mase::ratio(y_num = yn,
+                  y_den = yd,
+                  xsample = x_sample,
+                  xpop = x_pop,
+                  N = N,
+                  estimator = "greg",
+                  datatype = "means",
+                  var_est = TRUE,
+                  var_method = var_method,
+                  messages = FALSE,
+                  fpc = !FIA,
+                  B = 1000)
+    },
+    error = function(cond) {
+      message(cond, "\n")
+      return(NULL)
+    }
+  )
+  
+  if (is.null(estgregRatio)) {
+    if (save4testing) {
+      message("saving objects to working directory for testing: yn, yd, x_sample, x_pop, N")
+      
+      save(yn, file=file.path(getwd(), "yn.rda"))
+      save(yd, file=file.path(getwd(), "yd.rda"))
+      save(x_sample, file=file.path(getwd(), "x_sample.rda"))
+      save(x_pop, file=file.path(getwd(), "x_pop.rda"))
+      save(N, file=file.path(getwd(), "N.rda"))
+    }
+    
+    message("error in mase::ratio function... returning NA")
+    
+    estgregRatio <- data.table(matrix(c(NA, NA, NBRPLT, NBRPLT.gt0), 1, 4))
+    setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+    returnlst <- list(est = estgregRatio)
+    
+    return(returnlst)
+  }
+  
+  # don't trust estimates in this case
+  if (estgregRatio$ratio_est <= 0 || estgregRatio$ratio_var_est <= 0) {
+    estgregRatio <- data.table(matrix(c(NA, NA, NA,NA), 1, 4))
+    setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+    returnlst <- list(est = estgregRatio)
+    return(returnlst)
+  }
+  
+  estgregRatiodt <- data.table(estgregRatio$ratio_est, estgregRatio$ratio_var_est/(area^2), NBRPLT, NBRPLT.gt0)
+  setnames(estgregRatiodt, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+  
+  
+  returnlst <- list(est = estgregRatiodt)
+  
+  return(returnlst)
+  
+}
+
+
 
 ########################################################################
 ## Get estimates
