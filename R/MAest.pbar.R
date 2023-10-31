@@ -472,6 +472,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
                   yd = NULL,
                   ratiotype = "PERACRE",
                   N,
+                  area,
                   FIA = TRUE,
                   modelselect = FALSE,
                   getweights = FALSE, 
@@ -497,6 +498,11 @@ MAest <- function(yn = "CONDPROP_ADJ",
   ## Merge dat.dom to pltassgn
   pltdat.dom <- as.data.frame(dat.dom[pltassgn])
   pltdat.dom[is.na(pltdat.dom[[yn]]), yn] <- 0
+  
+  if (MAmethod == "gregRatio") {
+    pltdat.dom[is.na(pltdat.dom[[yd]]), yd] <- 0 
+    yd.vect <- pltdat.dom[[yd]]
+  }
 
   ## Subset response vector and change NA values of response to 0
   yn.vect <- pltdat.dom[[yn]]
@@ -562,10 +568,23 @@ MAest <- function(yn = "CONDPROP_ADJ",
                          FIA = FIA, 
                          var_method = var_method)
 
+    } else if (MAmethod == "gregRatio") {
+      
+      estlst <- MAest.gregRatio(yn.vect,
+                                yd.vect,
+                                N = N,
+                                area = area,
+                                x_sample,
+                                x_pop,
+                                FIA = FIA,
+                                getweights = getweights,
+                                var_method = var_method)
+      
     } else {
       stop("invalid MAmethod")
     }
   }
+  
 
   if (getweights) {
     estlst$weights <- data.frame(pltdat.dom[[cuniqueid]], estlst$weights)
