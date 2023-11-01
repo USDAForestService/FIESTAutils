@@ -8,6 +8,7 @@
 \alias{MAest.greg}
 \alias{MAest.ratio}
 \alias{MAest.gregEN}
+\alias{MAest.gregRatio}
 \alias{MAest}
 \alias{MAest.dom}
 \alias{MAest.unit}
@@ -81,6 +82,20 @@ MAest.gregEN(
   var_method = "LinHTSRS"
 )
 
+MAest.gregRatio(
+  yn,
+  yd,
+  N,
+  area,
+  x_sample,
+  x_pop,
+  FIA = TRUE,
+  save4testing = FALSE,
+  modelselect = FALSE,
+  getweights = FALSE,
+  var_method = "LinHTSRS"
+)
+
 MAest(
   yn = "CONDPROP_ADJ",
   dat.dom,
@@ -94,6 +109,7 @@ MAest(
   yd = NULL,
   ratiotype = "PERACRE",
   N,
+  area,
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,
@@ -112,7 +128,9 @@ MAest.dom(
   prednames = NULL,
   domain,
   N,
+  area = NULL,
   response = NULL,
+  response_d = NULL,
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,
@@ -131,7 +149,9 @@ MAest.unit(
   prednames = NULL,
   domain,
   response,
+  response_d = NULL,
   npixels,
+  unitarea = NULL,
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,

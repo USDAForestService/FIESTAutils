@@ -366,6 +366,94 @@ MAest.gregEN <- function(y,
 
 }
 
+#' @rdname estimation_desc
+#' @export
+MAest.gregRatio <- function(yn,
+                            yd,
+                            N,
+                            area,
+                            x_sample,
+                            x_pop,
+                            FIA = TRUE,
+                            save4testing = FALSE,
+                            modelselect = FALSE,
+                            getweights = FALSE,
+                            var_method = "LinHTSRS") {
+  
+  nhat.var <- NULL
+  
+  NBRPLT <- length(yn)
+  NBRPLT.gt0 <- sum(yn > 0)
+  gt0.ratio <- (NBRPLT - NBRPLT.gt0)/NBRPLT
+  
+  # don't trust these estimates
+  if (NBRPLT < 5 || NBRPLT.gt0 < 2 || gt0.ratio > 0.9){
+    estgregRatio <- data.table(matrix(c(NA, NA, NA, NA), 1, 4))
+    setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+    returnlst <- list(est = estgregRatio)
+    return(returnlst)
+  } 
+  
+  estgregRatio <- tryCatch(
+    {
+      mase::ratio(y_num = yn,
+                  y_den = yd,
+                  xsample = x_sample,
+                  xpop = x_pop,
+                  N = N,
+                  estimator = "greg",
+                  datatype = "means",
+                  var_est = TRUE,
+                  var_method = var_method,
+                  messages = FALSE,
+                  fpc = !FIA,
+                  B = 1000)
+    },
+    error = function(cond) {
+      message(cond, "\n")
+      return(NULL)
+    }
+  )
+  
+  if (is.null(estgregRatio)) {
+    if (save4testing) {
+      message("saving objects to working directory for testing: yn, yd, x_sample, x_pop, N")
+      
+      save(yn, file=file.path(getwd(), "yn.rda"))
+      save(yd, file=file.path(getwd(), "yd.rda"))
+      save(x_sample, file=file.path(getwd(), "x_sample.rda"))
+      save(x_pop, file=file.path(getwd(), "x_pop.rda"))
+      save(N, file=file.path(getwd(), "N.rda"))
+    }
+    
+    message("error in mase::ratio function... returning NA")
+    
+    estgregRatio <- data.table(matrix(c(NA, NA, NBRPLT, NBRPLT.gt0), 1, 4))
+    setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+    returnlst <- list(est = estgregRatio)
+    
+    return(returnlst)
+  }
+  
+  # don't trust estimates in this case
+  if (estgregRatio$ratio_est <= 0 || estgregRatio$ratio_var_est <= 0) {
+    estgregRatio <- data.table(matrix(c(NA, NA, NA,NA), 1, 4))
+    setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+    returnlst <- list(est = estgregRatio)
+    return(returnlst)
+  }
+  
+  estgregRatiodt <- data.table(estgregRatio$ratio_est, estgregRatio$ratio_var_est/(area^2), NBRPLT, NBRPLT.gt0)
+  setnames(estgregRatiodt, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
+  
+  
+  returnlst <- list(est = estgregRatiodt)
+  
+  return(returnlst)
+  
+}
+
+
 
 ########################################################################
 ## Get estimates
@@ -384,6 +472,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
                   yd = NULL,
                   ratiotype = "PERACRE",
                   N,
+                  area,
                   FIA = TRUE,
                   modelselect = FALSE,
                   getweights = FALSE, 
@@ -409,6 +498,11 @@ MAest <- function(yn = "CONDPROP_ADJ",
   ## Merge dat.dom to pltassgn
   pltdat.dom <- as.data.frame(dat.dom[pltassgn])
   pltdat.dom[is.na(pltdat.dom[[yn]]), yn] <- 0
+  
+  if (MAmethod == "gregRatio") {
+    pltdat.dom[is.na(pltdat.dom[[yd]]), yd] <- 0 
+    yd.vect <- pltdat.dom[[yd]]
+  }
 
   ## Subset response vector and change NA values of response to 0
   yn.vect <- pltdat.dom[[yn]]
@@ -474,10 +568,23 @@ MAest <- function(yn = "CONDPROP_ADJ",
                          FIA = FIA, 
                          var_method = var_method)
 
+    } else if (MAmethod == "gregRatio") {
+      
+      estlst <- MAest.gregRatio(yn.vect,
+                                yd.vect,
+                                N = N,
+                                area = area,
+                                x_sample,
+                                x_pop,
+                                FIA = FIA,
+                                getweights = getweights,
+                                var_method = var_method)
+      
     } else {
       stop("invalid MAmethod")
     }
   }
+  
 
   if (getweights) {
     estlst$weights <- data.frame(pltdat.dom[[cuniqueid]], estlst$weights)
@@ -505,7 +612,9 @@ MAest.dom <- function(dom,
                       prednames = NULL,
                       domain,
                       N,
+                      area = NULL,
                       response = NULL,
+                      response_d = NULL,
                       FIA = TRUE,
                       modelselect = FALSE, 
                       getweights = FALSE,
@@ -537,6 +646,7 @@ MAest.dom <- function(dom,
 
   ## Apply function to each dom
   domestlst <- MAest(yn = response,
+                     yd = response_d,
                      dat.dom = dat.dom,
                      pltassgn = pltassgn,
                      cuniqueid = cuniqueid,
@@ -546,6 +656,7 @@ MAest.dom <- function(dom,
                      prednames = prednames,
                      MAmethod = MAmethod,
                      N = N,
+                     area = area,
                      FIA = FIA,
                      modelselect = modelselect,
                      getweights = getweights, 
@@ -577,14 +688,20 @@ MAest.unit <- function(unit,
                        prednames = NULL,
                        domain,
                        response,
+                       response_d = NULL,
                        npixels,
+                       unitarea = NULL,
                        FIA = TRUE, 
                        modelselect = FALSE,
                        getweights = FALSE,
                        var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
 
- 
-  dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE]
+  # if gregRatio, aggregate by both response variables
+  if (MAmethod == "gregRatio") {
+    dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response, response_d), with=FALSE]
+  } else {
+    dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE] 
+  }
   
   if (nrow(dat.unit) == 0 || sum(!is.na(dat.unit[[domain]])) == 0) {
     
@@ -617,6 +734,12 @@ MAest.unit <- function(unit,
   unitlut.unit <- unitlut[unitlut[[unitvar]] == unit, ]
   N.unit <-  npixels[["npixels"]][npixels[[unitvar]] == unit]
 
+  if (MAmethod == "gregRatio") {
+    area.unit <- unitarea[["AREAUSED"]][unitarea[[unitvar]] == unit]
+  } else {
+    area.unit <- NULL
+  }
+  
   doms <- unique(dat.unit[!is.na(get(domain)) & get(domain) != "NA NA"][[domain]])
 
   unitestlst <- lapply(doms, MAest.dom,
@@ -630,7 +753,9 @@ MAest.unit <- function(unit,
                              prednames = prednames,
                              domain = domain,
                              N = N.unit,
+                             area = area.unit,
                              response = response,
+                             response_d = response_d,
                              FIA = FIA,
                              modelselect = modelselect,
                              getweights = getweights,
