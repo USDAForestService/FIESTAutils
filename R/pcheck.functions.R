@@ -687,7 +687,9 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
     } else {
       if (any(unlist(lapply(objx[list.items], is.null)))) {
         listnames <- (names(which(unlist(lapply(objx[list.items], is.null)))))
-        stop("tables are null: ", toString(listnames))
+		if (stopifnull) {
+          stop("tables are null: ", toString(listnames))
+		}
       }
     }
   }
@@ -1097,9 +1099,9 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
         #message("sql query not used")
 
         if (!is.na(sql)) {
-          sflayer <- tryCatch(suppressWarnings(sf::st_read(dsn=dsn, layer=layer, 
+          sflayer <- tryCatch(sf::st_read(dsn=dsn, layer=layer, 
 				query=paste0("select * from ", layer, " where ", sql),
-				stringsAsFactors=stringsAsFactors, quiet=TRUE)),
+				stringsAsFactors=stringsAsFactors, quiet=TRUE),
 				error=function(err) {
 					message(err, "\n")
 					return(NULL)

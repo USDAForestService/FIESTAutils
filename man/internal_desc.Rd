@@ -12,6 +12,7 @@
 \alias{DBgetfn}
 \alias{getspconddat}
 \alias{getpfromqry}
+\alias{getwithqry}
 \alias{getEvalid.ppsa}
 \alias{getPlotCur}
 \alias{gui_filterdf}
@@ -156,6 +157,40 @@ getpfromqry(
   plotobj = NULL,
   dbconn = NULL,
   dbconnopen = TRUE
+)
+
+getwithqry(
+  dsn = NULL,
+  evalid = NULL,
+  states = NULL,
+  pjoinid,
+  plotCur = FALSE,
+  varCur = "MEASYEAR",
+  Endyr = NULL,
+  invyrs = NULL,
+  measyears = NULL,
+  allyrs = FALSE,
+  SCHEMA. = NULL,
+  invtype = "ANNUAL",
+  subcycle99 = FALSE,
+  designcd1 = FALSE,
+  intensity1 = NULL,
+  popSURVEY = FALSE,
+  chk = FALSE,
+  Type = "VOL",
+  syntax = "sql",
+  plotnm = "plot",
+  ppsanm = "pop_plot_stratum_assgn",
+  ppsaid = "PLT_CN",
+  surveynm = "survey",
+  PLOTdf = NULL,
+  pltflds = NULL,
+  POP_PLOT_STRATUM_ASSGNdf = NULL,
+  ppsaflds = NULL,
+  pvars = NULL,
+  dbconn = NULL,
+  dbconnopen = TRUE,
+  withqry2 = FALSE
 )
 
 getEvalid.ppsa(
