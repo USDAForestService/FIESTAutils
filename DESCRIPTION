@@ -15,7 +15,11 @@ Authors@R:
       person(given = "Grayson",
              family = "White",
              role = c("aut", "cre"),
-             email = "graysonwhite13@gmail.com"))
+             email = "graysonwhite13@gmail.com"),
+      person(given = "Joshua",
+             family = "Yamamoto",
+             role = "aut",
+             email = "joshuayamamoto5@gmail.com"))
 Description: A set of tools for data wrangling, spatial data analysis,
     statistical modeling (including direct, model-assisted, photo-based, and
     small area tools), and USDA Forest Service data base tools. These tools are
