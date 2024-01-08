@@ -158,7 +158,8 @@ pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
 #' @export
 pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
 	caption=NULL, returnsf=TRUE, factors=FALSE, returnDT=TRUE, warn=NULL,
-	stopifnull=FALSE, stopifinvalid=FALSE, nullcheck=FALSE, obj=FALSE, gui=FALSE){
+	stopifnull=FALSE, stopifinvalid=FALSE, nullcheck=FALSE, obj=FALSE, 
+    checkonly=FALSE, gui=FALSE) {
 
   ## DESCRIPTION: This function checks the table parameter..  if NULL, it prompts the
   ##      user with gui options to select the table of interest.
@@ -207,6 +208,10 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
     stop("gui not supported")
   }
 
+  
+  if (is.object(tab) && is.data.frame(tab)) {
+    conn <- NULL
+  }	
   if (!is.null(conn)) {
     conntest <- tryCatch(DBI::dbIsValid(conn),
                          error=function(err) {
@@ -230,6 +235,9 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
 		    message(tab, " is not in database")
 		    return(NULL)
 		  }
+		}
+		if (checkonly) {
+		  return(tab)
 		}
         if (!is.null(tabqry)) {
           tabx <- tryCatch(DBI::dbGetQuery(conn, tabqry),

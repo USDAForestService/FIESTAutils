@@ -68,6 +68,7 @@ pcheck.table(
   stopifinvalid = FALSE,
   nullcheck = FALSE,
   obj = FALSE,
+  checkonly = FALSE,
   gui = FALSE
 )
 

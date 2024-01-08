@@ -52,8 +52,14 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   ##		the seedling table, it is removed from logical statement.
   ## syntax - syntax of query ('R' or 'sql')
   
-  if (is.null(statement) || statement == "") return(NULL)
- 
+  if (is.null(statement) || statement == "") {
+    if (stopifnull) {
+	  stop()
+	} else {
+	  return(NULL)
+    }
+  }
+  
   ## Define potential characters in logical statement
   if (syntax == "R") {
     equalsign <- "=="
@@ -94,9 +100,19 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
     paren.left <- length(gregexpr("\\(", statement)[[1]])
     paren.right <- length(gregexpr("\\)", statement)[[1]])
     if (paren.left < paren.right) {
-      stop("invalid logical statement... missing left parenthesis")
+	  message("invalid logical statement... missing left parenthesis")
+	  if (stopifinvalid) {
+        stop()
+	  } else {
+	    return(NULL)
+	  }
     } else if (paren.left > paren.right) {
-      stop("invalid logical statement... missing right parenthesis")
+	  message("invalid logical statement... missing right parenthesis")
+	  if (stopifinvalid) {
+        stop("invalid logical statement... missing right parenthesis")
+	  } else {
+	    return(NULL)
+	  }
     } 
     
     if (grepl("&", statement) || grepl("\\|", statement)) {
@@ -126,8 +142,9 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       chk <- sum(sapply(x, function(x, y){ grepl(x, y) }, statement))
 
       if (chk == 0) {
+	    message(fwarning)
         if (stopifinvalid) {
-          stop(fwarning)
+          stop()
         } else {
           return(NULL)
         }

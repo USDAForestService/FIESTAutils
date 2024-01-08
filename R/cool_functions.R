@@ -25,8 +25,10 @@
 # int64tochar  convert columns with class integer64 to character
 # messagedf - write a df to screen
 # getSPGRPCD - get spgrpcd attribute(s) in ref_species from ref_statecd
+# addFORTYPGRPCD - adds FORTYPGRPCD to a table with FORTYPCD variable
 # date2char - convert date columns (POSIXct) to formatted character
-
+# getfilter - create filter string from an attribute (att) and values (val)
+# checklevels - check for matching levels in x and xunique
 
 #' @rdname internal_desc
 #' @export
@@ -566,22 +568,26 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
     stop("name not found")
   } else {
     testnames <- xvect[test]
-    test <- match(tolower(x), tolower(testnames))
+    test <- sapply(testnames, function(y,x) match(tolower(y), tolower(x)), x)
+    test <- names(test)[!is.na(test)]
     if (length(test) == 1) {
-      if (is.na(test)) {
+      if (all(is.na(test))) {
         if (returnNULL) {
           return(NULL)
         } else {
           stop("no matching names found")
         }
       }
-      return(testnames[test])
-    } else {
+      return(test)
+	} else if (length(test) == 0) {
       if (returnNULL) {
         return(NULL)
       } else {
-        stop("more than 1 name found")
-      }
+        stop("no matching names found")
+      }	  
+    } else {
+	  message("more than 1 name found: ", toString(test))
+      return(test)
     }
   } 
 }
@@ -743,6 +749,35 @@ getSPGRPCD <- function(states) {
 
 #' @rdname internal_desc
 #' @export
+addFORTYPGRPCD <- function(cond) {
+  ## DESCRIPTION: adds FORTYPGRPCD to a table with FORTYPCD variable
+  
+  if ("FORTYPGRPCD" %in% names(cond)) {
+    message("FORTYPGRPCD already in table")
+	return(cond)
+  }
+  if (!"FORTYPCD" %in% names(cond)) {
+    message("the input table must include FORTYPCD")
+	return(NULL)
+  }
+  
+  ref_fortyp <- FIESTAutils::ref_codes[FIESTAutils::ref_codes$VARIABLE == "FORTYPCD", 
+                       c("VALUE", "GROUPCD")]
+  names(ref_fortyp) <- c("FORTYPCD", "FORTYPGRPCD")
+  
+  tabs <- check.matchclass(cond, ref_fortyp, "FORTYPCD",  
+		         tab1txt="cond", tab2txt="ref_codes")
+  cond <- tabs$tab1
+  ref_fortyp <- tabs$tab2
+ 
+  cond <- merge(cond, ref_fortyp, by="FORTYPCD", all.x=TRUE)
+  return(cond)
+}
+
+
+
+#' @rdname internal_desc
+#' @export
 date2char <- function(df, col, formatstr = '%Y-%m-%d') {
   ## DESCRIPTION: convert date columns (POSIXct) to formatted character
 
@@ -753,3 +788,50 @@ date2char <- function(df, col, formatstr = '%Y-%m-%d') {
   }
   return(df)
 }
+
+
+#' @rdname internal_desc
+#' @export
+getfilter <- function(att, val, syntax="R", quote=FALSE) {
+## DESCRIPTION: create filter string from att and val
+## syntax - ('R', 'sql')
+  if (is.character(val) || quote) {
+    val <- encodeString(val, quote="'")
+  } 
+  filter <- paste0(att, " %in% c(", toString(val), ")")
+
+  if (syntax == 'sql') {
+    filter <- gsub("%in% c", "IN", filter)
+  }
+  return(filter)
+}
+
+
+#' @rdname internal_desc
+#' @export
+checklevels <- function(x, uniquex, xvar) {
+  ## DESCRIPTION: Check for matching levels in x and xunique
+  
+  ## Add any factors levels that are missing
+  if (is.factor(uniquex[[xvar]])) {
+    xvarlevels <- levels(uniquex[[xvar]])
+    xvals <- sort(unique(x[[xvar]]), na.last = TRUE)
+	xmisslevels <- as.character(xvals[!xvals %in% xvarlevels])	    
+	if (length(xmisslevels) > 0) {
+	  if (any(is.na(xmisslevels))) {
+		xmisslevels[is.na(xmisslevels)] <- "NA"
+      }
+      levels(uniquex[[xvar]]) <- c(xvarlevels, xmisslevels)
+    }
+    if (is.factor(x[[xvar]])) {
+	  if (!identical(levels(x[[xvar]]), levels(uniquex[[xvar]]))) {
+        levels(x[[xvar]]) <- levels(uniquex[[xvar]])
+      }   
+    } else {
+      x[[xvar]] <- factor(x[[xvar]], levels=levels(uniquex[[xvar]]))
+    }	  
+  }
+  
+  return(list(x=x, uniquex=uniquex))
+}
+
