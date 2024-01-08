@@ -105,14 +105,16 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 
   xnames <- copy(names(x))
   byvars <- xvar
-  if (!"data.table" %in% class(uniquex))
+  if (!"data.table" %in% class(uniquex)) {
     uniquex <- setDT(uniquex)
+  }
 
   if (!is.null(xvar2)) {
 
     if (is.null(uniquex2)) stop("must include uniquex2")
-    if (!"data.table" %in% class(uniquex2))
+    if (!"data.table" %in% class(uniquex2)) {
       uniquex2 <- setDT(uniquex2)
+	}
     byvars <- c(byvars, xvar2)
 
     if (xvar.add0 && xvar2.add0) {
@@ -156,8 +158,10 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 
       if (!is.null(unitvar)) {
         uniquex.exp <- unique(x[, expand.grid(uniquex[[xvar]], get(xvar2)), by=unitvar])
+        #uniquex.exp2 <- unique(x[, expand.grid(as.character(uniquex[[xvar]]), get(xvar2)), by=unitvar])
         setnames(uniquex.exp, c(unitvar, xvar, xvar2))
         chkvars <- c(unitvar, xvar, xvar2)
+
       } else {
         uniquex.exp <- unique(x[, expand.grid(uniquex[[xvar]], get(xvar2))])
         setnames(uniquex.exp, c(xvar, xvar2))
@@ -165,10 +169,15 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       }
 
       if (ncol(uniquex) > 1) {
-        uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar)
+        uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar, all.x=TRUE, all.y=TRUE)
       }
       if (ncol(uniquex2) > 1) {
-        uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2)
+	    ## Merge uniquex
+        xchk <- check.matchclass(uniquex.exp, uniquex2, xvar2)
+        uniquex.exp <- xchk$tab1
+        uniquex2 <- xchk$tab2
+
+        uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2, all.x=TRUE)
       }
 
       ## Merge uniquex
@@ -189,6 +198,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       x[is.na(x)] <- 0
 
     } else if (xvar2.add0) {
+	
       if (!is.null(unitvar)) {
         uniquex.exp <- unique(x[, expand.grid(uniquex2[[xvar2]], get(xvar)), by=unitvar])
         setnames(uniquex.exp, c(unitvar, xvar2, xvar))
@@ -203,7 +213,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar)
       }
       if (ncol(uniquex2) > 1) {
-        uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2)
+        uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2, all.y=TRUE)
       }
 
       ## Merge uniquex.exp
@@ -212,7 +222,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       x <- xchk$tab2
 
       ## Merge uniquex.exp
-      x <- merge(uniquex.exp, x, by=chkvars, all.x=TRUE)
+      x <- merge(uniquex.exp, x, by=chkvars, all.x=TRUE, all.y=TRUE)
 
       #setnames(x, unitvar, "uvar")
       #x <- x[uniquex[rep(1:nrow(uniquex.exp), uniqueN(x$uvar)),
@@ -223,20 +233,15 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       x[is.na(x)] <- 0
 
     } else {
-
       xchk <- check.matchclass(uniquex, x, xvar)
       uniquex <- xchk$tab1
       x <- xchk$tab2
-      x <- merge(uniquex, x, by=xvar)
+      x <- merge(uniquex, x, by=xvar, all.y=TRUE)
 
       xchk <- check.matchclass(uniquex2, x, xvar2)
       uniquex2 <- xchk$tab1
       x <- xchk$tab2
-      x <- merge(uniquex2, x, by=xvar2)
-    }
-
-    if (is.factor(uniquex2[[xvar2]])) {
-      x[[xvar2]] <- factor(x[[xvar2]], levels=levels(uniquex2[[xvar2]]))
+      x <- merge(uniquex2, x, by=xvar2, all.y=TRUE)
     }
 
   } else {  ## is.null(xvar2)
@@ -253,7 +258,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         setnames(x, "uvar", unitvar)
         x[is.na(x)] <- 0
       } else {
-        x <- merge(uniquex, x, by=byvars)
+        x <- merge(uniquex, x, by=byvars, all.y=TRUE)
       }
     } else {
 
@@ -261,7 +266,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       uniquex <- xchk$tab1
       x <- xchk$tab2
 
-      x <- merge(uniquex, x, by=byvars)
+      x <- merge(uniquex, x, by=byvars, all.y=TRUE)
     }
   }
 
@@ -462,7 +467,6 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
       }
     }
   } else if (!is.null(colvar.est) || !is.null(rowvar.est)) {
-
     ## colvar.est
     ##############################################################
     estpse.col <- crosstabx(colvar.est, colvar, estnm, psenm, allin1=allin1,
@@ -501,10 +505,11 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
         est.tot <- total.est[[estnm]]
         pse.tot <- total.est[[psenm]]
 
-        if (allin1)
+        if (allin1) {
           estpse.tot <- mapply(allin1f, est.tot, pse.tot,
 			MoreArgs=list(char.width=char.width, estnull=estnull, psenull=psenull,
 			estround=estround, pseround=pseround))
+		}
       }
     } else {
       if (allin1) {

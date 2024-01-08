@@ -2,7 +2,7 @@
 ## DBgetfn			## Gets file name for Plot and Strata files.
 ## getspconddat
 ## getpfromqry      ## Get pfromqry for extracting data
-## getwithqry       ## Get with query for extracting data
+## getpwithqry       ## Get with query for extracting data
 ## getplotCur
 ## getEvalid.ppsa   ## Get Evalid from pop_plot_stratum_assgn
 ## gui_filterdf		## Get filter from a data frame
@@ -88,7 +88,8 @@ DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE,
     ################################  PLOTGEOM VARIABLES ##################################
     ## Variables from FIADB.PLOTGEOM
     pgeomvarlst <- c("CN", "CONGCD", "ECOSUBCD", "HUC", "EMAP_HEX", "ALP_ADFORCD",
-		"FVS_VARIANT", "FVS_LOC_CD", "FVS_REGION", "FVS_FOREST", "FVS_DISTRICT")
+		"FVS_VARIANT", "FVS_LOC_CD", "FVS_REGION", "FVS_FOREST", "FVS_DISTRICT",
+		"ROADLESSCD")
     returnlst$pgeomvarlst <- pgeomvarlst
   }
 
@@ -416,7 +417,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     if (any(Type == "All")) {
       where.qry <- ""
 	} else {
-       where.qry <- "PLOT_STATUS_CD != 3"
+      where.qry <- "PLOT_STATUS_CD != 3"
     }
     if (!is.null(subcycle99) && !subcycle99) {
       subcycle.filter <- "SUBCYCLE <> 99"
@@ -495,8 +496,8 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 #						" = pp.maxyr and p.invyr = pp.invyr")
 #    } else {
 
-      pfromqry <- paste0(SCHEMA., plotnm, " p
-		INNER JOIN
+      pfromqry <- paste0(SCHEMA., plotnm, " p ",
+		"\nINNER JOIN 
 		(SELECT statecd, unitcd, countycd, plot, MAX(", varCur, ") maxyr
 		  \nFROM ", SCHEMA., plotnm, 
              where.qry,
@@ -543,10 +544,10 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 
 #' @rdname internal_desc
 #' @export
-getwithqry <- function(dsn = NULL, evalid = NULL, states = NULL, 
+getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL, 
      pjoinid, plotCur = FALSE, varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, 
 	 measyears = NULL, allyrs = FALSE, SCHEMA.=NULL, invtype = "ANNUAL",
-     subcycle99 = FALSE, designcd1=FALSE, intensity1=NULL, popSURVEY=FALSE, 
+     subcycle99 = FALSE, designcd1=FALSE, intensity=NULL, popSURVEY=FALSE, 
      chk=FALSE, Type = "VOL", syntax = "sql", plotnm = "plot", 
      ppsanm = "pop_plot_stratum_assgn", ppsaid = "PLT_CN", surveynm = "survey", 
      PLOTdf = NULL, pltflds = NULL, POP_PLOT_STRATUM_ASSGNdf = NULL, 
@@ -565,7 +566,7 @@ getwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
   ## SCHEMA. - Oracle schema
   ## subcycle99 - Logical. If TRUE, include plots with subcycle=99
   ## designcd1 - Logical. If TRUE, include only plots with DESIGNCD = 1
-  ## intensity1 - Logical. If TRUE, include only plots with INTENSITY = 1
+  ## intensity - Logical. If TRUE, include only plots with defined intensity values
   ## popSURVEY - Logical. If TRUE, include SURVEY table in query
   ## chk - Logical. If TRUE, check for variables 
   ## Type - Logical. Type of query ('All', 'Vol')
@@ -707,17 +708,17 @@ getwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 	}
   }
   ## Add intensity to where statement 
-  if (!is.null(intensity1) && intensity1) {
+  if (!is.null(intensity)) {
     intensitynm <- findnm("INTENSITY", pltflds, returnNULL=TRUE)
     if (is.null(intensitynm)) {
 	  message("INTENSITY variable not in data... assuming all INTENSITY=1")
     } else {
-      intensity1.filter <- paste0("p.", intensitynm, " = '1'")
-      if (syntax == 'R') intensity1.filter <- gsub("=", "==", intensity1.filter)
+      intensity.filter <- paste0("p.", 
+	            getfilter("INTENSITY", intensity, syntax=syntax, quote=TRUE))
       if (where.qry == "") {
-        where.qry <- intensity1.filter
+        where.qry <- intensity.filter
       } else {
-        where.qry <- paste(paste(where.qry, intensity1.filter, sep=" and "))
+        where.qry <- paste(paste(where.qry, intensity.filter, sep=" and "))
       }
     }
   }
