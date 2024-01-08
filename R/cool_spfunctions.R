@@ -1,5 +1,4 @@
 # getext - get extent of filename
-# getfilter
 # filter2qry
 # recodelut
 # strat.pivot
@@ -13,22 +12,6 @@
 getext <- function(x) {
   xbasename <- basename(x)
   strsplit(xbasename, paste0(basename.NoExt(xbasename), "."))[[1]][2]
-}
-
-#' @rdname internal_desc
-#' @export
-getfilter <- function(att, val, syntax="R") {
-## DESCRIPTION: create filter string from att and val
-## syntax - ('R', 'sql')
-  if (is.character(val)) {
-    val <- encodeString(val, quote="'")
-  }
-  filter <- paste0(att, " %in% c(", toString(val), ")")
-
-  if (syntax == 'sql') {
-    filter <- gsub("%in% c", "in", filter)
-  }
-  return(filter)
 }
 
 #' @rdname internal_desc
