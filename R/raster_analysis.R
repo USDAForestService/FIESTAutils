@@ -1236,7 +1236,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 	ds$close()
 	
 	#return( df_out[with(df_out, order(zoneid, -count)), ] )
-	df_out = df_out[with(df_out, order(zoneid, -count)), ]
+	df_out = df_out[with(df_out, order(zoneid, -count, value)), ]
 	row.names(df_out) = NULL
 	return(df_out)
 }
