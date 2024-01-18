@@ -1771,7 +1771,7 @@ dbclass <- function(dbconn,
 getwithqry <- function(dsn = NULL, evalid = NULL, states = NULL, 
      pjoinid, plotCur = FALSE, varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, 
 	 measyears = NULL, allyrs = FALSE, SCHEMA.=NULL, invtype = "ANNUAL",
-     subcycle99 = FALSE, designcd1=FALSE, intensity=NULL, popSURVEY=FALSE, 
+     subcycle99 = FALSE, designcd1=FALSE, intensity1=FALSE, popSURVEY=FALSE, 
      chk=FALSE, Type = "VOL", syntax = "sql", plotnm = "plot", 
      ppsanm = "pop_plot_stratum_assgn", ppsaid = "PLT_CN", surveynm = "survey", 
      PLOTdf = NULL, pltflds = NULL, POP_PLOT_STRATUM_ASSGNdf = NULL, 
@@ -1803,6 +1803,8 @@ getwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 
   ## set global variables
   where.qry <- ""
+  intensity <- NULL
+  if (intensity1) intensity <- 1
   
   ## Get inventory type
   anntype <- ifelse(invtype == "ANNUAL", "Y", "N")

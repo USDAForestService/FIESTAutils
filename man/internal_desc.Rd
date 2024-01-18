@@ -290,7 +290,7 @@ getwithqry(
   invtype = "ANNUAL",
   subcycle99 = FALSE,
   designcd1 = FALSE,
-  intensity = NULL,
+  intensity1 = FALSE,
   popSURVEY = FALSE,
   chk = FALSE,
   Type = "VOL",
