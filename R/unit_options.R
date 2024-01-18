@@ -11,8 +11,11 @@
 #' @param minplotnum.unit Integer. Minimum number of plots for estimation unit.
 #' @param unit.action String. What to do if number of plots in an estimation
 #' unit is less than minplotnum.unit ('keep', 'remove' 'combine'). If
-#' unit.action='combine', combines estimation unit to the following estimation
-#' unit, ordered in unitzonal or stratalut.
+#' unit.action='keep', estimation units with less that minplotnum.unit will
+#' be kept in output tables; if unit.action='remove', the estimation units 
+#' with less that minplotnum.unit will be removed from the output tables; and
+#' if unit.action='combine', combines estimation unit to the following estimation
+#' unit, ordered in stratalut or unitzonal.
 #' @param npixelvar String. Name of variable in unitlut defining number of
 #' pixels by estimation unit.
 #' @param ... For extendibility.

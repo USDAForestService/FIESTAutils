@@ -25,6 +25,7 @@
 \alias{createidx}
 \alias{dbclassify}
 \alias{dbclass}
+\alias{getwithqry}
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
@@ -272,6 +273,40 @@ dbclass(
   NAto0 = FALSE,
   dbconnopen = TRUE,
   quiet = FALSE
+)
+
+getwithqry(
+  dsn = NULL,
+  evalid = NULL,
+  states = NULL,
+  pjoinid,
+  plotCur = FALSE,
+  varCur = "MEASYEAR",
+  Endyr = NULL,
+  invyrs = NULL,
+  measyears = NULL,
+  allyrs = FALSE,
+  SCHEMA. = NULL,
+  invtype = "ANNUAL",
+  subcycle99 = FALSE,
+  designcd1 = FALSE,
+  intensity = NULL,
+  popSURVEY = FALSE,
+  chk = FALSE,
+  Type = "VOL",
+  syntax = "sql",
+  plotnm = "plot",
+  ppsanm = "pop_plot_stratum_assgn",
+  ppsaid = "PLT_CN",
+  surveynm = "survey",
+  PLOTdf = NULL,
+  pltflds = NULL,
+  POP_PLOT_STRATUM_ASSGNdf = NULL,
+  ppsaflds = NULL,
+  pvars = NULL,
+  dbconn = NULL,
+  dbconnopen = TRUE,
+  withqry2 = FALSE
 )
 
 Ratio2Size(

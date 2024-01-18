@@ -1763,3 +1763,363 @@ dbclass <- function(dbconn,
   }
   return(0)
 }
+
+
+
+#' @rdname internal_desc
+#' @export
+getwithqry <- function(dsn = NULL, evalid = NULL, states = NULL, 
+     pjoinid, plotCur = FALSE, varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, 
+	 measyears = NULL, allyrs = FALSE, SCHEMA.=NULL, invtype = "ANNUAL",
+     subcycle99 = FALSE, designcd1=FALSE, intensity=NULL, popSURVEY=FALSE, 
+     chk=FALSE, Type = "VOL", syntax = "sql", plotnm = "plot", 
+     ppsanm = "pop_plot_stratum_assgn", ppsaid = "PLT_CN", surveynm = "survey", 
+     PLOTdf = NULL, pltflds = NULL, POP_PLOT_STRATUM_ASSGNdf = NULL, 
+	 ppsaflds = NULL, pvars = NULL, dbconn = NULL, dbconnopen = TRUE,
+	 withqry2 = FALSE) {
+  ## DESCRIPTION: gets from statement for database query
+  ## syntax - ('sql', 'R')
+  ## evalid - Integer. EVALID code defining FIA Evaluation
+  ## plotCur - Logical. If TRUE, gets most current plot
+  ## pjoinid - String. Name of variable in plot table to join
+  ## varCur - String. Name of variable to use for most current plot
+  ##            ('MEASYEAR', 'INVYR')
+  ## Endyr - Integer. Year to determine most current measurement
+  ## invyrs - Integer vector. Inventory years to query
+  ## allyrs - Logical. All years in database
+  ## SCHEMA. - Oracle schema
+  ## subcycle99 - Logical. If TRUE, include plots with subcycle=99
+  ## designcd1 - Logical. If TRUE, include only plots with DESIGNCD = 1
+  ## intensity - Logical. If TRUE, include only plots with defined intensity values
+  ## popSURVEY - Logical. If TRUE, include SURVEY table in query
+  ## chk - Logical. If TRUE, check for variables 
+  ## Type - Logical. Type of query ('All', 'Vol')
+  ## syntax - String. SQL or R query syntax ('sql', 'R')
+  ## plotnm - String. Name of plot table in database or as R object.
+  ## ppsanm - String. Name of plot_pop_stratum_assgn table
+  ## ppsaid - String. Name of unique id in ppsa
+  ## surveynm - String. Name of survey table 
+  ## PLOTdf - R object. Plot table if exists as R object
+
+  ## set global variables
+  where.qry <- ""
+  
+  ## Get inventory type
+  anntype <- ifelse(invtype == "ANNUAL", "Y", "N")
+
+  ## Check database and/or database connection
+  if (!is.null(dbconn)) {
+    tablst <- DBI::dbListTables(dbconn)
+    SCHEMA.=NULL
+  } else if (!is.null(dsn)) {
+    dbconn <- DBtestSQLite(dsn, dbconnopen=TRUE)
+    tablst <- DBI::dbListTables(dbconn)
+    SCHEMA.=NULL
+  } else if (is.null(pltflds)) {
+    chk <- FALSE
+  }
+
+  ## Get plot fields
+  if (is.null(pltflds)) {
+    if (!is.null(plotnm)) {
+      if (!is.null(dbconn)) {
+        pltflds <- DBI::dbListFields(dbconn, plotnm)
+      } else if (!is.null(PLOTdf)) {
+	    pltflds <- names(PLOTdf)
+	  }
+    }
+  }
+ 
+  ## Check pjoinid
+  if (is.null(pjoinid)) {
+	if (!is.null(pltflds)) {
+      pjoinid <- findnm("CN", pltflds, returnNULL=TRUE)	
+	  if (is.null(pjoinid)) {
+        pjoinid <- findnm("PLT_CN", pltflds, returnNULL=TRUE)	
+		if (is.null(pjoinid)) {
+		  pjoinid <- "CN"
+		}
+	  }
+    } 		
+  }
+ 
+  ## Define plot select variables
+  if (is.null(pvars)) {
+	selectpvars <- "p.*"
+  } else {
+	selectpvars <- toString(paste0("p.", unique(c(pjoinid, pvars))))
+  }
+
+  ###################################################################################
+  ## GET pfromqry
+  ###################################################################################
+  if (!is.null(evalid)) {
+    subcycle99 <- TRUE
+    pfromqry <- paste0("\nFROM ", SCHEMA., ppsanm, " ppsa \nJOIN ",
+			SCHEMA., plotnm, " p ON (ppsa.", ppsaid, " = p.", pjoinid, ")")
+  } else {
+    pfromqry <- paste0("\nFROM ", SCHEMA., plotnm, " p")
+ 
+    if (popSURVEY) {
+      pfromqry <- paste0(pfromqry, 
+		"\n  INNER JOIN ", SCHEMA., surveynm, " survey 
+		ON (survey.CN = p.SRV_CN AND survey.ANN_INVENTORY = '", anntype, "')")
+    }
+  }
+
+  ###################################################################################
+  ## GET whereqry
+  ###################################################################################
+  if (!is.null(evalid)) {
+		
+    ## Get ppsaflds
+    if (is.null(ppsaflds)) {
+      if (!is.null(ppsanm)) {
+        if (!is.null(dbconn)) {
+          ppsaflds <- DBI::dbListFields(dbconn, ppsanm)
+		} else if (!is.null(POP_PLOT_STRATUM_ASSGNdf)) {
+		  ppsaflds <- names(POP_PLOT_STRATUM_ASSGNdf)
+	    }
+      }
+    }
+
+	## Get name of EVALID column
+	evalidnm <- findnm("EVALID", ppsaflds, returnNULL=TRUE)
+	if (is.null(evalidnm)) {
+	  evalidnm <- "EVALID"
+	}
+	## Get whereqry
+	where.qry <- paste0(evalidnm, " in(", toString(evalid), ")")
+		
+  } else if (!is.null(states)) { 
+	statenm <- findnm("STATECD", pltflds, returnNULL=TRUE)
+	if (!is.null(statenm)) {
+	  statenm <- "STATECD"
+	}
+	where.qry <- paste0("p.", statenm, " in(", toString(states), ")")
+  }
+
+  ## Add plot_status_cd to where statement
+  if (any(Type == "All") || !is.null(evalid)) {
+    where.qry <- where.qry
+  } else {
+	plotstatusnm <- findnm("PLOT_STATUS_CD", pltflds, returnNULL=TRUE)
+	if (is.null(plotstatusnm)) {
+	  message("PLOT_STATUS_CD not in data... assuming all sampled plots")
+	} else {
+	  plotstatus.qry <- paste0("p.", plotstatusnm, " <> 3")
+	  if (syntax == 'R') plotstatus.qry <- gsub("<>", "!=", plotstatus.qry)
+	  if (where.qry == "") {
+	    where.qry <- plotstatus.qry
+	  } else {
+        where.qry <- paste0(where.qry, " and ", plotstatus.qry)
+	  } 
+	} 
+  }
+  ## Add subcycle to where statement
+  if (!is.null(subcycle99) && !subcycle99) {
+	subcyclenm <- findnm("SUBCYCLE", pltflds, returnNULL=TRUE)
+	if (is.null(subcyclenm)) {
+	  message("SUBCYCLE not in data... assuming all SUBCYCLE <> 99")
+	} else {
+      subcycle.filter <- paste0("p.", subcyclenm, " <> 99")
+      if (syntax == 'R') subcycle.filter <- gsub("<>", "!=", subcycle.filter)
+      if (where.qry == "") {
+        where.qry <- subcycle.filter
+      } else {
+        where.qry <- paste(paste(where.qry, subcycle.filter, sep=" and "))
+      }
+	}
+  }
+  ## Add intensity to where statement 
+  if (!is.null(intensity)) {
+    intensitynm <- findnm("INTENSITY", pltflds, returnNULL=TRUE)
+    if (is.null(intensitynm)) {
+	  message("INTENSITY variable not in data... assuming all INTENSITY=1")
+    } else {
+      intensity.filter <- paste0("p.", 
+	            getfilter("INTENSITY", intensity, syntax=syntax, quote=TRUE))
+      if (where.qry == "") {
+        where.qry <- intensity.filter
+      } else {
+        where.qry <- paste(paste(where.qry, intensity.filter, sep=" and "))
+      }
+    }
+  }
+  ## Add designcd to where statement
+  if (!is.null(designcd1) && designcd1) {
+    designcdnm <- findnm("DESIGNCD", pltflds, returnNULL=TRUE)
+    if (is.null(designcdnm)) {
+	  message("DESIGNCD variable not in data... assuming all DESIGNCD=1")
+	} else {
+      designcd1.filter <- "DESIGNCD = 1"
+      if (syntax == 'R') designcd1.filter <- gsub("=", "==", designcd1.filter)
+      if (where.qry == "") {
+        where.qry <- designcd1.filter
+      } else {
+        where.qry <- paste(paste(where.qry, designcd1.filter, sep=" and "))
+      }
+    }
+  }
+
+  if (plotCur) {
+    ## Add an Endyr to where statement
+    if (!is.null(Endyr)) {
+      #if (!is.numeric(Endyr)) stop("Endyr must be numeric year")
+      if (chk) {
+        yrlst.qry <- paste("select distinct", varCur, "\nfrom", plotnm, "order by INVYR")
+        pltyrs <- DBI::dbGetQuery(dbconn, yrlst.qry)
+
+        if (Endyr <= min(pltyrs, na.rm=TRUE))
+          stop(Endyr, " is less than minimum year in dataset")
+      }
+      Endyr.filter <- paste0("p.", varCur, " <= ", Endyr)
+      if (where.qry == "") {
+        where.qry <- Endyr.filter
+      } else {
+        where.qry <- paste(paste(where.qry, Endyr.filter, sep=" and "))
+      }
+    }
+
+    ## Define group variables
+    groupvars <- c("STATECD", "UNITCD", "COUNTYCD", "PLOT")
+    if (!is.null(pltflds)) {
+	  pgroupvars <- sapply(groupvars, findnm, pltflds, returnNULL = TRUE)
+	  if (any(is.null(pgroupvars))) {
+	    missvars <- pgroupvars[is.null(pgroupvars)]
+        if (length(missvars) > 1 || missvars != "unitcd") {
+		  warning("dataset must include statecd, countycd, and plot")
+        }
+	  } else {
+	    groupvars <- as.vector(pgroupvars)
+	  }
+    }
+
+    ## Create WITH query
+    withqry <- paste0(
+	  "WITH ",
+	  "\nmaxyear AS",
+      "\n (SELECT ", toString(paste0("p.", groupvars)), ", MAX(p.", varCur, ") maxyr  ",
+	  pfromqry)
+
+	  
+	if (!is.null(where.qry) || where.qry != "") {
+      withqry <- paste0(withqry,  " \n  WHERE ", where.qry)
+    }
+	
+	withqry <- paste0(withqry,
+	      "\n  GROUP BY ", toString(paste0("p.", groupvars)), ")")
+	
+	## Add an query to get CN values
+    if (withqry2) {	
+	  withqry2 <- paste0(
+       "\np AS",   	
+       "\n (SELECT ", selectpvars,
+	   "\n  FROM ", SCHEMA., plotnm, " p INNER JOIN maxyear ON(")
+	   
+	  for (i in 1:length(groupvars)) {
+	    gvar <- groupvars[i]
+	    withqry2 <- paste0(withqry2, "p.", gvar, " = maxyear.", gvar)	   
+	    if (i < length(groupvars)) {
+	      withqry2 <- paste0(withqry2, " and ")
+	    }
+	  }
+	  withqry2 <- paste0(withqry2, " and p.", varCur, " = maxyear.maxyr))")
+	 
+	  withqry <- paste0(withqry, ",", withqry2)
+	}
+
+  } else if (!is.null(invyrs)) {
+
+    if (chk) {
+      invyrlst.qry <- paste("SELECT DISTINCT invyr FROM", plotnm, "ORDER BY invyr")
+      pltyrs <- DBI::dbGetQuery(dbconn, invyrlst.qry)
+
+      invyrs.miss <- invyrs[which(!invyrs %in% pltyrs)]
+      message("invyrs not in dataset: ", paste(invyrs.miss, collapse=", "))
+      if (length(invyrs.miss) == length(invyrs)) stop("")
+      invyrs <- invyrs[!invyrs %in% invyrs.miss]
+    }
+	
+    ## Create WITH query
+    withqry <- paste0(
+	  "WITH ",
+	  "\np AS",
+      "\n (SELECT ", selectpvars,
+	  pfromqry)	   
+	   
+	## Add invyrs to where statement 
+    invyrnm <- findnm("INVYR", pltflds, returnNULL=TRUE)
+    if (is.null(invyrnm)) {
+	  message("INVYR variable not in data")
+    } else {
+      invyr.filter <- paste0("p.", invyrnm, " in(", toString(invyrs), ")")
+      if (syntax == 'R') invyr.filter <- gsub("in\\(", "%in% c\\(", invyr.filter)
+      if (where.qry == "") {
+        where.qry <- invyr.filter
+      } else {
+        where.qry <- paste(paste(where.qry, invyr.filter, sep=" and "))
+      }
+    }
+	   	  
+	if (!is.null(where.qry) || where.qry != "") {
+      withqry <- paste0(withqry,  " \n  WHERE ", where.qry, ")")
+    }
+
+  } else if (!is.null(measyears)) {
+
+    if (chk) {
+      measyrlst.qry <- paste("SELECT DISTINCT measyear FROM", plotnm, "ORDER BY measyear")
+      pltyrs <- DBI::dbGetQuery(dbconn, measyrlst.qry)
+
+      measyr.miss <- measyears[which(!measyears %in% pltyrs)]
+      message("invyrs not in dataset: ", paste(invyrs.miss, collapse=", "))
+      if (length(measyr.miss) == length(measyears)) stop("")
+      measyears <- measyears[!measyears %in% measyr.miss]
+    }
+	
+    ## Create WITH query
+    withqry <- paste0(
+	  "WITH ",
+	  "\np AS",
+      "\n (SELECT ", selectpvars,
+	  pfromqry)	   
+	   
+	## Add invyrs to where statement 
+    measyrnm <- findnm("MEASYEAR", pltflds, returnNULL=TRUE)
+    if (is.null(measyrnm)) {
+	  message("MEASYEAR variable not in data")
+    } else {
+      measyr.filter <- paste0("p.", measyrnm, " in(", toString(measyears), ")")
+      if (syntax == 'R') measyr.filter <- gsub("in\\(", "%in% c\\(", measyr.filter)
+      if (where.qry == "") {
+        where.qry <- measyr.filter
+      } else {
+        where.qry <- paste(paste(where.qry, measyr.filter, sep=" and "))
+      }
+    }
+	   	  
+	if (!is.null(where.qry) || where.qry != "") {
+      withqry <- paste0(withqry,  " \n  WHERE ", where.qry, ")")
+    }
+
+  } else {
+  
+    ## Create WITH query
+    withqry <- paste0(
+	  "WITH ",
+	  "\np AS",
+      "\n (SELECT ", selectpvars,
+	  pfromqry)
+  
+	if (!is.null(where.qry) || where.qry != "") {
+      withqry <- paste0(withqry,  " \n  WHERE ", where.qry, ")")
+    }	  
+  }
+  
+  if (!is.null(dbconn) && !dbconnopen) {
+    DBI::dbDisconnect(dbconn)
+  }
+  
+  return(withqry)
+}
