@@ -110,7 +110,6 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
   }
 
   if (!is.null(xvar2)) {
-
     if (is.null(uniquex2)) stop("must include uniquex2")
     if (!"data.table" %in% class(uniquex2)) {
       uniquex2 <- setDT(uniquex2)
@@ -169,6 +168,10 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       }
 
       if (ncol(uniquex) > 1) {
+        xchk <- check.matchclass(uniquex.exp, uniquex, xvar)
+        uniquex.exp <- xchk$tab1
+        uniquex <- xchk$tab2
+		
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar, all.x=TRUE, all.y=TRUE)
       }
       if (ncol(uniquex2) > 1) {
@@ -210,9 +213,18 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       }
 
       if (ncol(uniquex) > 1) {
+        ## Merge uniquex.exp
+        xchk <- check.matchclass(uniquex.exp, uniquex, xvar)
+        uniquex.exp <- xchk$tab1
+        uniquex <- xchk$tab2
+	  
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar)
       }
       if (ncol(uniquex2) > 1) {
+        xchk <- check.matchclass(uniquex.exp, uniquex2, xvar2)
+        uniquex.exp <- xchk$tab1
+        uniquex2 <- xchk$tab2
+
         uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2, all.y=TRUE)
       }
 
