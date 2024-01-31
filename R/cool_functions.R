@@ -809,7 +809,7 @@ getfilter <- function(att, val, syntax="R", quote=FALSE) {
 
 #' @rdname internal_desc
 #' @export
-checklevels <- function(x, uniquex, xvar, keepNA=FALSE) {
+checklevels <- function(x, uniquex, xvar, keepNA=TRUE) {
   ## DESCRIPTION: Check for matching levels in x and xunique
   
   ## Add any factors levels that are missing
