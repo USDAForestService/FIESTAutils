@@ -399,7 +399,7 @@ date2char(df, col, formatstr = "\%Y-\%m-\%d")
 
 getfilter(att, val, syntax = "R", quote = FALSE)
 
-checklevels(x, uniquex, xvar)
+checklevels(x, uniquex, xvar, keepNA = FALSE)
 
 getext(x)
 
