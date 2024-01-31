@@ -248,12 +248,12 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       xchk <- check.matchclass(uniquex, x, xvar)
       uniquex <- xchk$tab1
       x <- xchk$tab2
-      x <- merge(uniquex, x, by=xvar, all.y=TRUE)
+      x <- merge(uniquex, x, by=xvar, all.x=TRUE)
 
       xchk <- check.matchclass(uniquex2, x, xvar2)
       uniquex2 <- xchk$tab1
       x <- xchk$tab2
-      x <- merge(uniquex2, x, by=xvar2, all.y=TRUE)
+      x <- merge(uniquex2, x, by=xvar2, all.x=TRUE)
     }
 
   } else {  ## is.null(xvar2)
@@ -270,7 +270,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         setnames(x, "uvar", unitvar)
         x[is.na(x)] <- 0
       } else {
-        x <- merge(uniquex, x, by=byvars, all.y=TRUE)
+        x <- merge(uniquex, x, by=byvars, all.x=TRUE)
       }
     } else {
 
@@ -278,7 +278,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       uniquex <- xchk$tab1
       x <- xchk$tab2
 
-      x <- merge(uniquex, x, by=byvars, all.y=TRUE)
+      x <- merge(uniquex, x, by=byvars, all.x=TRUE)
     }
   }
 
