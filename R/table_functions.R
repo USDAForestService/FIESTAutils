@@ -98,6 +98,22 @@ crosstabx <- function(x, xvar, estnm, psenm, allin1=FALSE, char.width=NULL,
     est <- x[[estnm]]
     names(est) <- x[[xvar]]
     pse <- x[[psenm]]
+	
+    if (is.factor(x[[xvar]])) {
+      names(pse) <- x[[xvar]]
+      xvar.levels <- levels(x[[xvar]])
+      if (length(x[[xvar]]) < length(xvar.levels)) {
+        misslevels <- xvar.levels[!xvar.levels %in% x[[xvar]]]
+        missvect <- rep(estnull, length(misslevels))
+        names(missvect) <- misslevels
+        
+        est <- c(est, missvect)
+        pse <- c(pse, missvect)
+        est <- est[order(match(names(est), xvar.levels))]
+        pse <- pse[order(match(names(pse), xvar.levels))]
+      }	
+	}
+	
     return(list(est=est, pse=pse))
   }
 }
