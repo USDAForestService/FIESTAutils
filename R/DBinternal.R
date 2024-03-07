@@ -775,9 +775,8 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
     withqry <- paste0(
 	  "WITH ",
 	  "\nmaxyear AS",
-      "\n (SELECT ", toString(paste0("p.", groupvars)), ", MAX(p.", varCur, ") maxyr  ",
+      "\n (SELECT distinct ", toString(paste0("p.", groupvars)), ", MAX(p.", varCur, ") maxyr  ",
 	  pfromqry)
-
 	  
 	if (!is.null(where.qry) || where.qry != "") {
       withqry <- paste0(withqry,  " \n  WHERE ", where.qry)
@@ -785,7 +784,7 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 	
 	withqry <- paste0(withqry,
 	      "\n  GROUP BY ", toString(paste0("p.", groupvars)), ")")
-	
+
 	## Add an query to get CN values
     if (withqry2) {	
 	  withqry2 <- paste0(
@@ -821,7 +820,7 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
     withqry <- paste0(
 	  "WITH ",
 	  "\np AS",
-      "\n (SELECT ", selectpvars,
+      "\n (SELECT distinct ", selectpvars,
 	  pfromqry)	   
 	   
 	## Add invyrs to where statement 
@@ -885,7 +884,7 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
     withqry <- paste0(
 	  "WITH ",
 	  "\np AS",
-      "\n (SELECT ", selectpvars,
+      "\n (SELECT distinct ", selectpvars,
 	  pfromqry)
   
 	if (!is.null(where.qry) || where.qry != "") {

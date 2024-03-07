@@ -21,7 +21,6 @@
 # recodelut
 # findnm
 # chkdbtab  Checks if table exists in list of database tables
-# RtoSQL    Convert logical R statement syntax to SQL syntax
 # int64tochar  convert columns with class integer64 to character
 # messagedf - write a df to screen
 # getSPGRPCD - get spgrpcd attribute(s) in ref_species from ref_statecd
@@ -408,7 +407,7 @@ getnm <- function (xvar, group=FALSE) {
 checknm <- function(nm, nmlst, ignore.case=TRUE) {
   ## if nm already exists in nmlst, change nm to nm_*
   i <- 0
-  while (any(grepl(nm, nmlst, ignore.case=ignore.case))) {
+  while (any(grepl(paste0("^",nm,"&"), nmlst, ignore.case=ignore.case))) {
   #while (nm %in% nmlst) {
     i <- i + 1
     nm <- paste(nm, 1, sep="_")
@@ -560,7 +559,7 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
       stop("variable is NULL")
     }
   }
-  test <- grepl(x, xvect, ignore.case=TRUE)
+  test <- grepl(paste0("^",x,"$"), xvect, ignore.case=TRUE)
   if (sum(test) == 0) {
     if (returnNULL) {
       return(NULL)
@@ -623,88 +622,6 @@ chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
 }
 
 
-#' @rdname internal_desc
-#' @export
-RtoSQL <- function(filter, x=NULL) {
-  ## DESCRIPTION: Convert logical R statement syntax to SQL syntax
-
-  ## Check filter
-  if (is.null(filter) || filter == "") {
-    return(NULL)
-  }
-
-  ## Check logic
-  if (!is.null(x)) {
-    sql <- check.logic(x=x, statement=filter)
-  } else {
-    sql <- filter
-  }
-
-
-  checkpart <- function(part) {
-    ## Function to convert logical statement by part
-    part <- trimws(part)
-
-
-    ## Check for !
-    not <- ifelse(grepl("\\!", part), TRUE, FALSE)
-
-    # Replace R comparison operators with SQL operators
-    if (grepl("==", part)) {
-      if (not) {
-        part <- gsub("!", "", part)
-        part <- gsub("==", "<>", part)
-      } else {
-        part <- gsub("==", "=", part)
-      } 
-    }
-    part <- gsub("!=", "<>", part)
-
-    if (grepl("%in%", part)) {
-      if (not) {
-        part <- gsub("!", "", part)
-        part <- gsub("%in% c", "not in", part)
-      } else {
-        part <- gsub("%in% c", "in", part)
-		if (grepl(":", part)) {
-		  p1 <- strsplit(part, ":")[[1]][1]
-		  p1 <- strsplit(p1, "\\(")[[1]][2]
-		  p2 <- strsplit(part, ":")[[1]][2]
-		  p2 <- strsplit(p2, "\\)")[[1]][1]
-		  part <- gsub(paste0(p1, ":", p2), toString(seq(p1,p2)), part)	
-        }		  
-      }
-    }
-
-    # Replace is.na() and !is.na() with SQL equivalents
-    if (grepl("is.na", part)) {
-      pre <- strsplit(part, "is.na\\(")[[1]][1]
-      basetmp <- strsplit(part, "is.na\\(")[[1]][-1]
-      base <- strsplit(basetmp, "\\)")[[1]][1]
-      post <- ifelse (is.na(strsplit(basetmp, "\\)")[[1]][2]), "", strsplit(basetmp, "\\)")[[1]][2])
-
-      if (not) {
-        part <- paste0(pre, base, " is not NULL", post)
-        part <- gsub("!", "", part)
-      } else {
-        part <- paste0(pre, base, " is NULL", post)
-      }
-    }
-
-    return(part)
-  }
-
-  if (grepl("&", filter)) {
-    sql <- paste(sapply(unlist(strsplit(filter, "&")), checkpart), collapse = " and ")
-  } else {
-    sql <- checkpart(filter)
-  }
-  if (grepl("&", filter)) {
-    sql <- paste(sapply(unlist(strsplit(sql, "\\|")), checkpart), collapse = " or ")
-  }
-
-  return(sql)
-}
 
 #' @rdname internal_desc
 #' @export
