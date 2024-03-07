@@ -167,7 +167,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	  }
 	  chklogicchar <- logic.chars[sapply(logic.chars, 
 	               function(x, part){ grepl(x, part, ignore.case=TRUE) }, part)]
-   
+ 
 	  if (length(chklogicchar) > 1) { 
 	    if (length(chklogicchar) == 2 && all(c("notin", "in") %in% chklogicchar)) {
 	      chklogicchar <- "notin"
@@ -183,6 +183,8 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	      chklogicchar <- "<="
 	    } else if (length(chklogicchar) == 2 && all(c(">=", ">") %in% chklogicchar)) {
 	      chklogicchar <- ">="
+	    } else if (length(chklogicchar) == 2 && all(c("<", ">") %in% chklogicchar)) {
+	      chklogicchar <- "<>"
 	    } else {
 		  stop("more than one logic char: ", toString(chklogicchar))
 		}
