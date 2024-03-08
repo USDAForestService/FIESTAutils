@@ -98,12 +98,15 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     unitlut <- pcheck.table(unitlut)
     unitarea <- pcheck.table(unitarea)
     setkeyv(unitlut, keyvars)
+    if (!is.null(strvars)) n <- "n.strata"
 
     if (keepadjvars) {
-	  if (areawt == "CONDPROP_UNADJ" && !areawt %in% names(unitlut) && "ADJ_FACTOR_MACR" %in% names(unitlut)) {
-	    unitlut$"ADJ_FACTOR_COND" <- 
-		       ifelse(all(is.na(unitlut$ADJ_FACTOR_MACR)) | all(unitlut$ADJ_FACTOR_MACR == 0), 
-			           unitlut$ADJ_FACTOR_SUBP, unitlut$ADJ_FACTOR_MACR)
+	  if (areawt == "CONDPROP_UNADJ" && !areawt %in% names(unitlut) && 
+	                     "ADJ_FACTOR_MACR" %in% names(unitlut)) {
+		unitlut[, ADJ_FACTOR_COND := ifelse ((is.na(ADJ_FACTOR_MACR) | ADJ_FACTOR_MACR == 0), 
+			           ADJ_FACTOR_SUBP, ADJ_FACTOR_MACR)]
+		unitlut[unitlut$ESTN_UNIT == 71 & unitlut$STRATUMCD == 135,]
+
 		varadjlst <- unique(c("ADJ_FACTOR_COND", varadjlst))
 	  }
     } else {
@@ -115,7 +118,6 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
       ## Merge condition adjustment factors to strata table.
       unitlut <- unitlut[cndadj]
-      if (!is.null(strvars)) n <- "n.strata"
     
       ## Calculate adjustment factor for conditions
       ## (divide summed condition proportions by total number of plots in strata)
@@ -126,6 +128,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
     ## Merge condition adjustment factors to cond table to get plot identifiers.
     setkeyv(condx, keyvars)
+    setkeyv(unitlut, keyvars)
     condx <- condx[unitlut[,c(strunitvars, varadjlst), with=FALSE]]
 
     ## Change name of condition adjustment factor to cadjfac
@@ -270,7 +273,9 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   }
   if (adj == "samp") {
     vars2removeu <- vars2remove[vars2remove %in% names(unitlut)]
-    unitlut[, (vars2removeu) := NULL]
+	if (length(vars2removeu) > 0) {
+      unitlut[, (vars2removeu) := NULL]
+	}
   }
 
   ## Remove *_ADJFAC and *_UNADJ columns in condx
