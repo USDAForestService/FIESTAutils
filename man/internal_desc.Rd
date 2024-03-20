@@ -6,7 +6,7 @@
 %   R/getadjfactorVOL.R, R/getfunnm.R, R/getlt10char.R, R/getrhat.R,
 %   R/groupStrata.R, R/groupUnits.R, R/internal_desc.R, R/query_functions.R,
 %   R/save1tab.R, R/save2tabs.R, R/strat_collapse.R, R/subpsamp.R,
-%   R/subpsampP2VEG.R, R/table_functions.R, R/vector_proc.r, R/wtcalc.R,
+%   R/subpsampP2VEG.R, R/table_functions.R, R/vector_proc.R, R/wtcalc.R,
 %   R/wtcalc_unit.R
 \name{DBvars.default}
 \alias{DBvars.default}
@@ -98,7 +98,6 @@
 \alias{tabulateIntersections}
 \alias{selectByIntersects}
 \alias{layerFromRasterExtent}
-\alias{vectorTranslate}
 \alias{wtcalc}
 \alias{wtcalc.unit}
 \title{General Utility Functions}
@@ -771,21 +770,6 @@ selectByIntersects(
 )
 
 layerFromRasterExtent(rasterfile, asSpatial = FALSE)
-
-vectorTranslate(
-  src_dsn,
-  dst_dsn,
-  dst_fmt = "ESRI Shapefile",
-  src_layer = NULL,
-  dst_layer = NULL,
-  update = FALSE,
-  overwrite = FALSE,
-  dsco = NULL,
-  lco = NULL,
-  nlt = "PROMOTE_TO_MULTI",
-  t_srs = NULL,
-  addOptions = NULL
-)
 
 wtcalc(wtLUT, strvar, acrevar)
 
