@@ -651,7 +651,7 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
     }
 
     pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(length(src))) {
+    for (i in seq_along(src)) {
         if (!is.numeric(burn_value)) {
             # assume burn_value is a field name
             burn_this <- as.numeric(src[[burn_value]][i])
@@ -828,7 +828,7 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 
         message("Clipping to polygon layer...")
         pb <- txtProgressBar(min=0, max=length(src))
-        for (i in 1:length(src)) {
+    for (i in seq_along(src)) {
             part_sizes = vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
             coords = do.call(rbind, lapply(src@polygons[i][[1]]@Polygons, function(p) p@coords))
             grid_xs = vapply(coords[,1], getOffset, 0.0, origin=clip_xmin, gt_pixel_size=clip_gt[2])
@@ -1084,7 +1084,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
     # raster I/O function for RasterizePolygon()
     readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
-        a <- ds$read(band=band,
+        a <- ds$read(band = band,
                      xoff = xoff1,
                      yoff = yoff,
                      xsize = ((xoff2-xoff1)+1),
@@ -1104,7 +1104,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     }
 
     pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(length(src))) {
+    for (i in seq_along(src)) {
         this_attr <- as.character(src[[attribute]][i])
         part_sizes <- vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
         coords <- do.call(rbind, lapply(src@polygons[i][[1]]@Polygons, function(p) p@coords))
@@ -1203,7 +1203,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     }
 
     pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(length(src))) {
+    for (i in seq_along(src)) {
         this_attr <- as.character(src[[attribute]][i])
         this_attr_idx <- match(this_attr,zoneid)
         part_sizes <- vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
