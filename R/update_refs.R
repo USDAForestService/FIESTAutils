@@ -16,9 +16,9 @@ old_dim <- dim(ref_codes)
 old_col_classes <- unlist(lapply(ref_codes, class))
 
 # save version to archive
-arcv_date <- format(Sys.Date(), "%Y%b")
-fpath <- paste0("data/archive/ref_codes_", arcv_date, ".rda")
-save(old_ref_codes, file = fpath)
+
+fpath <- paste0("data/ref_codes_archive.rda")
+save(ref_codes, file = fpath)
 
 # update function --------------------------------------------------------------
 
