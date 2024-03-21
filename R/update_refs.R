@@ -18,7 +18,7 @@ old_col_classes <- unlist(lapply(ref_codes, class))
 # save version to archive
 
 fpath <- paste0("data/ref_codes_archive.rda")
-save(ref_codes, file = fpath)
+save(old_ref_codes, file = fpath)
 
 # update function --------------------------------------------------------------
 
