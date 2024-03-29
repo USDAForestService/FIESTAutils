@@ -173,8 +173,7 @@ zonalStats(
   lut = NULL,
   pixelfun = NULL,
   na.rm = TRUE,
-  ignoreValue = NULL,
-  resampling = "nearest"
+  ignoreValue = NULL
 )
 
 zonalMean(
