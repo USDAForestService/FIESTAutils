@@ -616,6 +616,9 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 #' @rdname raster_desc
 #' @export
 rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
+
+    ## Deprecated, use gdalraster::rasterize()
+
     # dsn, layer - a polygon layer (non-overlapping polygons assumed)
     # burn_value - an integer, or field name from layer (integer attribute)
     # rasterfile - existing raster for output, make with rasterFromRaster()
@@ -732,9 +735,9 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
             message("'maskByPolygons' not available for clipping to VRT")
         }
 
-        return(invisible(rasterToVRT(srcfile=srcfile,
-                                     vrtfile=dstfile,
-                                     subwindow=src@bbox)))
+        return(invisible(rasterToVRT(srcfile = srcfile,
+                                     vrtfile = dstfile,
+                                     subwindow = sf::st_bbox(src))))
     }
 
     # open the source raster
@@ -748,19 +751,18 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
     cellsizeX <- gt[2]
     cellsizeY <- gt[6]
 
+    bb <- sf::st_bbox(src)
     # bounding box should be inside the raster extent
-    # xmin, xmax: src@bbox[1,1], src@bbox[1,2]
-    # ymin, ymax: src@bbox[2,1], src@bbox[2,2]
-    if (src@bbox[1,1] < xmin || src@bbox[1,2] > xmax ||
-            src@bbox[2,1] < ymin || src@bbox[2,2] > ymax) {
+    if (bb[1] < xmin || bb[3] > xmax ||
+            bb[2] < ymin || bb[4] > ymax) {
         stop("polygon bounding box not completely within source raster extent")
     }
 
     # srcwin offsets
-    xminOff <- floor(getOffset(src@bbox[1,1], xmin, cellsizeX))
-    ymaxOff <- floor(getOffset(src@bbox[2,2], ymax, cellsizeY))
-    xmaxOff <- ceiling(getOffset(src@bbox[1,2], xmin, cellsizeX))
-    yminOff <- ceiling(getOffset(src@bbox[2,1], ymax, cellsizeY))
+    xminOff <- floor(getOffset(bb[1], xmin, cellsizeX))
+    ymaxOff <- floor(getOffset(bb[4], ymax, cellsizeY))
+    xmaxOff <- ceiling(getOffset(bb[3], xmin, cellsizeX))
+    yminOff <- ceiling(getOffset(bb[2], ymax, cellsizeY))
 
     # lay out the clip raster so it is pixel-aligned with src raster
     clip_ncols <- xmaxOff - xminOff
@@ -836,25 +838,24 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
         for (b in 1:nbands)
             dst_ds$fillRaster(band=b, init[b], 0)
 
-        geom_col <- attr(src, "sf_column")
+        # geom_col <- attr(src, "sf_column")
         geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
         if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
             stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
 
         message("clipping to polygon layer...")
-        src <- sf::st_union(src)
-        coords <- src[1, geom_col] |> sf::st_coordinates()
+        coords <- sf::st_union(src) |> sf::st_coordinates()
         parts <- integer(0)
         part_sizes <- integer(0)
         if (geom_type == "POLYGON") {
             parts <- unique(coords[, "L1"])
             for (i in seq_len(NROW(parts))) {
-                part_sizes[i] <- nrow(coords[coords[, "L1"] == parts[i], ])
+                part_sizes[i] <- NROW(coords[coords[, "L1"] == parts[i], ])
             }
         } else if (geom_type == "MULTIPOLYGON") {
             parts <- unique(coords[, c("L1", "L2")])
             for (i in seq_len(NROW(parts))) {
-                part_sizes[i] <- nrow(coords[coords[, "L1"] == parts[i, 1] &
+                part_sizes[i] <- NROW(coords[coords[, "L1"] == parts[i, 1] &
                                              coords[, "L2"] == parts[i, 2], ])
             }
         }
@@ -862,13 +863,13 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
         grid_xs <- vapply(coords[, "X"],
                           getOffset,
                           0.0,
-                          origin = xmin,
-                          gt_pixel_size = gt[2])
+                          origin = clip_xmin,
+                          gt_pixel_size = clip_gt[2])
         grid_ys <- vapply(coords[, "Y"],
                           getOffset,
                           0.0,
-                          origin = ymax,
-                          gt_pixel_size = gt[6])
+                          origin = clip_ymax,
+                          gt_pixel_size = clip_gt[6])
 
         RasterizePolygon(clip_ncols, clip_nrows, part_sizes, grid_xs, grid_ys,
                          writeRaster, 0)
