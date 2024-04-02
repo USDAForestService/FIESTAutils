@@ -64,8 +64,8 @@ int RasterizePolygon(int nRasterXSize, int nRasterYSize,
 
         std::sort(panNodeX, panNodeX + nodes);
 
-        for (int i=0; i < nodes; i+=2) {
-            if (panNodeX[i] >= maxX)
+        for (int i=0; i+1 < nodes; i+=2) {
+            if (panNodeX[i] > maxX)
                 break;
             if (panNodeX[i+1] > minX) {
                 if (panNodeX[i] < minX)
