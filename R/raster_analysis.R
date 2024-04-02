@@ -548,7 +548,6 @@ reprojectRaster <- function(srcfile, dstfile, t_srs, overwrite=TRUE,
     }
     opt <- c(opt, "-ovr", "NONE")
     opt <- c(opt, addOptions)
-    #print(opt)
     if (length(opt) == 0)
         opt <- NULL
 
@@ -584,7 +583,6 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 
     ext <- as.numeric(sf::st_bbox(src))
     srs <- sf::st_crs(src)$wkt
-    src <- NULL
 
     xmin <- ext[1] - res
     ncols <- ceiling((ext[3] - xmin) / res)
@@ -618,6 +616,9 @@ rasterFromVectorExtent <- function(src, dstfile, res, fmt=NULL, nbands=1,
 #' @rdname raster_desc
 #' @export
 rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
+
+    ## Deprecated, use gdalraster::rasterize()
+
     # dsn, layer - a polygon layer (non-overlapping polygons assumed)
     # burn_value - an integer, or field name from layer (integer attribute)
     # rasterfile - existing raster for output, make with rasterFromRaster()
@@ -627,21 +628,12 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
     ncols <- ds$getRasterXSize()
     gt <- ds$getGeoTransform()
     xmin <- ds$bbox()[1]
-    xmax <- ds$bbox()[3]
     ymax <- ds$bbox()[4]
-    ymin <- ds$bbox()[2]
 
-    if (is.null(src)) {
+    if (is.null(src))
         src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
-        src <- sf::as_Spatial(sf::st_zm(src))
-    }
-    else {
-        if("sf" %in% class(src)) {
-            src <- sf::as_Spatial(sf::st_zm(src))
-        }
-    }
-
-    burn_this <- burn_value
+    else if (!is(src, "sf"))
+        stop("'src' must be a polygon layer as 'sf' object")
 
     # a write function for the C++ rasterizer
     writeRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
@@ -650,21 +642,52 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
         return()
     }
 
-    pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(src)) {
+    geom_col <- attr(src, "sf_column")
+    geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
+    if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
+        stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
+
+    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+    burn_this <- burn_value
+    for (i in seq_len(nrow(src))) {
         if (!is.numeric(burn_value)) {
             # assume burn_value is a field name
             burn_this <- as.numeric(src[[burn_value]][i])
         }
-        part_sizes = vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
-        coords = do.call(rbind, lapply(src@polygons[i][[1]]@Polygons, function(p) p@coords))
-        grid_xs = vapply(coords[,1], getOffset, 0.0, origin=xmin, gt_pixel_size=gt[2])
-        grid_ys = vapply(coords[,2], getOffset, 0.0, origin=ymax, gt_pixel_size=gt[6])
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys, writeRaster, burn_this)
-        setTxtProgressBar(pb, i)
+        coords <- src[i, geom_col] |> sf::st_coordinates()
+        parts <- integer(0)
+        part_sizes <- integer(0)
+        if (geom_type == "POLYGON") {
+            parts <- unique(coords[, "L1"])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j], ])
+            }
+        } else if (geom_type == "MULTIPOLYGON") {
+            parts <- unique(coords[, c("L1", "L2")])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j, 1] &
+                                             coords[, "L2"] == parts[j, 2], ])
+            }
+        }
+
+        grid_xs <- vapply(coords[, "X"],
+                          getOffset,
+                          0.0,
+                          origin = xmin,
+                          gt_pixel_size = gt[2])
+        grid_ys <- vapply(coords[, "Y"],
+                          getOffset,
+                          0.0,
+                          origin = ymax,
+                          gt_pixel_size = gt[6])
+
+        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
+                         writeRaster, burn_this)
+
+        utils::setTxtProgressBar(pb, i)
     }
+
     close(pb)
-    src <- NULL
     ds$close()
 
     invisible()
@@ -690,43 +713,36 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
     if (is.null(fmt)) {
         fmt <- getGDALformat(dstfile)
         if (is.null(fmt)) {
-            stop("Use fmt argument to specify a GDAL raster format code.")
+            stop("use 'fmt' to specify a GDAL raster format code")
         }
     }
 
-    if (is.null(src)) {
-        src <- sf::st_read(dsn, layer, stringsAsFactors=F, quiet=T)
-        src <- sf::as_Spatial(sf::st_zm(src))
-    }
-    else {
-        if ("sf" %in% class(src)) {
-            src <- sf::as_Spatial(sf::st_zm(src))
-        }
-    }
+    if (is.null(src))
+        src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
+    else if (!is(src, "sf"))
+        stop("'src' must be a polygon layer as 'sf' object")
 
     if (!is.null(init) && !maskByPolygons) {
-        message("init value ignored when maskByPolygons = FALSE")
+        message("'init' value ignored when 'maskByPolygons' is FALSE")
     }
 
     if (fmt == "VRT") {
         ## handle VRT as a special case
         if (!is.null(src_band)) {
-            message("individual band selection not supported for clip to VRT.")
+            message("individual band selection not supported for clip to VRT")
         }
         if (maskByPolygons) {
-            message("maskByPolygons not available for clipping to VRT.")
+            message("'maskByPolygons' not available for clipping to VRT")
         }
 
-        return(invisible(rasterToVRT(srcfile=srcfile,
-                                     vrtfile=dstfile,
-                                     subwindow=src@bbox)))
+        return(invisible(rasterToVRT(srcfile = srcfile,
+                                     vrtfile = dstfile,
+                                     subwindow = sf::st_bbox(src))))
     }
 
     # open the source raster
     ri <- rasterInfo(srcfile)
     src_ds <- new(GDALRaster, srcfile, read_only=TRUE)
-    nrows <- src_ds$getRasterYSize()
-    ncols <- src_ds$getRasterXSize()
     gt <- src_ds$getGeoTransform()
     xmin <- src_ds$bbox()[1]
     ymin <- src_ds$bbox()[2]
@@ -735,34 +751,30 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
     cellsizeX <- gt[2]
     cellsizeY <- gt[6]
 
+    bb <- sf::st_bbox(src)
     # bounding box should be inside the raster extent
-    # xmin, xmax: src@bbox[1,1], src@bbox[1,2]
-    # ymin, ymax: src@bbox[2,1], src@bbox[2,2]
-    if (src@bbox[1,1] < xmin || src@bbox[1,2] > xmax ||
-            src@bbox[2,1] < ymin || src@bbox[2,2] > ymax) {
+    if (bb[1] < xmin || bb[3] > xmax ||
+            bb[2] < ymin || bb[4] > ymax) {
         stop("polygon bounding box not completely within source raster extent")
     }
 
     # srcwin offsets
-    xminOff <- floor(getOffset(src@bbox[1,1], xmin, cellsizeX))
-    ymaxOff <- floor(getOffset(src@bbox[2,2], ymax, cellsizeY))
-    xmaxOff <- ceiling(getOffset(src@bbox[1,2], xmin, cellsizeX))
-    yminOff <- ceiling(getOffset(src@bbox[2,1], ymax, cellsizeY))
+    xminOff <- floor(getOffset(bb[1], xmin, cellsizeX))
+    ymaxOff <- floor(getOffset(bb[4], ymax, cellsizeY))
+    xmaxOff <- ceiling(getOffset(bb[3], xmin, cellsizeX))
+    yminOff <- ceiling(getOffset(bb[2], ymax, cellsizeY))
 
     # lay out the clip raster so it is pixel-aligned with src raster
     clip_ncols <- xmaxOff - xminOff
     clip_nrows <- yminOff - ymaxOff
     clip_xmin <- xmin + xminOff * cellsizeX
-    clip_xmax <- (xmin + xmaxOff * cellsizeX) + cellsizeX
     clip_ymax <- ymax + ymaxOff * cellsizeY
-    clip_ymin <- (ymax + yminOff * cellsizeY) + cellsizeY
     clip_gt <- c(clip_xmin, cellsizeX, 0, clip_ymax, 0, cellsizeY)
 
     if (is.null(src_band)) {
         nbands <- src_ds$getRasterCount()
         src_band <- 1:nbands
-    }
-    else {
+    } else {
         nbands <- length(src_band)
     }
 
@@ -775,8 +787,7 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
     if (is.null(dstnodata)) {
         if (any(ri$has_nodata_value[src_band])) {
             dstnodata <- ri$nodata_value[src_band]
-        }
-        else {
+        } else {
             dstnodata <- getDefaultNodata(dtName)
             setRasterNodataValue <- FALSE
         }
@@ -794,11 +805,11 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
     if (setRasterNodataValue) {
         for (b in 1:nbands) {
             if (!dst_ds$setNoDataValue(b, dstnodata))
-                warning("Failed to set nodata value.", call.=FALSE)
+                warning("failed to set nodata value", call.=FALSE)
         }
     }
 
-    # raster io function for the C++ rasterizer
+    # raster I/O function for the C++ rasterizer
     writeRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
         for (b in 1:nbands) {
             a <- src_ds$read(band=src_band[b],
@@ -820,29 +831,55 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
     }
 
     if (maskByPolygons) {
-        message("Initializing destination raster...")
+        message("initializing destination raster...")
+
         if (length(init) < nbands)
             init <- rep(init, nbands)
         for (b in 1:nbands)
             dst_ds$fillRaster(band=b, init[b], 0)
 
-        message("Clipping to polygon layer...")
-        pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(src)) {
-            part_sizes = vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
-            coords = do.call(rbind, lapply(src@polygons[i][[1]]@Polygons, function(p) p@coords))
-            grid_xs = vapply(coords[,1], getOffset, 0.0, origin=clip_xmin, gt_pixel_size=clip_gt[2])
-            grid_ys = vapply(coords[,2], getOffset, 0.0, origin=clip_ymax, gt_pixel_size=clip_gt[6])
-            RasterizePolygon(clip_ncols, clip_nrows, part_sizes, grid_xs, grid_ys, writeRaster, 0)
-            setTxtProgressBar(pb, i)
+        # geom_col <- attr(src, "sf_column")
+        geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
+        if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
+            stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
+
+        message("clipping to polygon layer...")
+        coords <- sf::st_union(src) |> sf::st_coordinates()
+        parts <- integer(0)
+        part_sizes <- integer(0)
+        if (geom_type == "POLYGON") {
+            parts <- unique(coords[, "L1"])
+            for (i in seq_len(NROW(parts))) {
+                part_sizes[i] <- NROW(coords[coords[, "L1"] == parts[i], ])
+            }
+        } else if (geom_type == "MULTIPOLYGON") {
+            parts <- unique(coords[, c("L1", "L2")])
+            for (i in seq_len(NROW(parts))) {
+                part_sizes[i] <- NROW(coords[coords[, "L1"] == parts[i, 1] &
+                                             coords[, "L2"] == parts[i, 2], ])
+            }
         }
-        close(pb)
-    }
-    else {
-        message("Clipping to polygon layer extent...")
+
+        grid_xs <- vapply(coords[, "X"],
+                          getOffset,
+                          0.0,
+                          origin = clip_xmin,
+                          gt_pixel_size = clip_gt[2])
+        grid_ys <- vapply(coords[, "Y"],
+                          getOffset,
+                          0.0,
+                          origin = clip_ymax,
+                          gt_pixel_size = clip_gt[6])
+
+        RasterizePolygon(clip_ncols, clip_nrows, part_sizes, grid_xs, grid_ys,
+                         writeRaster, 0)
+
+    } else {
+        message("clipping to polygon layer extent...")
         lapply(c(0:(clip_nrows-1)), writeRaster, xoff1=0, xoff2=clip_ncols-1, 0)
     }
-    message(paste("clipRaster output written to:", dstfile))
+
+    message(paste("output written to:", dstfile))
 
     src_ds$close()
     dst_ds$close()
@@ -890,12 +927,12 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
                      xsize = ncols,
                      ysize = 1,
                      a2)
-        setTxtProgressBar(pb, row+1)
+        utils::setTxtProgressBar(pb, row+1)
         return()
     }
 
     message("Recoding...")
-    pb <- txtProgressBar(min=0, max=nrows)
+    pb <- utils::txtProgressBar(min=0, max=nrows)
     lapply(0:(nrows-1), process_row)
     close(pb)
 
@@ -909,7 +946,7 @@ recodeRaster <- function(srcfile, dstfile, lut, srcband=1, ...) {
 #' @rdname raster_desc
 #' @export
 pixelCount <- function(rasterfile, band = 1) {
-    # Convenience function to get pixel counts from one raster using
+    # Convenience function to get pixel counts from one raster.
     # Scans the whole raster.
 
     return(gdalraster::buildRAT(rasterfile,
@@ -1019,8 +1056,10 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 
             # move the kernel across rowdata and apply fun
             outrow <- vapply(1:ncols,
-                            function(p, ...) {fun((rowdata[,p:(p+kernelsize-1)] * w), ...)},
-                            0, na.rm=na.rm, ...)
+                             function(p, ...) {
+                                 fun((rowdata[,p:(p+kernelsize-1)] * w), ...)
+                             },
+                             0, na.rm = na.rm, ...)
             outrow <- ifelse(is.na(outrow), nodata_value, outrow)
 
             # write a row of output
@@ -1031,13 +1070,13 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
                          ysize = 1,
                          outrow)
 
-            setTxtProgressBar(pb, row+1)
+            utils::setTxtProgressBar(pb, row+1)
             return()
         }
     }
 
     message("Calculating focal raster...")
-    pb <- txtProgressBar(min=0, max=nrows)
+    pb <- utils::txtProgressBar(min=0, max=nrows)
     lapply(0:(nrows-1), process_row)
     close(pb)
 
@@ -1052,27 +1091,20 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 #' @export
 zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                        rasterfile, band = 1, lut=NULL, pixelfun=NULL,
-                       na.rm=TRUE, ignoreValue=NULL, resampling = "nearest") {
+                       na.rm=TRUE, ignoreValue=NULL) {
     ## zoneid, npixels, mean, min, max, sum, var, sd
 
-    ds <- new(GDALRaster, rasterfile, read_only=TRUE)
+    ds <- new(GDALRaster, rasterfile)
     nrows <- ds$getRasterYSize()
     ncols <- ds$getRasterXSize()
     gt <- ds$getGeoTransform()
     xmin <- ds$bbox()[1]
-    xmax <- ds$bbox()[3]
     ymax <- ds$bbox()[4]
-    ymin <- ds$bbox()[2]
 
-    if (is.null(src)) {
+    if (is.null(src))
         src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
-        src <- sf::as_Spatial(sf::st_zm(src))
-    }
-    else {
-        if ("sf" %in% class(src)) {
-            src <- sf::as_Spatial(sf::st_zm(src))
-        }
-    }
+    else if (!is(src, "sf"))
+        stop("'src' must be a polygon layer as 'sf' object")
 
     zoneid <- unique(as.character(src[[attribute]]))
 
@@ -1103,16 +1135,48 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         return()
     }
 
-    pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(src)) {
+    geom_col <- attr(src, "sf_column")
+    geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
+    if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
+        stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
+
+    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+
+    for (i in seq_len(nrow(src))) {
         this_attr <- as.character(src[[attribute]][i])
-        part_sizes <- vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
-        coords <- do.call(rbind, lapply(src@polygons[i][[1]]@Polygons, function(p) p@coords))
-        grid_xs <- vapply(coords[,1], getOffset, 0.0, origin=xmin, gt_pixel_size=gt[2])
-        grid_ys <- vapply(coords[,2], getOffset, 0.0, origin=ymax, gt_pixel_size=gt[6])
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys, readRaster, NA, this_attr)
-        setTxtProgressBar(pb, i)
+        coords <- src[i, geom_col] |> sf::st_coordinates()
+        parts <- integer(0)
+        part_sizes <- integer(0)
+        if (geom_type == "POLYGON") {
+            parts <- unique(coords[, "L1"])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j], ])
+            }
+        } else if (geom_type == "MULTIPOLYGON") {
+            parts <- unique(coords[, c("L1", "L2")])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j, 1] &
+                                             coords[, "L2"] == parts[j, 2], ])
+            }
+        }
+
+        grid_xs <- vapply(coords[, "X"],
+                          getOffset,
+                          0.0,
+                          origin = xmin,
+                          gt_pixel_size = gt[2])
+        grid_ys <- vapply(coords[, "Y"],
+                          getOffset,
+                          0.0,
+                          origin = ymax,
+                          gt_pixel_size = gt[6])
+
+        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
+                         readRaster, NA, this_attr)
+
+        utils::setTxtProgressBar(pb, i)
     }
+
     close(pb)
 
     npixels <- rep(0, length(zoneid))
@@ -1134,7 +1198,6 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     }
 
     ds$close()
-    #return(zone.stats[order(zone.stats$zoneid),])
     return(zone.stats)
 }
 
@@ -1163,24 +1226,17 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     ncols <- ds$getRasterXSize()
     gt <- ds$getGeoTransform()
     xmin <- ds$bbox()[1]
-    xmax <- ds$bbox()[3]
     ymax <- ds$bbox()[4]
-    ymin <- ds$bbox()[2]
 
-    if (is.null(src)) {
+    if (is.null(src))
         src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
-        src <- sf::as_Spatial(sf::st_zm(src))
-    }
-    else {
-        if ("sf" %in% class(src)) {
-            src <- sf::as_Spatial(sf::st_zm(src))
-        }
-    }
+    else if (!is(src, "sf"))
+        stop("'src' must be a polygon layer as 'sf' object")
 
     zoneid <- unique(as.character(src[[attribute]]))
 
     # CmbTable to count the unique combinations
-    tbl <- new(CmbTable, keyLen=2, varNames=c("idx","value"))
+    tbl <- new(CmbTable, keyLen = 2, varNames = c("idx", "value"))
 
     # raster I/O function for RasterizePolygon
     readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
@@ -1202,17 +1258,48 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         return()
     }
 
-    pb <- txtProgressBar(min=0, max=length(src))
-    for (i in seq_along(src)) {
+    geom_col <- attr(src, "sf_column")
+    geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
+    if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
+        stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
+
+    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+
+    for (i in seq_len(nrow(src))) {
         this_attr <- as.character(src[[attribute]][i])
-        this_attr_idx <- match(this_attr,zoneid)
-        part_sizes <- vapply(src@polygons[i][[1]]@Polygons, function(p) nrow(p@coords), 0)
-        coords <- do.call(rbind, lapply(src@polygons[i][[1]]@Polygons, function(p) p@coords))
-        grid_xs <- vapply(coords[,1], getOffset, 0.0, origin=xmin, gt_pixel_size=gt[2])
-        grid_ys <- vapply(coords[,2], getOffset, 0.0, origin=ymax, gt_pixel_size=gt[6])
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys, readRaster, this_attr_idx)
-        setTxtProgressBar(pb, i)
+        coords <- src[i, geom_col] |> sf::st_coordinates()
+        parts <- integer(0)
+        part_sizes <- integer(0)
+        if (geom_type == "POLYGON") {
+            parts <- unique(coords[, "L1"])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j], ])
+            }
+        } else if (geom_type == "MULTIPOLYGON") {
+            parts <- unique(coords[, c("L1", "L2")])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j, 1] &
+                                             coords[, "L2"] == parts[j, 2], ])
+            }
+        }
+
+        grid_xs <- vapply(coords[, "X"],
+                          getOffset,
+                          0.0,
+                          origin = xmin,
+                          gt_pixel_size = gt[2])
+        grid_ys <- vapply(coords[, "Y"],
+                          getOffset,
+                          0.0,
+                          origin = ymax,
+                          gt_pixel_size = gt[6])
+
+        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
+                         readRaster, NA, this_attr)
+
+        utils::setTxtProgressBar(pb, i)
     }
+
     close(pb)
 
     # for CRAN check only:
@@ -1229,8 +1316,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     if (!is.null(aggfun)) {
         df_agg <- aggregate(count ~ zoneid, df_out, aggfun)
         df_out <- merge(df_agg, df_out)
-    }
-    else {
+    } else {
         df_out <- transform(df_out,
                             zoneprop = ave(count,
                                            zoneid,
