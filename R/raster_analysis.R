@@ -1267,6 +1267,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
     for (i in seq_len(nrow(src))) {
         this_attr <- as.character(src[[attribute]][i])
+        this_attr_idx <- match(this_attr, zoneid)
         coords <- src[i, geom_col] |> sf::st_coordinates()
         parts <- integer(0)
         part_sizes <- integer(0)
@@ -1295,7 +1296,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                           gt_pixel_size = gt[6])
 
         RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
-                         readRaster, NA, this_attr)
+                         readRaster, this_attr_idx)
 
         utils::setTxtProgressBar(pb, i)
     }
