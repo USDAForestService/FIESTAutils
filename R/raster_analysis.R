@@ -1124,7 +1124,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                      out_xsize = ((xoff2-xoff1)+1),
                      out_ysize = 1)
         if (!is.null(ignoreValue))
-            a <- a[a!=ignoreValue]
+            a <- a[!(a %in% ignoreValue)]
         if (!is.null(lut)) {
             a2 <- lut[,2][match(a, lut[,1])]
             a <- ifelse(is.na(a2), a, a2)
@@ -1312,8 +1312,13 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     df_out$idx <- NULL
     firstcols <- c("zoneid","value")
     df_out <- df_out[, c(firstcols, setdiff(names(df_out), firstcols))]
-    if (na.rm) df_out <- df_out[!is.na(df_out$value),]
-    if (!is.null(ignoreValue)) df_out <- df_out[(df_out$value != ignoreValue),]
+    if (na.rm) {
+        df_out <- df_out[!is.na(df_out$value),]
+    }
+    if (!is.null(ignoreValue)) {
+        df_out <- subset(df_out, !(value %in% ignoreValue))
+        #df_out <- df_out[(df_out$value != ignoreValue),]
+    }
     if (!is.null(aggfun)) {
         df_agg <- aggregate(count ~ zoneid, df_out, aggfun)
         df_out <- merge(df_agg, df_out)
