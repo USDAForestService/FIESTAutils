@@ -215,11 +215,11 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
   if (!is.null(conn)) {
     conntest <- tryCatch(DBI::dbIsValid(conn),
                          error=function(err) {
-                           message("invalid database connection: ", conn, "\n")
                            return(NULL)
                            } )
     if (is.null(conntest)) {
       if (stopifnull) {
+	    message("invalid database connection: ", conn, "\n")
         stop()
       } else {
         return(NULL)
@@ -761,7 +761,6 @@ pcheck.output <- function(out_fmt="csv", out_dsn=NULL, outfolder=NULL,
 		overwrite_layer=overwrite_layer, append_layer=append_layer,
 		outfn.date=outfn.date, outfn.pre=outfn.pre, out_conn=out_conn))
   }
-
 
   if (out_fmt %in% c("csv", "shp")) {
     outfolder <- pcheck.outfolder(outfolder)

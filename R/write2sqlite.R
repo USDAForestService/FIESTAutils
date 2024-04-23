@@ -27,10 +27,10 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
     ###########################################################
     if (createnew) {
       dbconn <- DBcreateSQLite(SQLitefn=SQLitefn, outfolder=outfolder, dbconnopen=TRUE,
-		gpkg=gpkg, overwrite=overwrite)
+		                gpkg=gpkg, overwrite=overwrite)
     } else {
       dbconn <- DBtestSQLite(SQLitefn=SQLitefn, outfolder=outfolder, dbconnopen=TRUE,
-		gpkg=gpkg, showlist=FALSE)
+		                gpkg=gpkg, showlist=FALSE)
     }
   }
 
@@ -54,15 +54,18 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
   DBI::dbWriteTable(dbconn, out_name, layer, append=append_layer, overwrite=overwrite)
   message(paste(appendtext, out_name, "to", SQLitefn))
 
-  if (!all(index.unique %in% names(layer))) {
-    warning("invalid index.unique... names not in ", out_name)
-  }
   if (!is.null(index.unique)) {
     if (!is.list(index.unique)) {
       index.unique <- list(index.unique)
     }
     for (i in 1:length(index.unique)) {
       indexu <- index.unique[[i]]
+	  
+	    if (!all(indexu %in% names(layer))) {
+        warning("invalid index.unique... names not in ", out_name)
+		    message(toString(indexu))
+      }
+
       if (!all(indexu %in% names(layer))) {
         warning("invalid index.unique... names not in layer: ", toString(indexu))
       } else {
@@ -70,16 +73,16 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
         if (sum(duplicated(layer[,indexu, with=FALSE])) > 0) {
           warning(indxunm, " is not unique... creating non-unique index\n")
           idxsql <- paste0("create index ", indxunm, " ON ", out_name,
-				"(", paste(indexu, collapse=","), ")")
-        } else {
+				           "(", paste(indexu, collapse=","), ")")
+          } else {
           idxsql <- paste0("create unique index ", indxunm, " ON ", out_name,
-				"(", paste(indexu, collapse=","), ")")
+				           "(", paste(indexu, collapse=","), ")")
 
           test <- tryCatch(
             DBI::dbExecute(dbconn, idxsql),
-		    error=function(err) {
-				message(err, "\n")
-		    } )
+		              error=function(err) {
+				            message(err, "\n")
+		              } )
           if (!is.null(test)) {
             message(sub("create", "creating", idxsql))
           }
@@ -103,9 +106,9 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
 				out_name, "(",  paste(indexi, collapse=","), ")")
         test <- tryCatch(
           DBI::dbExecute(dbconn, idxsql),
-		    error=function(err) {
-				message(err, "\n")
-		    } )
+		            error=function(err) {
+				          message(err, "\n")
+		            } )
         if (!is.null(test)) {
           message(sub("create", "creating", idxsql))
         }

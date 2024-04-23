@@ -7,7 +7,7 @@
 #' @rdname raster_desc
 #' @export
 getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
-	stopifnull=FALSE, gui=TRUE, quiet=FALSE){
+	stopifnull=FALSE, gui=FALSE, quiet=FALSE){
 
   #########################################################################
   ## DESCRIPTION:

@@ -21,6 +21,7 @@ savedata_options(
   append_layer = FALSE,
   add_layer = TRUE,
   layer.pre = NULL,
+  dbconn = NULL,
   ...
 )
 }
@@ -66,6 +67,8 @@ files (if *_fmt = 'csv') or *_dsn layers (if *_fmt != 'csv".}
 (if out_fmt != c('csv','shp')).}
 
 \item{layer.pre}{Layer prefix.}
+
+\item{dbconn}{Open database connection.}
 
 \item{...}{For extendibility.}
 }
