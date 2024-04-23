@@ -39,7 +39,7 @@ Imports:
     nlme,
     Rcpp,
     RColorBrewer,
-    RPostgreSQL,
+    RPostgres,
     RSQLite,
     sae,
     sf,

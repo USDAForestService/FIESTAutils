@@ -2,21 +2,43 @@
 % Please edit documentation in R/DBtestPostgreSQL.R
 \name{DBtestPostgreSQL}
 \alias{DBtestPostgreSQL}
-\title{Database - Test a SQLite database table.}
+\title{Database - Test a PostgreSQL database.}
 \usage{
-DBtestPostgreSQL(dbname, dbconnopen = TRUE)
+DBtestPostgreSQL(
+  dbname = NULL,
+  host = NULL,
+  port = NULL,
+  user = NULL,
+  password = NULL,
+  dbconnopen = FALSE,
+  showlist = TRUE,
+  ...
+)
 }
 \arguments{
-\item{dbname}{String. Name of PostgreSQL database.}
+\item{dbname}{String. Name of the database on the host.}
 
-\item{dbconnopen}{Logical. If TRUE, the dbconn connection is not closed.}
+\item{host}{String. Host name.}
+
+\item{port}{String. Port number.}
+
+\item{user}{String. User name.}
+
+\item{password}{String. Password.}
+
+\item{dbconnopen}{Logical. If TRUE, the database connection is returned and not closed.}
+
+\item{showlist}{Logical. If TRUE, prints list of tables in database.}
+
+\item{...}{Additional authentication arguments passed to DBI::dbConnect}
 }
 \value{
-An S4 object that inherits from DBIConnection via the DBI package. 
+An S4 object that inherits from DBIConnection via the DBI package if
+dbconnopen = TRUE, or NULL otherwise. 
 For more information, see `help(DBI::dbConnect)`.
 }
 \description{
-Checks a SQLite database.
+Checks a PostgreSQL database.
 }
 \author{
 Tracey S. Frescino
