@@ -30,7 +30,7 @@
 #' @param add_layer Logical. If TRUE, adds layer to an existing out_dsn 
 #' (if out_fmt != c('csv','shp')).
 #' @param layer.pre Layer prefix. 
-#' @param dbconn Open database connection.
+#' @param outconn Open database connection to save to.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for saving data.
 #' @author Grayson W. White
@@ -56,7 +56,7 @@ savedata_options <- function(outfolder = NULL,
                              append_layer = FALSE, 
                              add_layer = TRUE, 
                              layer.pre = NULL,
-                             dbconn = NULL,
+                             outconn = NULL,
                              ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
