@@ -1441,71 +1441,139 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 
 #' @rdname internal_desc
 #' @export
-checkidx <- function(dbconn, tbl=NULL, index_cols=NULL) {
+checkidx <- function(dbconn, tbl = NULL, index_cols = NULL, 
+                     datsource = "sqlite", schema = "FS_FIADB") {
   ## DESCRIPTION: checks table in database
+  ## dbconn - open database connection
+  ## tbl - one or more tables to check
+  ## index_cols - columns included in index to check
+  ## datsource - type of database connection ('sqlite', 'oracle')
+  ## schema - a schema in a database
+  
+  ## Set global variables
+  tblnm <- NULL
   
   if (is.character(dbconn)) {
     message("must check an open connection")
 	return(NULL)
   }
 
+  ## Check database connection
   if (is.null(dbconn) || !DBI::dbIsValid(dbconn)) {
     message("dbconn is not valid")
     return(NULL)
   }
   
-  index.qry <- "SELECT name, tbl_name, sql 
-                FROM sqlite_master 
-                WHERE type = 'index'"
+  ## Get dbconn information
+  dbinfo <- DBI::dbGetInfo(dbconn)
+  
+  ## Check tbl
+  ######################################################
+  ## Get list of tables
+  if (!is.null(tbl)) {
+    if (datsource == "sqlite") {
+      tablst <- DBI::dbListTables(dbconn)
+    } else {
+      qry <- paste0(
+         "SELECT DISTINCT OBJECT_NAME 
+          FROM ALL_OBJECTS
+          WHERE OBJECT_TYPE = 'TABLE'
+		  AND OWNER = 'FS_FIADB'
+		  ORDER BY OBJECT_NAME")
+      tablst <- DBI::dbGetQuery(dbconn, qry)[,1]
+    }
+  
+    ## Check tbl in database
+    tblnm <- unique(sapply(tbl, findnm, tablst, returnNULL=TRUE))
+    if (is.null(tblnm)) {
+      warning(tbl, " does not exist")
+      return(NULL)
+    }
+  }
+  
+  ## Check tbl
+  ######################################################  
+  if (datsource == "sqlite") {
+    index.qry <- paste0("SELECT name, tbl_name, sql", 
+                 "\nFROM sqlite_master",
+				 "\nWHERE type = 'index'")
+    if (!is.null(tblnm)) {
+	  index.qry <- paste(index.qry,
+	               "\n   AND tbl_name in(", addcommas(tblnm, quotes=TRUE), ")",
+				   "\nORDER BY tbl_name")
+	}
+  } else {  ## datsource != 'sqlite'
+    index.qry <- paste0("SELECT table_name, index_name", 
+	              "\nFROM all_indexes")
+				  
+	if (!is.null(schema)) {
+	  if (!is.character(schema) || length(schema) > 1) {
+	    message("schema must be a character vector of length = 1")
+		return(0)
+	  }
+	  index.qry <- paste0(index.qry,
+				  "\nWHERE table_owner = '", schema, "'")
+	
+	  indices <- tryCatch(
+	            data.table(DBI::dbGetQuery(dbconn, index.qry)),
+				error=function(e) {
+				warning(e)
+  			    return(NULL)}
+                )
+	  if (is.null(indices)) {
+	    schema.qry <- "SELECT DISTINCT table_owner FROM all_indexes"
+	    schemalst <-  DBI::dbGetQuery(dbconn, schema.qry)[,1]
+		message("schema is invalid: ", toString(schemalst))
+	  }
+	}  
+				  
+    if (!is.null(tblnm)) {
+	  if (!is.null(schema)) {
+	    index.qry <- paste0(index.qry,
+	             "\n   AND table_name in(", addcommas(tblnm, quotes=TRUE), ")",
+				 "\nORDER BY table_name")
+	  } else {
+	  	index.qry <- paste0(index.qry,
+	             "\nWHERE table_name in(", addcommas(tblnm, quotes=TRUE), ")",
+				 "\nORDER BY table_name")
+	  }
+	}			 
+  }
+  message(index.qry)
      
   indices <- DBI::dbGetQuery(dbconn, index.qry)
-  if (is.null(tbl)) {
+  if (is.null(tblnm)) {
     return(indices)
-  }
+  } 
+  
   if (nrow(indices) > 0) {
     message("checking indices in database...")
   }
 
-  tblnm <- unique(findnm(tbl, DBI::dbListTables(dbconn), returnNULL=TRUE))
-  if (is.null(tblnm)) {
-    warning(tbl, " does not exist")
-    return(NULL)
-  }
-
-  tblnm <- unique(findnm(tbl, indices$tbl_name, returnNULL=TRUE))
-  if (is.null(tblnm)) {
-    message(tbl, " has no indices in database")
-    return(NULL)
-  }
-
-  indices <- indices[indices$tbl_name == tblnm, ]
+  if (datsource == "sqlite") {
   
-  ## Add a column with index column names as character
-  ## Use strsplit(indices$cols, "\\,") to create a vector of attributes 
-  if (any(grepl(paste(tblnm, "\\("), indices$sql, ignore.case=TRUE))) {
-    idx <- indices$sql[1]
-    split1 <- strsplit(idx, paste(tblnm, "\\("))[[1]][2]
-    split2 <- strsplit(split1, "\\)")[[1]][1]
-	indices$cols <- split2
-  } else if (any(grepl(paste0(tblnm, "\\("), indices$sql, ignore.case=TRUE))) {
-    idx <- indices$sql[1]
-    split1 <- strsplit(idx, paste0(tblnm, "\\("))[[1]][2]
-    split2 <- strsplit(split1, "\\)")[[1]][1]
-	indices$cols <- split2
-  }
+  	getcols <- function(idx) {
+        split1 <- strsplit(idx, "\\(")[[1]][2]
+        split2 <- strsplit(split1, "\\)")[[1]][1]
+	    return(split2)
+		}
+	indices$cols <- sapply(indices$sql, getcols)
 
-  if (!is.null(index_cols)) {
-    index_test <- data.frame(sapply(index_cols, 
-             function(x) grepl(x, indices$sql, ignore.case=TRUE)))
-    index_test$TEST <- apply(index_test, 1, all)
-    if (!any(index_test$TEST)) {
-      message("index does not exist")
-      return(NULL)
+    if (!is.null(index_cols)) {
+      index_test <- data.frame(sapply(index_cols, 
+             function(x) grepl(x, indices$cols, ignore.case=TRUE)))
+      index_test$TEST <- apply(index_test, 1, all)
+      if (!any(index_test$TEST)) {
+        message("index does not exist")
+        return(NULL)
+      } else {
+        return(unique(indices$tbl_name[index_test$TEST]))
+      } 
     } else {
-      return(indices$name[index_test$TEST])
-    } 
+      return(indices[, c("tbl_name", "sql", "cols")])
+	}
   } else {
-    return(indices[, c("name", "sql", "cols")])
+    return(indices)
   }
 }
 
