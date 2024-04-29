@@ -5,6 +5,7 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/FIESTAutils)](https://CRAN.R-project.org/package=FIESTAutils)
 [![cran checks](https://badges.cranchecks.info/worst/FIESTAutils.svg)](https://cran.r-project.org/web/checks/check_results_FIESTAutils.html)
+[![r-universe badge](https://usdaforestservice.r-universe.dev/badges/FIESTAutils)](https://usdaforestservice.r-universe.dev/FIESTAutils)
 <!-- badges: end -->
 
 # FIESTAutils
