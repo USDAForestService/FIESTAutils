@@ -1316,7 +1316,8 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         df_out <- df_out[!is.na(df_out$value),]
     }
     if (!is.null(ignoreValue)) {
-        df_out <- subset(df_out, !(value %in% ignoreValue))
+        df_out <- df_out[!(df_out$value %in% ignoreValue), ]
+        #df_out <- subset(df_out, !(value %in% ignoreValue))
         #df_out <- df_out[(df_out$value != ignoreValue),]
     }
     if (!is.null(aggfun)) {

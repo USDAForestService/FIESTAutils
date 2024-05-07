@@ -244,7 +244,13 @@ customEvalchk(
   gui = FALSE
 )
 
-checkidx(dbconn, tbl = NULL, index_cols = NULL)
+checkidx(
+  dbconn,
+  tbl = NULL,
+  index_cols = NULL,
+  datsource = "sqlite",
+  schema = "FS_FIADB"
+)
 
 createidx(dbconn, tbl, index_cols, unique = FALSE)
 
