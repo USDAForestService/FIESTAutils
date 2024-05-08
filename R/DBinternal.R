@@ -1442,7 +1442,8 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 #' @rdname internal_desc
 #' @export
 checkidx <- function(dbconn, tbl = NULL, index_cols = NULL, 
-                     datsource = "sqlite", schema = "FS_FIADB") {
+                     datsource = "sqlite", schema = "FS_FIADB",
+					 dbconnopen = TRUE) {
   ## DESCRIPTION: checks table in database
   ## dbconn - open database connection
   ## tbl - one or more tables to check
@@ -1484,10 +1485,11 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
     }
   
     ## Check tbl in database
-    tblnm <- unique(sapply(tbl, findnm, tablst, returnNULL=TRUE))
+    tblnm <- unique(unlist(sapply(tbl, findnm, tablst, returnNULL=TRUE)))
     if (is.null(tblnm)) {
       warning(tbl, " does not exist")
-      return(NULL)
+	  message("tables in database: ", toString(tablst))
+      return(0)
     }
   }
   
@@ -1528,6 +1530,9 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
 	}  
 				  
     if (!is.null(tblnm)) {
+print("TEST")
+print(tblnm)
+print(addcommas(tblnm, quotes=TRUE))
 	  if (!is.null(schema)) {
 	    index.qry <- paste0(index.qry,
 	             "\n   AND table_name in(", addcommas(tblnm, quotes=TRUE), ")",
@@ -1575,11 +1580,15 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
   } else {
     return(indices)
   }
+  if (!dbconnopen) {
+    DBI::dbDisconnect(dbconn)
+  }
+
 }
 
 #' @rdname internal_desc
 #' @export
-createidx <- function(dbconn, tbl, index_cols, unique=FALSE) {
+createidx <- function(dbconn, tbl, index_cols, unique=FALSE, dbconnopen=TRUE) {
   ## DESCRIPTION: create index
 
   if (is.character(dbconn)) {
@@ -1611,6 +1620,10 @@ createidx <- function(dbconn, tbl, index_cols, unique=FALSE) {
 		    } )
   if (!is.null(test)) {
     message(sub("create", "creating", idxsql))
+  }
+  
+  if (!dbconnopen) {
+    DBI::dbDisconnect(dbconn)
   }
 }
 

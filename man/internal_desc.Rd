@@ -249,10 +249,11 @@ checkidx(
   tbl = NULL,
   index_cols = NULL,
   datsource = "sqlite",
-  schema = "FS_FIADB"
+  schema = "FS_FIADB",
+  dbconnopen = TRUE
 )
 
-createidx(dbconn, tbl, index_cols, unique = FALSE)
+createidx(dbconn, tbl, index_cols, unique = FALSE, dbconnopen = TRUE)
 
 dbclassify(
   dbconn,
