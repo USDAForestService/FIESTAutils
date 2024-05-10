@@ -78,6 +78,8 @@
 \alias{groupUnits}
 \alias{internal_desc}
 \alias{getjoinqry}
+\alias{classqry}
+\alias{classifyqry}
 \alias{save1tab}
 \alias{save2tabs}
 \alias{strat.collapse}
@@ -556,6 +558,16 @@ groupUnits(
 )
 
 getjoinqry(joinid1, joinid2, alias1 = "p.", alias2 = "plta.")
+
+classqry(classcol, fromval, toval, classnm = NULL, NAto0 = TRUE)
+
+classifyqry(
+  classcol,
+  cutbreaks,
+  cutlabels = NULL,
+  classnm = NULL,
+  NAto0 = FALSE
+)
 
 save1tab(
   tab,

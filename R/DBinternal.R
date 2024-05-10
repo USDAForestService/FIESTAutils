@@ -1712,7 +1712,7 @@ dbclassify <- function(dbconn,
   for (i in 1:(length(cutbreaks)-1)) {    
     classify2.qry <- paste(classify2.qry, 
                          "\n  WHEN", classcol, ">=", cutbreaks[i], "AND", 
-                              xvar, "<", cutbreaks[i+1], "THEN", 
+                              classcol, "<", cutbreaks[i+1], "THEN", 
                               paste0("'", cutlabels[i], "'"))
   }
   classify.qry <- paste0(classify1.qry, classify2.qry, " END)")

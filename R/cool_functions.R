@@ -407,7 +407,8 @@ getnm <- function (xvar, group=FALSE) {
 checknm <- function(nm, nmlst, ignore.case=TRUE) {
   ## if nm already exists in nmlst, change nm to nm_*
   i <- 0
-  while (any(grepl(paste0("^",nm,"&"), nmlst, ignore.case=ignore.case))) {
+  while (any(grepl(paste0("^",nm,"&"), nmlst, ignore.case=ignore.case)) || 
+                    any(grepl(paste0("^",nm), nmlst, ignore.case=ignore.case))) {
   #while (nm %in% nmlst) {
     i <- i + 1
     nm <- paste(nm, 1, sep="_")
