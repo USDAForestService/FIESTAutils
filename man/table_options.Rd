@@ -13,6 +13,8 @@ table_options(
   col.add0 = FALSE,
   rowlut = NULL,
   collut = NULL,
+  row.classify = NULL,
+  col.classify = NULL,
   rawonly = FALSE,
   raw.keep0 = FALSE,
   rowgrp = FALSE,
@@ -67,6 +69,14 @@ format).}
 \item{collut}{Data frame. A lookup table with variable codes and code names
 to include as columns of output table (See notes for more information and
 format).}
+
+\item{row.classify}{Data frame (if categorical) or Vector (if continuous). 
+If clasifying categories, input a dataframe with two columns ('FROM' and 'TO').
+If classifying continuous values, input a vector of class breaks for row}
+
+\item{col.classify}{Data frame (if categorical) or Vector (if continuous). 
+If clasifying categories, input a dataframe with two columns ('FROM' and 'TO').
+If classifying continuous values, input a vector of class breaks for column}
 
 \item{rawonly}{Logical. If TRUE, only rawdata are output. If dataset
 includes many estimation units, and only raw data tables are desired, it is

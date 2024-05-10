@@ -35,6 +35,14 @@
 #' @param collut Data frame. A lookup table with variable codes and code names
 #' to include as columns of output table (See notes for more information and
 #' format).
+#' @param row.classify Data frame (if categorical) or Vector (if continuous). 
+#' If clasifying categories, input a dataframe with two columns ('FROM' and 'TO').
+#' If classifying continuous values, input a vector of class breaks for row
+#. values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50), >=50 (50+)).
+#' @param col.classify Data frame (if categorical) or Vector (if continuous). 
+#' If clasifying categories, input a dataframe with two columns ('FROM' and 'TO').
+#' If classifying continuous values, input a vector of class breaks for column
+#. values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50), >=50 (50+)).
 #' @param rawonly Logical. If TRUE, only rawdata are output. If dataset
 #' includes many estimation units, and only raw data tables are desired, it is
 #' more efficient to output raw data only.
@@ -70,12 +78,17 @@
 #'
 #' @export table_options
 
-table_options <- function(row.FIAname=FALSE, col.FIAname=FALSE, row.orderby=NULL,
-                          col.orderby=NULL, row.add0=FALSE, col.add0=FALSE,
-                          rowlut=NULL, collut=NULL, rawonly=FALSE, raw.keep0=FALSE,
-                          rowgrp=FALSE, rowgrpnm=NULL, rowgrpord=NULL,
-                          totals=TRUE, allin1=FALSE, metric=FALSE, estround=1, pseround=2,
-                          estnull="--", psenull="--", divideby=NULL, ...) {
+table_options <- function(row.FIAname = FALSE, col.FIAname = FALSE, 
+                          row.orderby = NULL, col.orderby = NULL, 
+						  row.add0 = FALSE, col.add0 = FALSE,
+                          rowlut = NULL, collut =NULL, 
+						  row.classify = NULL, col.classify = NULL, 
+						  rawonly = FALSE, raw.keep0 = FALSE,
+                          rowgrp = FALSE, rowgrpnm = NULL, rowgrpord = NULL,
+                          totals = TRUE, allin1 = FALSE, metric = FALSE, 
+						  estround = 1, pseround = 2,
+                          estnull="--", psenull="--", 
+						  divideby=NULL, ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(table_options)))
