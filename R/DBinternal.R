@@ -1530,9 +1530,6 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
 	}  
 				  
     if (!is.null(tblnm)) {
-print("TEST")
-print(tblnm)
-print(addcommas(tblnm, quotes=TRUE))
 	  if (!is.null(schema)) {
 	    index.qry <- paste0(index.qry,
 	             "\n   AND table_name in(", addcommas(tblnm, quotes=TRUE), ")",
