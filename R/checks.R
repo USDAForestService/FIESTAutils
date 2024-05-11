@@ -274,6 +274,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	if (length(grept) > 0) {
 	  if (syntax == "SQL") {
 	    message("syntax is R")
+		statement <- RtoSQL(statement)
 	  }
 	  syntax <- "R"
 	} 
@@ -301,7 +302,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
         statement <- gsub("\\|\\|", "\\|", statement)
       }
 	}
-	
+
     ## Check parentheses
     paren.left <- sum(attr(gregexpr("\\(", statement)[[1]], "match.length") > 0)
     paren.right <- sum(attr(gregexpr("\\)", statement)[[1]], "match.length") > 0)
@@ -328,8 +329,8 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	} else {
       andnm <- "^and$"
 	  ornm <- "^or$"
-      andnm <- ifelse(grepl("and", statement), "and", "AND")
-      ornm <- ifelse(grepl("or", statement), "or", "OR")	  
+      andnm <- ifelse(grepl(" and ", statement), " and ", " AND ")
+      ornm <- ifelse(grepl(" or ", statement), " or ", " OR ")	  
 	}
 
     if (grepl(andnm, statement) && grepl(ornm, statement)) {
@@ -362,7 +363,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       }	  
 	  
     } else if (grepl(andnm, statement) || grepl(ornm, statement)) {
-
+	
       ## Split AND/OR parts 
       if (grepl(andnm, statement)) {
         parts <- trimws(unlist(strsplit(statement, andnm)[[1]]))
@@ -377,6 +378,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       chkparts <- sapply(parts, chkpartnm, x, logic.chars, returnvar)
 
 	} else {
+	
 	  chkparts <- chkpartnm(statement, x, logic.chars, returnvar)
 	}
 
