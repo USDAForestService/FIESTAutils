@@ -130,7 +130,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	returnpart = FALSE){
   ## DESCRIPTION: checks logical statement
   ## ARGUMENTS"
-  ## x 	- data frame to check column names
+  ## x 	- data frame or vector of field names to check column names
   ## statement - logical statement
   ## filternm  - name to use in messages
   ## stopifnull - if statement=NULL, stop
@@ -145,6 +145,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 
   ## Set global variables
   ignore.case <- TRUE
+  syntax <- toupper(syntax)
 
   ## Define function to check names
   chkpartnm <- function(part, x, logic.chars, returnvar = FALSE) {
@@ -240,7 +241,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   if (syntax == "R") {
     logic.chars.diff <- SQLlogic.chars.diff
     logic.chars <- Rlogic.chars
-  } else if (syntax %in% c("sql", "SQL")) {
+  } else if (syntax == "SQL") {
     logic.chars.diff <- Rlogic.chars.diff
     logic.chars <- SQLlogic.chars
   }
@@ -271,18 +272,21 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 		          function(x, statement){grepl(x, statement, ignore.case=TRUE)}, statement))]
 				  
 	if (length(grept) > 0) {
+	  if (syntax == "SQL") {
+	    message("syntax is R")
+	  }
 	  syntax <- "R"
 	} 
     if (grepl("&", statement, ignore.case=TRUE) || grepl("\\|", statement, ignore.case=TRUE)) {
       syntax <- "R"
     } else if (grepl(" and ", statement, ignore.case=TRUE) || grepl(" or ", statement, ignore.case=TRUE)) {
-      syntax <- "sql"
+      syntax <- "SQL"
     }	  
 	
     ## Define potential characters in logical statement
     if (syntax == "R") {
       logic.chars <- Rlogic.chars
-    } else if (syntax %in% c("sql", "SQL")) {
+    } else if (syntax == "SQL") {
       logic.chars <- SQLlogic.chars
     }
 	if (syntax == "R") {
