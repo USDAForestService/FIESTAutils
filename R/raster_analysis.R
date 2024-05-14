@@ -1094,7 +1094,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                        na.rm=TRUE, ignoreValue=NULL) {
     ## zoneid, npixels, mean, min, max, sum, var, sd
 
-    ds <- new(GDALRaster, rasterfile)
+    ds <- new(GDALRaster, rasterfile, read_only = TRUE)
     nrows <- ds$getRasterYSize()
     ncols <- ds$getRasterXSize()
     gt <- ds$getGeoTransform()
