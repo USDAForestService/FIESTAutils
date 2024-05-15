@@ -427,25 +427,25 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
   ## var2 - if the matching variable is named different
   ## tab1txt - text for table 1
   ## tab2txt - text for table 2
-
-
+  
+  
   ## Define function
   unAsIs <- function(X) {
-     ## Description: removes AsIs from class
-     if ("AsIs" %in% class(X) && !any(c("sfc_POINT", "sfc") %in% class(X))) {
-         class(X) <- class(X)[-match("AsIs", class(X))]
-     }
-     X
+    ## Description: removes AsIs from class
+    if ("AsIs" %in% class(X) && !any(c("sfc_POINT", "sfc") %in% class(X))) {
+      class(X) <- class(X)[-match("AsIs", class(X))]
+    }
+    X
   }
-
+  
   tab1 <- pcheck.table(tab1)
   tab2 <- pcheck.table(tab2)
-
+  
   if (is.null(tab1txt)) tab1txt <- "tab1"
   if (is.null(tab2txt)) tab2txt <- "tab2"
-
+  
   if (is.null(tab1) || is.null(tab2)) stop("invalid tables")
- 
+  
   if (length(matchcol) > 1 && !all(matchcol %in% names(tab1))) {
     nomatch <- matchcol[which(!matchcol %in% names(tab1))]
     stop(paste(toString(nomatch), "not in", tab1txt))
@@ -454,7 +454,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
     stop(paste(toString(matchcol), "not in", tab2txt))
   if (!is.null(var2) && any(!var2 %in% names(tab2)))
     stop(paste(var2, "not in", tab2txt))
-
+  
   if (is.data.table(tab1)) {
     tab1key <- key(tab1)
     setkey(tab1, NULL)
@@ -463,12 +463,12 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
     tab2key <- key(tab2)
     setkey(tab2, NULL)
   }
-
+  
   if (!is.null(var2)) {
     #if (length(matchcol) > 1) stop("only 1 matchcol allowed if different names")
     if (length(matchcol) > length(var2)) stop("number of vars in matchcol different than vars2")
   }
-
+  
   for (i in 1:length(matchcol)) {
     v <- matchcol[i]
     if (!is.null(var2)) {
@@ -489,10 +489,10 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
       }
     } else if (inherits(tab1[[v1]], what = "factor")) {
       v1levels <- levels(tab1[[v1]])
-	  if (!all(unique(tab2[[v2]]) %in% v1levels)) {
-	    misslevel <- unique(tab2[[v2]])[!unique(tab2[[v2]]) %in% v1levels]
-		message("missing level values: ", toString(misslevel), "... returning NA factor values")
-	  }
+      if (!all(unique(tab2[[v2]]) %in% v1levels)) {
+        misslevel <- unique(tab2[[v2]])[!unique(tab2[[v2]]) %in% v1levels]
+        message("missing level values: ", toString(misslevel), "... returning NA factor values")
+      }
       if (all(v1levels %in% tab2[[v2]])) {
         tab2[[v2]] <- factor(tab2[[v2]], levels=v1levels)
       } else {
@@ -502,19 +502,19 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
     } else if (inherits(tab2[[v2]], what = "factor")) {
       tab2[[v2]] <- as.character(tab2[[v2]])
     }
-
+    
     #tab1 <- tab1[, lapply(.SD, unAsIs)]
     #tab2 <- tab2[, lapply(.SD, unAsIs)]
     tab1[,] <- lapply(tab1[,], unAsIs)
     tab2[,] <- lapply(tab2[,], unAsIs)
-
+    
     tab1.class <- class(tab1[[v1]])
     tab2.class <- class(tab2[[v2]])
-
+    
     ## coercion order: logical-integer-numeric-complex-character
     coerce.order <- c("logical", "integer", "integer64", "numeric", "complex", "character")
     tab.order <- na.omit(match(c(tab1.class, tab2.class), coerce.order))
-
+  
     if (length(tab.order) == 2) {
       if (tab.order[1] < tab.order[2]) {
         if (coerce.order[tab.order[2]] == "integer64") {
@@ -542,14 +542,15 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
       class(tab2[[v2]]) <- tab1.class
     }
   }
-
+  
   if (is.data.table(tab1))
     setkeyv(tab1, tab1key)
   if (is.data.table(tab2))
     setkeyv(tab2, tab2key)
-
+  
   return(list(tab1=tab1, tab2=tab2))
 }
+
 
 #' @rdname checks_desc
 #' @export
