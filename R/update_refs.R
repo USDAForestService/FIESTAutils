@@ -1,3 +1,8 @@
+#' @title Updates reference tables
+#' 
+#' @param write Logical. Should the internal reference tables be overwritten?
+#' @return No return value. Called for side effects.
+#' @author Josh Yamamoto
 #' @export
 .update_refs <- function(write = FALSE) {
   
