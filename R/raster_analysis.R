@@ -735,7 +735,7 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
             message("'maskByPolygons' not available for clipping to VRT")
         }
 
-        return(invisible(rasterToVRT(srcfile = srcfile,
+        return(invisible(gdalraster::rasterToVRT(srcfile = srcfile,
                                      vrtfile = dstfile,
                                      subwindow = sf::st_bbox(src))))
     }
@@ -1110,6 +1110,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
     # list of RunningStats objects for the zones
     rs_list <- list()
+    
     for (z in zoneid) {
         rs_list[[z]] <- new(RunningStats, na_rm_in=na.rm)
     }
