@@ -108,6 +108,32 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
 
     return(est.unit)
   }
+  
+  if (SApackage == "spAbundance") {
+    y <- pltdat.unit[[yn]]
+    X <- model.matrix(fmla.dom.unit[-2], pltdat.unit)
+    covs <- list()
+    for (i in 1:(ncol(X) - 1)) {
+      covs[[i]] <- X[,i+1]
+    }
+    names(covs) <- colnames(X)[-1]
+    
+    dat.list <- list(
+      y = y,
+      covs = covs
+    )
+    
+    mod <- spAbundance::abund(formula = fmla.dom.unit[-2], 
+                              data = dat.list,
+                              family = "Gaussian",
+                              n.batch = 4, 
+                              batch.length = 250,
+                              n.chains = 4, 
+                              n.thin = 20,
+                              n.burn = 500)
+    
+    return(mod)
+  }
 }
 
 #' @rdname estimation_desc
