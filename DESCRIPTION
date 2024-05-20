@@ -43,6 +43,7 @@ Imports:
     RSQLite,
     sae,
     sf,
+    spAbundance,
     sqldf, 
     stats,
     terra,
