@@ -28,6 +28,7 @@ SABest.fit <- function(fmla.dom.unit,
     if (model == "dvc" && length(dvcs) != 0) {
       # domain varying coefficients and possibly intercepts i.e (tcc | domain)
       # start by assuming a vector of dvc is passed
+      dvcs <- c("1", dvcs)
       dvc.term <- reformulate(c(".", paste0("(", dvcs, "|", dunitvar, ")")))
       fmla.abund <- update.formula(fmla.dom.unit[-2], dvc.term)
     }
