@@ -1,8 +1,10 @@
 #' @rdname estimation_desc
 #' @export
-SABest.unit <- function(fmla.dom.unit, 
+SABest.fit <- function(fmla.dom.unit, 
                         pltdat.dom,
                         yn,
+                        dunitvar,
+                        dvcs,
                         model.form) {
   pltdat.unit <- data.frame(pltdat.dom)
   if (SApackage == "spAbundance") {
@@ -15,28 +17,28 @@ SABest.unit <- function(fmla.dom.unit,
       y = y,
       covs = covs
     )
-  
     if (model == "lm") {
-
+      fmla.abund <- fmla.dom.unit[-2]
     }
-    
     if (model == "dvi") {
-      
+      # add domain varying intercept term based on dunitvar
+      dvi.term <- reformulate(c(".", paste0("(1 | ", dunitvar, ")")))
+      fmla.abund <- update.formula(fmla.dom.unit[-2], dvi.term)
     }
-    
-    if (model == "dvc") {
-      
+    if (model == "dvc" && length(dvcs) != 0) {
+      # domain varying coefficients and possibly intercepts i.e (tcc | domain)
+      # start by assuming a vector of dvc is passed
+      dvc.term <- reformulate(c(".", paste0("(", dvcs, "|", dunitvar, ")")))
+      fmla.abund <- update.formula(fmla.dom.unit[-2], dvc.term)
     }
-    
     if (model == "svi") {
       
     }
-    
     if (model == "svc") {
       
     }
     
-    mod <- spAbundance::abund(formula = fmla.dom.unit[-2], 
+    mod <- spAbundance::abund(formula = fmla.abund, 
                               data = dat.list,
                               family = "Gaussian",
                               n.batch = 4, 
@@ -48,4 +50,5 @@ SABest.unit <- function(fmla.dom.unit,
 
   
   return(mod)
+  }
 }
