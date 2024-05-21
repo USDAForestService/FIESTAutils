@@ -4,6 +4,7 @@ SABest.fit <- function(fmla.dom.unit,
                        pltdat.dom,
                        yn,
                        dunitvar,
+                       pltassgn,
                        dvcs = NULL,
                        svcs = NULL,
                        model.form = "lm") {
@@ -15,13 +16,13 @@ SABest.fit <- function(fmla.dom.unit,
   X <- model.matrix(fmla.dom.unit[-2], pltdat.unit)[,-1]
   covs <- split(X, col(X))
   names(covs) <- colnames(X)
-
-  dat.list <- list(
-    y = y,
-    covs = covs
-  )
   
   if (model.form %in% c("lm", "dvi", "dvc")) {
+    
+    dat.list <- list(
+      y = y,
+      covs = covs
+    )
     
     if (model.form == "lm") {
       fmla.abund <- fmla.dom.unit[-2]
@@ -52,16 +53,47 @@ SABest.fit <- function(fmla.dom.unit,
     
   } else if (model.form %in% c("svi", "svc")) {
     
-    if (model.form == "svi") {
+    fmla.svcAbund <- fmla.dom.unit[-2]
     
+    dat.list <- list(
+      y = y,
+      covs = covs,
+      coords = samp_coords # need to fix here, currently hardcoded
+    )
+    
+    dist.mat <- dist(dat.list$coords)
+    min.dist <- min(dist.mat)
+    max.dist <- max(dist.mat)
+    priors <- list(
+      sigma.sq.ig = list(a = 2, b = 1),
+      phi.unif = list(a = 3 / max.dist, b =  3 / min.dist)
+    )
+    
+    if (model.form == "svi") {
+      svcs <- "(Intercept)"
     }
     
     if (model.form == "svc") {
-      
+
     }
     
-    # use svcAbund here
-    # with svc.cols argument
+    inits <- list(
+      phi = 3 / mean(dist.mat),
+      w = matrix(data = 0, nrow = length(svcs), ncol = length(dat.list$y)),
+      sigma.sq = 1
+    )
+    
+    mod <- svcAbund(formula = fmla.svcAbund,
+                    data = dat.list,
+                    inits = inits,
+                    priors = priors,
+                    svc.cols = svcs,
+                    family = "Gaussian",
+                    n.batch = 4, 
+                    batch.length = 250,
+                    n.chains = 4, 
+                    n.thin = 20,
+                    n.burn = 500)
     
   } else {
     stop("")
