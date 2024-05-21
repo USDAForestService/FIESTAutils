@@ -29,19 +29,19 @@ SABest.fit <- function(fmla.dom.unit,
     }
     
     if (model.form == "dvi") {
-      # add domain varying intercept term based on dunitvar
       dvi.term <- reformulate(c(".", paste0("(1 | ", dunitvar, ")")))
       fmla.abund <- update.formula(fmla.dom.unit[-2], dvi.term)
     }
     
-    if (model.form == "dvc" && length(dvcs) != 0) {
-      # domain varying coefficients and possibly intercepts i.e (tcc | domain)
-      # start by assuming a vector of dvc is passed
+    if (model.form == "dvc") {
+      if (length(dvcs) == 0) {
+        stop("Must supply dvcs if model.form is set to dvc")
+      }
       dvcs <- c("1", dvcs)
       dvc.term <- reformulate(c(".", paste0("(", dvcs, "|", dunitvar, ")")))
       fmla.abund <- update.formula(fmla.dom.unit[-2], dvc.term)
-    }
-    
+    } 
+     
     mod <- spAbundance::abund(formula = fmla.abund, 
                               data = dat.list,
                               family = "Gaussian",
@@ -74,7 +74,10 @@ SABest.fit <- function(fmla.dom.unit,
     }
     
     if (model.form == "svc") {
-
+      if (length(svcs) == 0) {
+        stop("Must supply svcs if model.form is svc")
+      }
+      svcs <- c("(Intercept)", svcs)
     }
     
     inits <- list(
@@ -100,4 +103,5 @@ SABest.fit <- function(fmla.dom.unit,
   }
 
   return(mod)
+  
 }
