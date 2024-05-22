@@ -1374,28 +1374,40 @@ zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 #' @rdname raster_desc
 #' @export
 zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
-                         rasterfiles, predfun = NULL) {
+                       rasterfiles, predfun = NULL) {
 
     if (is.null(src))
         src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
     else if (!is(src, "sf"))
         stop("'src' must be a polygon layer as 'sf' object")
 
+    # will this be provided as a numeric id always?
     zoneid <- unique(as.character(src[[attribute]]))
 
-    # for now assume all predictor layers have same extent and cell size
+    # all predictor layers should have same extent and cell size
     ds <- new(GDALRaster, rasterfiles[1], read_only = TRUE)
     nrows <- ds$getRasterYSize()
     ncols <- ds$getRasterXSize()
     gt <- ds$getGeoTransform()
     xmin <- ds$bbox()[1]
     ymax <- ds$bbox()[4]
+    ds$close()
 
-    nraster <- length(rasterfiles)
     # list of raster datasets
+    nraster <- length(rasterfiles)
     ds_list <- list()
     for (i in seq.int(1, nraster)) {
-        ds_list[[i]] <- new(GDALRaster, rasterfiles[i])
+        ds_list[[i]] <- new(GDALRaster, rasterfiles[i], read_only = TRUE)
+        if (ds_list[[i]]$getRasterYSize() != nrows ||
+                ds_list[[i]]$getRasterXSize() != ncols) {
+
+            for (j in seq.int(1, i)) {
+                ds_list[[j]]$close()
+            } 
+            message(rasterfiles[i])
+            stop("all input rasters must have the same extent",
+                 call. = FALSE)
+        }
     }
 
     # list of RunningStats objects for the zones
@@ -1412,18 +1424,19 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         m <- matrix(NA_integer_,
                     nrow = (xoff2 - xoff1) + 1,
                     ncol = nraster + 1)
-        # TODO(ctoney): currently assuming attrib_value is a numeric zoneid
+        # TODO(ctoney): use burn_value for the numeric zoneid
+        #               currently assuming attrib_value is an integer zoneid
         #               this can be changed to use burn_value for pass-thru,
-        #               then attrib_value could be alpha
-        m[, 1] <- attrib_value
+        #               then attrib_value can be string, which it is
+        m[, 1] <- as.integer(attrib_value)
         for (i in seq.int(1, nraster)) {
-            m[, i + 1] <- ds_list[[i]]$read(band = 1,
-                                            xoff = xoff1,
-                                            yoff = yoff,
-                                            xsize = (xoff2 - xoff1) + 1,
-                                            ysize = 1,
-                                            out_xsize = (xoff2 - xoff1) + 1,
-                                            out_ysize = 1)
+            m[, i+1] <- ds_list[[i]]$read(band = 1,
+                                          xoff = xoff1,
+                                          yoff = yoff,
+                                          xsize = (xoff2 - xoff1) + 1,
+                                          ysize = 1,
+                                          out_xsize = (xoff2 - xoff1) + 1,
+                                          out_ysize = 1)
         }
 
         # call predfun
