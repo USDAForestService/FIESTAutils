@@ -1373,8 +1373,17 @@ zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
 
 #' @rdname raster_desc
 #' @export
-zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
-                       rasterfiles, predfun = NULL) {
+zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
+                       helperidfld = NULL, rasterfiles, prednames,
+                       predfun, xy = FALSE, nMCMC = 100) {
+
+# 'zoneidfld' - attribute of the polygon layer that identifies zones to predict
+# on (values coerced to character).
+# 'helperidfld' - optional attribute of the polygon layer that identifies helper
+# polygon id (integer IDs)
+# If both 'zoneidfld' and 'helperidfld' are used, it is expected that the
+# polygon layer resulted from an intersection or GIS union of the zone polygon
+# layer and helper polygon layer.
 
     if (is.null(src))
         src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
@@ -1382,7 +1391,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         stop("'src' must be a polygon layer as 'sf' object")
 
     # will this be provided as a numeric id always?
-    zoneid <- unique(as.character(src[[attribute]]))
+    zoneid <- unique(as.character(src[[zoneidfld]]))
 
     # all predictor layers should have same extent and cell size
     ds <- new(GDALRaster, rasterfiles[1], read_only = TRUE)
@@ -1414,7 +1423,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     rs_list <- list()
     for (z in zoneid) {
         rs_list[[z]] <- list()
-        for (i in seq.int(1, 100)) {
+        for (i in seq.int(1, nMCMC)) {
             rs_list[[z]][[i]] <- new(RunningStats, na_rm=FALSE)
         }
     }
@@ -1424,13 +1433,10 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         m <- matrix(NA_integer_,
                     nrow = (xoff2 - xoff1) + 1,
                     ncol = nraster + 1)
-        # TODO(ctoney): use burn_value for the numeric zoneid
-        #               currently assuming attrib_value is an integer zoneid
-        #               this can be changed to use burn_value for pass-thru,
-        #               then attrib_value can be string, which it is
-        m[, 1] <- as.integer(attrib_value)
+        # TODO: handle helperidfld as NULL throughout
+        names(m) <- c(prednames, helperidfld)
         for (i in seq.int(1, nraster)) {
-            m[, i+1] <- ds_list[[i]]$read(band = 1,
+            m[, i] <- ds_list[[i]]$read(band = 1,
                                           xoff = xoff1,
                                           yoff = yoff,
                                           xsize = (xoff2 - xoff1) + 1,
@@ -1438,12 +1444,26 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                                           out_xsize = (xoff2 - xoff1) + 1,
                                           out_ysize = 1)
         }
+        # TODO: if helperidfld not NULL
+        m[, nraster + 1] <- as.integer(burn_value) 
+        
+        if (xy) {
+            m_xy <- matrix(NA_real_, nrow = (xoff2 - xoff1) + 1, ncol = 2)
+            # TODO: xy
+            m_xy[, 1] <- # x
+            m_xy[, 2] <- # y
+        } else {
+            xy <- NULL
+        }
 
         # call predfun
-        # ...
+        preds <- predfun(m, xy)
         # update rs objects
-        # for (i in seq.int(1, 100)) {
-        #     rs_list[[attrib_value]][[i]]$update(x)
+        # attrib_value from zoneidfld
+        for (i in seq_len(nMCMC))
+            preds[, i] |> rs_list[[attrib_value]][[i]]$update()
+            
+            
         return()
     }
 
@@ -1455,7 +1475,8 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     pb <- utils::txtProgressBar(min = 0, max = nrow(src))
 
     for (i in seq_len(nrow(src))) {
-        this_attr <- as.character(src[[attribute]][i])
+        this_zoneid <- as.character(src[[zoneidfld]][i])
+        this_helperid <- as.character(src[[helperidfld]][i])
         coords <- src[i, geom_col] |> sf::st_coordinates()
         parts <- numeric(0)
         part_sizes <- numeric(0)
@@ -1484,15 +1505,14 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                           gt_pixel_size = gt[6])
 
         RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
-                         readRaster, NA, this_attr)
+                         readRaster, this_helperid, this_zoneid)
 
         utils::setTxtProgressBar(pb, i)
     }
 
     close(pb)
 
-    # collect info from RunningStats objects and make a data frame of
-    # zone ids and prediction info
+    # make a data frame of zone ids and nMCMC columns of rs$get_mean()
     # ...
 
 
