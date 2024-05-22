@@ -4,9 +4,11 @@ SABest.fit <- function(fmla.dom.unit,
                        pltdat.dom,
                        yn,
                        dunitvar,
+                       coord.names = c("X", "Y"),
                        dvcs = NULL,
                        svcs = NULL,
-                       model.form = "lm") {
+                       model.form = "lm",
+                       ncores = 1) {
   
   pltdat.unit <- data.frame(pltdat.dom)
   
@@ -22,6 +24,11 @@ SABest.fit <- function(fmla.dom.unit,
       y = y,
       covs = covs
     )
+    
+    if (model.form %in% c("dvi", "dvc")) {
+      pltdat.dom[[dunitvar]] <- as.numeric(factor(pltdat.dom[[dunitvar]])) 
+      dat.list$covs[[dunitvar]] <- pltdat.dom[[dunitvar]]
+    }
     
     if (model.form == "lm") {
       fmla.abund <- fmla.dom.unit[-2]
@@ -45,19 +52,22 @@ SABest.fit <- function(fmla.dom.unit,
                               data = dat.list,
                               family = "Gaussian",
                               n.batch = 4, 
-                              batch.length = 250,
+                              batch.length = 500,
                               n.chains = 4, 
-                              n.thin = 20,
-                              n.burn = 500)
+                              n.thin = 40,
+                              n.burn = 1000,
+                              n.omp.threads = ncores)
     
   } else if (model.form %in% c("svi", "svc")) {
     
     fmla.svcAbund <- fmla.dom.unit[-2]
     
+    samp_coords <- as.matrix(pltdat.dom[,coord.names])
+    
     dat.list <- list(
       y = y,
       covs = covs,
-      coords = samp_coords # need to fix here, currently hardcoded
+      coords = samp_coords 
     )
     
     dist.mat <- dist(dat.list$coords)
@@ -85,17 +95,21 @@ SABest.fit <- function(fmla.dom.unit,
       sigma.sq = 1
     )
     
-    mod <- svcAbund(formula = fmla.svcAbund,
-                    data = dat.list,
-                    inits = inits,
-                    priors = priors,
-                    svc.cols = svcs,
-                    family = "Gaussian",
-                    n.batch = 4, 
-                    batch.length = 250,
-                    n.chains = 4, 
-                    n.thin = 20,
-                    n.burn = 500)
+    mod <- spAbundance::svcAbund(
+      formula = fmla.svcAbund,
+      data = dat.list,
+      inits = inits,
+      priors = priors,
+      svc.cols = svcs,
+      family = "Gaussian",
+      n.batch = 4,
+      batch.length = 2500,
+      n.chains = 4, 
+      n.thin = 40,
+      n.burn = 1000,
+      n.neighbors = 10,
+      n.omp.threads = ncores
+    )
     
   } else {
     stop("")
