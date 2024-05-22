@@ -26,8 +26,8 @@ SABest.fit <- function(fmla.dom.unit,
     )
     
     if (model.form %in% c("dvi", "dvc")) {
-      pltdat.dom[[dunitvar]] <- as.numeric(factor(pltdat.dom[[dunitvar]])) 
-      dat.list$covs[[dunitvar]] <- pltdat.dom[[dunitvar]]
+      pltdat.unit[[dunitvar]] <- as.numeric(factor(pltdat.unit[[dunitvar]])) 
+      dat.list$covs[[dunitvar]] <- pltdat.unit[[dunitvar]]
     }
     
     if (model.form == "lm") {
@@ -62,7 +62,7 @@ SABest.fit <- function(fmla.dom.unit,
     
     fmla.svcAbund <- fmla.dom.unit[-2]
     
-    samp_coords <- as.matrix(pltdat.dom[,coord.names])
+    samp_coords <- as.matrix(pltdat.unit[,coord.names])
     
     dat.list <- list(
       y = y,
@@ -103,11 +103,12 @@ SABest.fit <- function(fmla.dom.unit,
       svc.cols = svcs,
       family = "Gaussian",
       n.batch = 4,
-      batch.length = 2500,
-      n.chains = 4, 
-      n.thin = 40,
+      batch.length = 500,
+      n.chains = 2, 
+      n.thin = 20,
       n.burn = 1000,
       n.neighbors = 10,
+      n.report = 5,
       n.omp.threads = ncores
     )
     
