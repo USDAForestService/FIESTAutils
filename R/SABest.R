@@ -4,7 +4,6 @@ SABest.fit <- function(fmla.dom.unit,
                        pltdat.dom,
                        yn,
                        dunitvar,
-                       pltassgn,
                        dvcs = NULL,
                        svcs = NULL,
                        model.form = "lm") {
