@@ -732,6 +732,27 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   
       rm(unit.hbsae)
     }
+    
+    ## unit-level: Bayesian model specifications
+    if (multest || bayes) {
+      bayes.fit <- tryCatch(SABest.fit(
+        fmla.dom.unit = fmla.dom.unit, 
+        pltdat.dom = pltdat.dom,
+        yn = yn,
+        dunitvar = dunitvar,
+        # TODO: fix hard-coding once we know how parameters are passed.
+        coord.names = c("X", "Y"),
+        dvcs = NULL,
+        svcs = NULL,
+        model.form = "lm",
+        ncores = 1),
+        error=function(err) {
+          message(err, "\n")
+          return(NULL)
+        } )
+      
+      # then we need to predict
+    }
   } else {
 
     #message("no predictors were selected for unit-level models... returning NAs")
