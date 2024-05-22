@@ -1370,3 +1370,119 @@ zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
     colnames(df_out)[2] <- "number_of_unique_values"
     return(df_out)
 }
+
+#' @rdname raster_desc
+#' @export
+zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
+                         rasterfiles, predfun = NULL) {
+
+    if (is.null(src))
+        src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
+    else if (!is(src, "sf"))
+        stop("'src' must be a polygon layer as 'sf' object")
+
+    zoneid <- unique(as.character(src[[attribute]]))
+
+    # for now assume all predictor layers have same extent and cell size
+    ds <- new(GDALRaster, rasterfiles[1], read_only = TRUE)
+    nrows <- ds$getRasterYSize()
+    ncols <- ds$getRasterXSize()
+    gt <- ds$getGeoTransform()
+    xmin <- ds$bbox()[1]
+    ymax <- ds$bbox()[4]
+
+    nraster <- length(rasterfiles)
+    # list of raster datasets
+    ds_list <- list()
+    for (i in seq.int(1, nraster)) {
+        ds_list[[i]] <- new(GDALRaster, rasterfiles[i])
+    }
+
+    # list of RunningStats objects for the zones
+    rs_list <- list()
+    for (z in zoneid) {
+        rs_list[[z]] <- list()
+        for (i in seq.int(1, 100)) {
+            rs_list[[z]][[i]] <- new(RunningStats, na_rm=FALSE)
+        }
+    }
+
+    # raster I/O function for RasterizePolygon()
+    readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
+        m <- matrix(NA_integer_,
+                    nrow = (xoff2 - xoff1) + 1,
+                    ncol = nraster + 1)
+        # TODO(ctoney): currently assuming attrib_value is a numeric zoneid
+        #               this can be changed to use burn_value for pass-thru,
+        #               then attrib_value could be alpha
+        m[, 1] <- attrib_value
+        for (i in seq.int(1, nraster)) {
+            m[, i + 1] <- ds_list[[i]]$read(band = 1,
+                                            xoff = xoff1,
+                                            yoff = yoff,
+                                            xsize = (xoff2 - xoff1) + 1,
+                                            ysize = 1,
+                                            out_xsize = (xoff2 - xoff1) + 1,
+                                            out_ysize = 1)
+        }
+
+        # call predfun
+        # ...
+        # update rs objects
+        # for (i in seq.int(1, 100)) {
+        #     rs_list[[attrib_value]][[i]]$update(x)
+        return()
+    }
+
+    geom_col <- attr(src, "sf_column")
+    geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
+    if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
+        stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
+
+    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+
+    for (i in seq_len(nrow(src))) {
+        this_attr <- as.character(src[[attribute]][i])
+        coords <- src[i, geom_col] |> sf::st_coordinates()
+        parts <- numeric(0)
+        part_sizes <- numeric(0)
+        if (geom_type == "POLYGON") {
+            parts <- unique(coords[, "L1"])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j], ])
+            }
+        } else if (geom_type == "MULTIPOLYGON") {
+            parts <- unique(coords[, c("L1", "L2")])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j, 1] &
+                                             coords[, "L2"] == parts[j, 2], ])
+            }
+        }
+
+        grid_xs <- vapply(coords[, "X"],
+                          getOffset,
+                          0.0,
+                          origin = xmin,
+                          gt_pixel_size = gt[2])
+        grid_ys <- vapply(coords[, "Y"],
+                          getOffset,
+                          0.0,
+                          origin = ymax,
+                          gt_pixel_size = gt[6])
+
+        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
+                         readRaster, NA, this_attr)
+
+        utils::setTxtProgressBar(pb, i)
+    }
+
+    close(pb)
+
+    # collect info from RunningStats objects and make a data frame of
+    # zone ids and prediction info
+    # ...
+
+
+
+
+}
