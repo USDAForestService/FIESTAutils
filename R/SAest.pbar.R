@@ -299,6 +299,10 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   if (!"data.table" %in% class(dunitlut.dom)) {
     dunitlut.dom <- setDT(dunitlut.dom)
   }
+  
+  if (bayes & multest) {
+    stop("cannot have 'bayes' and 'multest', choose one or the other.")
+  }
 
   ## Calculate number of non-zero plots
   NBRPLT.gt0 <- pltdat.dom[, sum(get(yn) > 0), by=dunitvar]
