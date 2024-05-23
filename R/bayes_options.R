@@ -18,17 +18,21 @@
 #' 
 #' @export bayes_options
 
-bayes_options <- function(n.batch = 4, 
+bayes_options <- function(model.form = "dvi",
+                          dvcs = NULL,
+                          svcs = NULL,
+                          n.batch = 4,
                           batch.length = 500,
                           accept.rate = 0.43,
                           n.omp.threads = 1,
                           verbose = TRUE,
-                          n.report = 100, 
+                          n.report = 100,
                           n.burn = 1000,
-                          n.thin = 40, 
+                          n.thin = 40,
                           n.chains = 4,
                           save.fitted = TRUE,
                           ...) {
+  
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(multest_options)))
