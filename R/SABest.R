@@ -8,6 +8,7 @@ SABest.fit <- function(fmla.dom.unit,
                        dvcs = NULL,
                        svcs = NULL,
                        model.form = "lm",
+                       bayes_opts = bayes_options(),
                        ncores = 1) {
   
   pltdat.unit <- data.frame(pltdat.dom)

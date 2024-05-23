@@ -254,7 +254,7 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
 #' @export
 SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 	dunitlut, prednames=NULL, dunitvar="DOMAIN",
-	SAmethod="unit", SApackage="JoSAE", bayes=FALSE, bayes_model_form=NULL,
+	SAmethod="unit", SApackage="JoSAE", bayes=FALSE, bayes_model_form="dvi",
 	bayes_varying_coefs=NULL, bayes_opts=bayes_options(), yd=NULL,
 	ratiotype="PERACRE", largebnd.val=NULL, showsteps=FALSE, savesteps=FALSE,
 	stepfolder=NULL, prior=NULL, modelselect=TRUE, multest=TRUE,
