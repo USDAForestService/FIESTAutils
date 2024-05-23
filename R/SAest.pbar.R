@@ -256,7 +256,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 	dunitlut, prednames=NULL, dunitvar="DOMAIN",
 	SAmethod="unit", SApackage="JoSAE", yd=NULL, ratiotype="PERACRE",
 	largebnd.val=NULL, showsteps=FALSE, savesteps=FALSE, stepfolder=NULL,
-	prior=NULL, modelselect=TRUE, multest=TRUE, save4testing=FALSE) {
+	prior=NULL, modelselect=TRUE, multest=TRUE, bayes=FALSE,
+	bayes_opts=NULL, save4testing=FALSE) {
 
   ########################################################################################
   ## DESCRIPTION: Gets estimates from JoSAE
@@ -378,9 +379,9 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
   }
 
   if (save4testing) {
-    message("saving objects to working directory for testing: dunitlut.dom, pltdat.dom")
-    save(data.frame(dunitlut.dom), file=file.path(getwd(), "dunitlut.dom.rda"))
-    save(data.frame(pltdat.dom), file=file.path(getwd(), "pltdat.dom.rda"))
+    message("saving objects to working directory for testing: dunitlut, pltdat")
+    saveRDS(dunitlut.dom, file=file.path(getwd(), "dunitlut.rds"))
+    saveRDS(pltdat.dom, file=file.path(getwd(), "pltdat.rds"))
   }
     
   ## Variable selection for area and unit-level estimators
@@ -771,10 +772,10 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     dunitlut.area <- dunitlut.dom[dunitlut.dom[[dunitvar]] %in% dunitids, ]
     pltdat.area <- data.frame(pltdat.dom[pltdat.dom[[dunitvar]] %in% dunitids, ])
 	
-	if (save4testing) {
+	  if (save4testing) {
       message("saving objects to working directory for testing: dunitlut.area, pltdat.area")
-      save(data.frame(dunitlut.area), file=file.path(getwd(), "dunitlut.area.rda"))
-      save(data.frame(pltdat.area), file=file.path(getwd(), "pltdat.area.rda"))
+      saveRDS(dunitlut.area, file=file.path(getwd(), "dunitlut.area.rds"))
+      saveRDS(pltdat.area, file=file.path(getwd(), "pltdat.area.rds"))
     }
 
     ## area-level - JoSAE estimates   
@@ -1012,7 +1013,8 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN",
 		SApackage, SAmethod, prednames=NULL, domain, response=NULL,
 		largebnd.val=NULL, showsteps=FALSE, savesteps=FALSE, stepfolder=NULL,
-		prior=NULL, modelselect=TRUE, multest=TRUE) {
+		prior=NULL, modelselect=TRUE, multest=TRUE, bayes=FALSE, bayes_opts=NULL, 
+		save4testing=FALSE) {
 
   ## Subset tomdat to domain=dom
   dat.dom <- dat[dat[[domain]] == dom,]
@@ -1038,7 +1040,8 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
 			dunitlut=dunitlut, dunitvar=dunitvar, prednames=prednames,
 			SApackage=SApackage, SAmethod=SAmethod, largebnd.val=largebnd.val,
 			showsteps=showsteps, savesteps=savesteps, stepfolder=stepfolder,
-			prior=prior, modelselect=modelselect, multest=multest)
+			prior=prior, modelselect=modelselect, multest=multest, 
+			save4testing=save4testing)
 
   domest$est <- data.table(dom, domest$est)
   setnames(domest$est, "dom", domain)
@@ -1062,8 +1065,15 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 		dunitlut, dunitvar="DOMAIN", SApackage="JoSAE",
 		SAmethod="unit", domain, response, prednames=NULL,
 		showsteps=FALSE, savesteps=FALSE, stepfolder=NULL,
-		prior=NULL, modelselect=TRUE, multest=TRUE) {
-
+		prior=NULL, modelselect=TRUE, multest=TRUE, bayes=FALSE,
+		bayes_opts = NULL, vars2keep=NULL, save4testing=FALSE) {
+ 
+  if (bayes) {
+    xy <- c("X", "Y")
+  } else {
+    xy <- NULL
+  }
+  
   ## subset datasets by largebnd value (e.g., ecosection)
   dat.large <- dat[dat[[largebnd.unique]] == largebnd.val,
 		c(dunitvar, cuniqueid, domain, response), with=FALSE]
@@ -1071,7 +1081,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
   setkeyv(dat.large, c(dunitvar, cuniqueid))
 
   pltassgn.large <- unique(dat[dat[[largebnd.unique]] == largebnd.val,
-		c(dunitvar, cuniqueid, prednames), with=FALSE])
+		c(dunitvar, cuniqueid, prednames, xy, vars2keep), with=FALSE])
   setkeyv(pltassgn.large, c(dunitvar, cuniqueid))
 
   ## get unique domain units and subset domain lut for largebnd value
@@ -1094,7 +1104,8 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 			        SApackage=SApackage, SAmethod=SAmethod, prednames=prednames,
 			        domain=domain, response=response, largebnd.val=largebnd.val,
 			        showsteps=showsteps, savesteps=savesteps, stepfolder=stepfolder,
-			        prior=prior, modelselect=modelselect, multest=multest)
+			        prior=prior, modelselect=modelselect, multest=multest,
+			        save4testing=save4testing)
 
   if (length(doms) > 1) {
     est.large <- data.table(largebnd=largebnd.val,

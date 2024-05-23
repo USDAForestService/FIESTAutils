@@ -546,13 +546,13 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
 #' @export
 getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL, 
      pjoinid, plotCur = FALSE, varCur="MEASYEAR", Endyr=NULL, invyrs=NULL, 
-	 measyears = NULL, allyrs = FALSE, SCHEMA.=NULL, invtype = "ANNUAL",
+	   measyears = NULL, allyrs = FALSE, SCHEMA.=NULL, invtype = "ANNUAL",
      subcycle99 = FALSE, designcd1=FALSE, intensity=NULL, popSURVEY=FALSE, 
      chk=FALSE, Type = "VOL", syntax = "sql", plotnm = "plot", 
      ppsanm = "pop_plot_stratum_assgn", ppsaid = "PLT_CN", surveynm = "survey", 
      PLOTdf = NULL, pltflds = NULL, POP_PLOT_STRATUM_ASSGNdf = NULL, 
-	 ppsaflds = NULL, pvars = NULL, dbconn = NULL, dbconnopen = TRUE,
-	 withqry2 = FALSE) {
+	   ppsaflds = NULL, pvars = NULL, dbconn = NULL, dbconnopen = TRUE,
+	   withqry2 = FALSE) {
   ## DESCRIPTION: gets from statement for database query
   ## syntax - ('sql', 'R')
   ## evalid - Integer. EVALID code defining FIA Evaluation
@@ -601,29 +601,29 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
       if (!is.null(dbconn)) {
         pltflds <- DBI::dbListFields(dbconn, plotnm)
       } else if (!is.null(PLOTdf)) {
-	    pltflds <- names(PLOTdf)
-	  }
+	      pltflds <- names(PLOTdf)
+	    }
     }
   }
  
   ## Check pjoinid
   if (is.null(pjoinid)) {
-	if (!is.null(pltflds)) {
+	  if (!is.null(pltflds)) {
       pjoinid <- findnm("CN", pltflds, returnNULL=TRUE)	
-	  if (is.null(pjoinid)) {
+	    if (is.null(pjoinid)) {
         pjoinid <- findnm("PLT_CN", pltflds, returnNULL=TRUE)	
-		if (is.null(pjoinid)) {
-		  pjoinid <- "CN"
-		}
-	  }
+		    if (is.null(pjoinid)) {
+		      pjoinid <- "CN"
+		    }
+	    }
     } 		
   }
  
   ## Define plot select variables
   if (is.null(pvars)) {
-	selectpvars <- "p.*"
+	  selectpvars <- "p.*"
   } else {
-	selectpvars <- toString(paste0("p.", unique(c(pjoinid, pvars))))
+	  selectpvars <- toString(paste0("p.", unique(c(pjoinid, pvars))))
   }
 
   ###################################################################################
@@ -638,8 +638,8 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
  
     if (popSURVEY) {
       pfromqry <- paste0(pfromqry, 
-		"\n  INNER JOIN ", SCHEMA., surveynm, " survey 
-		ON (survey.CN = p.SRV_CN AND survey.ANN_INVENTORY = '", anntype, "')")
+		             "\n  INNER JOIN ", SCHEMA., surveynm, " survey 
+		             ON (survey.CN = p.SRV_CN AND survey.ANN_INVENTORY = '", anntype, "')")
     }
   }
 
@@ -653,9 +653,9 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
       if (!is.null(ppsanm)) {
         if (!is.null(dbconn)) {
           ppsaflds <- DBI::dbListFields(dbconn, ppsanm)
-		} else if (!is.null(POP_PLOT_STRATUM_ASSGNdf)) {
-		  ppsaflds <- names(POP_PLOT_STRATUM_ASSGNdf)
-	    }
+		    } else if (!is.null(POP_PLOT_STRATUM_ASSGNdf)) {
+		      ppsaflds <- names(POP_PLOT_STRATUM_ASSGNdf)
+	      }
       }
     }
 
@@ -668,36 +668,36 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 	where.qry <- paste0(evalidnm, " in(", toString(evalid), ")")
 		
   } else if (!is.null(states)) { 
-	statenm <- findnm("STATECD", pltflds, returnNULL=TRUE)
-	if (!is.null(statenm)) {
-	  statenm <- "STATECD"
-	}
-	where.qry <- paste0("p.", statenm, " in(", toString(states), ")")
+	  statenm <- findnm("STATECD", pltflds, returnNULL=TRUE)
+	  if (!is.null(statenm)) {
+	    statenm <- "STATECD"
+	  }
+	  where.qry <- paste0("p.", statenm, " in(", toString(states), ")")
   }
 
   ## Add plot_status_cd to where statement
   if (any(Type == "All") || !is.null(evalid)) {
     where.qry <- where.qry
   } else {
-	plotstatusnm <- findnm("PLOT_STATUS_CD", pltflds, returnNULL=TRUE)
-	if (is.null(plotstatusnm)) {
-	  message("PLOT_STATUS_CD not in data... assuming all sampled plots")
-	} else {
-	  plotstatus.qry <- paste0("p.", plotstatusnm, " <> 3")
-	  if (syntax == 'R') plotstatus.qry <- gsub("<>", "!=", plotstatus.qry)
-	  if (where.qry == "") {
-	    where.qry <- plotstatus.qry
+	  plotstatusnm <- findnm("PLOT_STATUS_CD", pltflds, returnNULL=TRUE)
+	  if (is.null(plotstatusnm)) {
+	    message("PLOT_STATUS_CD not in data... assuming all sampled plots")
 	  } else {
+	    plotstatus.qry <- paste0("p.", plotstatusnm, " <> 3")
+	    if (syntax == 'R') plotstatus.qry <- gsub("<>", "!=", plotstatus.qry)
+	    if (where.qry == "") {
+	      where.qry <- plotstatus.qry
+	    } else {
         where.qry <- paste0(where.qry, " and ", plotstatus.qry)
+	    } 
 	  } 
-	} 
   }
   ## Add subcycle to where statement
   if (!is.null(subcycle99) && !subcycle99) {
-	subcyclenm <- findnm("SUBCYCLE", pltflds, returnNULL=TRUE)
-	if (is.null(subcyclenm)) {
-	  message("SUBCYCLE not in data... assuming all SUBCYCLE <> 99")
-	} else {
+	  subcyclenm <- findnm("SUBCYCLE", pltflds, returnNULL=TRUE)
+	  if (is.null(subcyclenm)) {
+	    message("SUBCYCLE not in data... assuming all SUBCYCLE <> 99")
+	  } else {
       subcycle.filter <- paste0("p.", subcyclenm, " <> 99")
       if (syntax == 'R') subcycle.filter <- gsub("<>", "!=", subcycle.filter)
       if (where.qry == "") {
@@ -705,8 +705,9 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
       } else {
         where.qry <- paste(paste(where.qry, subcycle.filter, sep=" and "))
       }
-	}
+	  }
   }
+
   ## Add intensity to where statement 
   if (!is.null(intensity)) {
     intensitynm <- findnm("INTENSITY", pltflds, returnNULL=TRUE)
@@ -760,15 +761,15 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
     ## Define group variables
     groupvars <- c("STATECD", "UNITCD", "COUNTYCD", "PLOT")
     if (!is.null(pltflds)) {
-	  pgroupvars <- sapply(groupvars, findnm, pltflds, returnNULL = TRUE)
-	  if (any(is.null(pgroupvars))) {
-	    missvars <- pgroupvars[is.null(pgroupvars)]
+	    pgroupvars <- sapply(groupvars, findnm, pltflds, returnNULL = TRUE)
+	    if (any(is.null(pgroupvars))) {
+	      missvars <- pgroupvars[is.null(pgroupvars)]
         if (length(missvars) > 1 || missvars != "unitcd") {
-		  warning("dataset must include statecd, countycd, and plot")
+		      warning("dataset must include statecd, countycd, and plot")
         }
-	  } else {
-	    groupvars <- as.vector(pgroupvars)
-	  }
+	    } else {
+	      groupvars <- as.vector(pgroupvars)
+	    }
     }
 
     ## Create WITH query
@@ -776,33 +777,33 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 	  "WITH ",
 	  "\nmaxyear AS",
       "\n (SELECT distinct ", toString(paste0("p.", groupvars)), ", MAX(p.", varCur, ") maxyr  ",
-	  pfromqry)
+	       pfromqry)
 	  
-	if (!is.null(where.qry) || where.qry != "") {
+	  if (!is.null(where.qry) || where.qry != "") {
       withqry <- paste0(withqry,  " \n  WHERE ", where.qry)
     }
 	
-	withqry <- paste0(withqry,
+	  withqry <- paste0(withqry,
 	      "\n  GROUP BY ", toString(paste0("p.", groupvars)), ")")
 
-	## Add an query to get CN values
+	  ## Add an query to get CN values
     if (withqry2) {	
-	  withqry2 <- paste0(
+	     withqry2 <- paste0(
        "\np AS",   	
        "\n (SELECT ", selectpvars,
-	   "\n  FROM ", SCHEMA., plotnm, " p INNER JOIN maxyear ON(")
+	     "\n  FROM ", SCHEMA., plotnm, " p INNER JOIN maxyear ON(")
 	   
-	  for (i in 1:length(groupvars)) {
-	    gvar <- groupvars[i]
-	    withqry2 <- paste0(withqry2, "p.", gvar, " = maxyear.", gvar)	   
-	    if (i < length(groupvars)) {
-	      withqry2 <- paste0(withqry2, " and ")
+	    for (i in 1:length(groupvars)) {
+	      gvar <- groupvars[i]
+	      withqry2 <- paste0(withqry2, "p.", gvar, " = maxyear.", gvar)	   
+	      if (i < length(groupvars)) {
+	        withqry2 <- paste0(withqry2, " and ")
+	      }
 	    }
-	  }
-	  withqry2 <- paste0(withqry2, " and p.", varCur, " = maxyear.maxyr))")
+	    withqry2 <- paste0(withqry2, " and p.", varCur, " = maxyear.maxyr))")
 	 
-	  withqry <- paste0(withqry, ",", withqry2)
-	}
+	    withqry <- paste0(withqry, ",", withqry2)
+	  }
 
   } else if (!is.null(invyrs)) {
 
@@ -818,15 +819,15 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 	
     ## Create WITH query
     withqry <- paste0(
-	  "WITH ",
-	  "\np AS",
+	    "WITH ",
+	    "\np AS",
       "\n (SELECT distinct ", selectpvars,
-	  pfromqry)	   
+	    pfromqry)	   
 	   
-	## Add invyrs to where statement 
+	  ## Add invyrs to where statement 
     invyrnm <- findnm("INVYR", pltflds, returnNULL=TRUE)
     if (is.null(invyrnm)) {
-	  message("INVYR variable not in data")
+	    message("INVYR variable not in data")
     } else {
       invyr.filter <- paste0("p.", invyrnm, " in(", toString(invyrs), ")")
       if (syntax == 'R') invyr.filter <- gsub("in\\(", "%in% c\\(", invyr.filter)
@@ -837,7 +838,7 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
       }
     }
 	   	  
-	if (!is.null(where.qry) || where.qry != "") {
+	  if (!is.null(where.qry) || where.qry != "") {
       withqry <- paste0(withqry,  " \n  WHERE ", where.qry, ")")
     }
 
@@ -855,15 +856,15 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
 	
     ## Create WITH query
     withqry <- paste0(
-	  "WITH ",
-	  "\np AS",
-      "\n (SELECT ", selectpvars,
-	  pfromqry)	   
+	             "WITH ",
+	             "\np AS",
+               "\n (SELECT ", selectpvars,
+	             pfromqry)	   
 	   
-	## Add invyrs to where statement 
+	  ## Add invyrs to where statement 
     measyrnm <- findnm("MEASYEAR", pltflds, returnNULL=TRUE)
     if (is.null(measyrnm)) {
-	  message("MEASYEAR variable not in data")
+	    message("MEASYEAR variable not in data")
     } else {
       measyr.filter <- paste0("p.", measyrnm, " in(", toString(measyears), ")")
       if (syntax == 'R') measyr.filter <- gsub("in\\(", "%in% c\\(", measyr.filter)
@@ -874,20 +875,20 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
       }
     }
 	   	  
-	if (!is.null(where.qry) || where.qry != "") {
+	  if (!is.null(where.qry) || where.qry != "") {
       withqry <- paste0(withqry,  " \n  WHERE ", where.qry, ")")
     }
 
   } else {
-  
+ 
     ## Create WITH query
     withqry <- paste0(
-	  "WITH ",
-	  "\np AS",
-      "\n (SELECT distinct ", selectpvars,
-	  pfromqry)
+	             "WITH ",
+	             "\np AS",
+               "\n (SELECT distinct ", selectpvars,
+	             pfromqry)
   
-	if (!is.null(where.qry) || where.qry != "") {
+	  if (!is.null(where.qry) || where.qry != "") {
       withqry <- paste0(withqry,  " \n  WHERE ", where.qry, ")")
     }	  
   }
