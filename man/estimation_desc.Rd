@@ -188,10 +188,12 @@ SABest.fit(
   pltdat.dom,
   yn,
   dunitvar,
-  pltassgn,
+  coord.names = c("X", "Y"),
   dvcs = NULL,
   svcs = NULL,
-  model.form = "lm"
+  model.form = "lm",
+  bayes_opts = bayes_options(),
+  ncores = 1
 )
 
 SAest.unit(
