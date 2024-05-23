@@ -9,6 +9,10 @@ bayes_options(
   dvcs = NULL,
   svcs = NULL,
   coord.names = c("X", "Y"),
+  inits = NULL,
+  priors = NULL,
+  tuning = NULL,
+  family = "Gaussian",
   n.batch = 4,
   batch.length = 500,
   accept.rate = 0.43,
@@ -19,6 +23,10 @@ bayes_options(
   n.thin = 40,
   n.chains = 4,
   save.fitted = TRUE,
+  cov.model = "exponential",
+  NNGP = TRUE,
+  n.neighbors = 10,
+  search.type = "cb",
   ...
 )
 }
@@ -42,6 +50,22 @@ intercept is included and does not need to specified.}
 \item{coord.names}{Character vector of length 2. Name of columns for the X
 and Y coordinates of plots. Default parameters are tuned for coordinates in 
 meters. Used for fitting spatial models.}
+
+\item{inits}{Additional argument to be passed to spAbundance::abund or 
+spAbundance::svcAbund. If NULL (the default), a sensible choice is made for 
+the model being fit. See documentation in `spAbundance` package for details.}
+
+\item{priors}{Additional argument to be passed to spAbundance::abund or 
+spAbundance::svcAbund. If NULL (the default), a sensible choice is made for 
+the model being fit. See documentation in `spAbundance` package for details.}
+
+\item{tuning}{Additional argument to be passed to spAbundance::abund or 
+spAbundance::svcAbund. See documentation in `spAbundance` package for 
+details.}
+
+\item{family}{Additional argument to be passed to spAbundance::abund or 
+spAbundance::svcAbund. See documentation in `spAbundance` package for 
+details. Currently, only "Gaussian" is allowed.}
 
 \item{n.batch}{Additional argument to be passed to spAbundance::abund or 
 spAbundance::svcAbund. See documentation in `spAbundance` package for 
@@ -82,6 +106,18 @@ details.}
 \item{save.fitted}{Additional argument to be passed to spAbundance::abund or 
 spAbundance::svcAbund. See documentation in `spAbundance` package for 
 details.}
+
+\item{cov.model}{Additional argument to be passed to spAbundance::svcAbund.
+See documentation in `spAbundance` package for details.}
+
+\item{NNGP}{Additional argument to be passed to spAbundance::svcAbund.
+See documentation in `spAbundance` package for details.}
+
+\item{n.neighbors}{Additional argument to be passed to spAbundance::svcAbund.
+See documentation in `spAbundance` package for details.}
+
+\item{search.type}{Additional argument to be passed to spAbundance::svcAbund.
+See documentation in `spAbundance` package for details.}
 
 \item{...}{For extendibility.}
 }
