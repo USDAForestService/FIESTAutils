@@ -254,11 +254,9 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
 #' @export
 SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
 	dunitlut, prednames=NULL, dunitvar="DOMAIN",
-	SAmethod="unit", SApackage="JoSAE", bayes=FALSE, bayes_model_form="dvi",
-	bayes_varying_coefs=NULL, bayes_opts=bayes_options(), yd=NULL,
-	ratiotype="PERACRE", largebnd.val=NULL, showsteps=FALSE, savesteps=FALSE,
-	stepfolder=NULL, prior=NULL, modelselect=TRUE, multest=TRUE,
-	save4testing=FALSE) {
+	SAmethod="unit", SApackage="JoSAE", yd=NULL, ratiotype="PERACRE",
+	largebnd.val=NULL, showsteps=FALSE, savesteps=FALSE, stepfolder=NULL,
+	prior=NULL, modelselect=TRUE, multest=TRUE, save4testing=FALSE) {
 
   ########################################################################################
   ## DESCRIPTION: Gets estimates from JoSAE
@@ -733,27 +731,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       SAobjlst$unit.hbsae.obj <- unit.hbsae.obj
   
       rm(unit.hbsae)
-    }
-    
-    ## unit-level: Bayesian model specifications
-    if (multest || bayes) {
-      bayes.fit <- tryCatch(SABest.fit(
-        fmla.dom.unit = fmla.dom.unit, 
-        pltdat.dom = pltdat.dom,
-        yn = yn,
-        dunitvar = dunitvar,
-        # TODO: fix hard-coding once we know how parameters are passed.
-        coord.names = c("X", "Y"),
-        dvcs = NULL,
-        svcs = NULL,
-        model.form = "lm",
-        ncores = 1),
-        error=function(err) {
-          message(err, "\n")
-          return(NULL)
-        } )
-      
-      # then we need to predict
     }
   } else {
 

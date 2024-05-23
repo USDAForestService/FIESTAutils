@@ -27,7 +27,7 @@ bayes_options <- function(n.batch = 4,
                           n.burn = 1000,
                           n.thin = 40, 
                           n.chains = 4,
-                          save.fitted = T,
+                          save.fitted = TRUE,
                           ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
