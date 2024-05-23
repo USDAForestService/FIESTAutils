@@ -114,7 +114,7 @@ bayes_options <- function(model.form = "dvi",
   
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
-  formallst <- c(names(formals(multest_options)))
+  formallst <- c(names(formals(bayes_options)))
   if (!all(input.params %in% formallst)) {
     miss <- input.params[!input.params %in% formallst]
     stop("invalid parameter: ", toString(miss))
