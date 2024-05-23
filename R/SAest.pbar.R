@@ -674,7 +674,6 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
             pltdat.dom = pltdat.dom,
             yn = yn,
             dunitvar = dunitvar,
-            coord.names = c("X", "Y"),
             bayes_opts = bayes_opts)
         },
         error=function(err) {
