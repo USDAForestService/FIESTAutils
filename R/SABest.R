@@ -4,15 +4,21 @@ SABest.fit <- function(fmla.dom.unit,
                        pltdat.dom,
                        yn,
                        dunitvar,
-                       coord.names = c("X", "Y"),
-                       dvcs = NULL,
-                       svcs = NULL,
-                       model.form = "lm",
-                       bayes_opts = bayes_options(),
-                       ncores = 1) {
+                       bayes_opts = bayes_options()) {
+  
+  bayes_defaults <- formals(bayes_options)[-length(formals(bayes_options))]
+  bayes_user_in <- bayes_opts
+  if (!identical(bayes_user_in, bayes_defaults) && length(bayes_user_in) != 0) {
+    for (i in seq_along(bayes_user_in)) {
+      ref <- bayes_user_in[i]
+      bayes_defaults[names(ref)] <- ref[[i]]
+    } # i
+  }
+  for (i in seq_along(bayes_defaults)) {
+    assign(names(bayes_defaults)[[i]], bayes_defaults[[i]])
+  } # i
   
   pltdat.unit <- data.frame(pltdat.dom)
-  
 
   y <- pltdat.unit[[yn]]
   X <- model.matrix(fmla.dom.unit[-2], pltdat.unit)[,-1]

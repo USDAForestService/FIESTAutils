@@ -664,6 +664,27 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
     ## create model formula with predictors
     ## note: the variables selected can change depending on the order in original formula (fmla)
     fmla.dom.unit <- stats::as.formula(paste(yn, paste(predselect.unit, collapse= "+"), sep="~"))
+    
+    
+    if (!multest && bayes) {
+      bayes.fit <- tryCatch(
+        {
+          SABest.fit(
+            fmla.dom.unit = fmla.dom.unit, 
+            pltdat.dom = pltdat.dom,
+            yn = yn,
+            dunitvar = dunitvar,
+            coord.names = c("X", "Y"),
+            bayes_opts = bayes_opts)
+        },
+        error=function(err) {
+          message(err, "\n")
+          return(NULL)
+        } 
+      )
+      
+      # then we need to predict
+    }
 
     ### unit-level - JoSAE estimates               
     if (multest || SApackage == "JoSAE") {
