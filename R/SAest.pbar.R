@@ -1092,7 +1092,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 		prior=NULL, modelselect=TRUE, multest=TRUE, bayes=FALSE,
 		bayes_opts = NULL, vars2keep=NULL, save4testing=FALSE) {
  
-  if (bayes) {
+  if (bayes && all(c("X","Y") %in% names(dat))) {
     xy <- c("X", "Y")
   } else {
     xy <- NULL
