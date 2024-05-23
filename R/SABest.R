@@ -11,7 +11,8 @@ SABest.fit <- function(fmla.dom.unit,
   if (!identical(bayes_user_in, bayes_defaults) && length(bayes_user_in) != 0) {
     for (i in seq_along(bayes_user_in)) {
       ref <- bayes_user_in[i]
-      bayes_defaults[names(ref)] <- ref[[i]]
+
+      bayes_defaults[names(ref)] <- ref[[1]]
     } # i
   }
   for (i in seq_along(bayes_defaults)) {
@@ -63,7 +64,7 @@ SABest.fit <- function(fmla.dom.unit,
                               n.chains = 4, 
                               n.thin = 40,
                               n.burn = 1000,
-                              n.omp.threads = ncores)
+                              n.omp.threads = n.omp.threads)
     
   } else if (model.form %in% c("svi", "svc")) {
     
