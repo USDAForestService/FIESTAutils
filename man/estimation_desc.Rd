@@ -236,6 +236,8 @@ SAest(
   prior = NULL,
   modelselect = TRUE,
   multest = TRUE,
+  bayes = FALSE,
+  bayes_opts = NULL,
   save4testing = FALSE
 )
 
@@ -257,7 +259,10 @@ SAest.dom(
   stepfolder = NULL,
   prior = NULL,
   modelselect = TRUE,
-  multest = TRUE
+  multest = TRUE,
+  bayes = FALSE,
+  bayes_opts = NULL,
+  save4testing = FALSE
 )
 
 SAest.large(
@@ -277,7 +282,11 @@ SAest.large(
   stepfolder = NULL,
   prior = NULL,
   modelselect = TRUE,
-  multest = TRUE
+  multest = TRUE,
+  bayes = FALSE,
+  bayes_opts = NULL,
+  vars2keep = NULL,
+  save4testing = FALSE
 )
 }
 \value{
