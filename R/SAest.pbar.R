@@ -1057,7 +1057,7 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
   }
 
 #yn=response
-
+ 
   ## Apply function to each dom
   domest <- SAest(yn=response,
 			dat.dom=dat.dom, cuniqueid=cuniqueid, pltassgn=pltassgn,
@@ -1065,7 +1065,7 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
 			SApackage=SApackage, SAmethod=SAmethod, largebnd.val=largebnd.val,
 			showsteps=showsteps, savesteps=savesteps, stepfolder=stepfolder,
 			prior=prior, modelselect=modelselect, multest=multest, 
-			save4testing=save4testing)
+			save4testing=save4testing, bayes=bayes, bayes_opts=bayes_opts)
 
   domest$est <- data.table(dom, domest$est)
   setnames(domest$est, "dom", domain)
@@ -1129,7 +1129,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 			        domain=domain, response=response, largebnd.val=largebnd.val,
 			        showsteps=showsteps, savesteps=savesteps, stepfolder=stepfolder,
 			        prior=prior, modelselect=modelselect, multest=multest,
-			        save4testing=save4testing)
+			        save4testing=save4testing, bayes=bayes, bayes_opts=bayes_opts)
 
   if (length(doms) > 1) {
     est.large <- data.table(largebnd=largebnd.val,
@@ -1202,7 +1202,7 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
     returnlst$predselect.area <- predselect.area
   }
   returnlst$SAobjlst.dom <- SAobjlst.dom
-
+  
   return(returnlst)
 }
 
