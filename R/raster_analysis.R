@@ -1380,7 +1380,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
 # 'zoneidfld' - attribute of the polygon layer that identifies zones to predict
 # on (values coerced to character).
 # 'helperidfld' - optional attribute of the polygon layer that identifies helper
-# polygon id (integer IDs)
+# polygon id (currently, integer IDs)
 # If both 'zoneidfld' and 'helperidfld' are used, it is expected that the
 # polygon layer resulted from an intersection or GIS union of the zone polygon
 # layer and helper polygon layer.
@@ -1390,7 +1390,6 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     else if (!is(src, "sf"))
         stop("'src' must be a polygon layer as 'sf' object")
 
-    # will this be provided as a numeric id always?
     zoneid <- unique(as.character(src[[zoneidfld]]))
 
     # all predictor layers should have same extent and cell size
@@ -1400,6 +1399,8 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     gt <- ds$getGeoTransform()
     xmin <- ds$bbox()[1]
     ymax <- ds$bbox()[4]
+    cellsizeX <- ds$res()[1]
+    cellsizeY <- ds$res()[2]
     ds$close()
 
     # list of raster datasets
@@ -1410,16 +1411,16 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
         if (ds_list[[i]]$getRasterYSize() != nrows ||
                 ds_list[[i]]$getRasterXSize() != ncols) {
 
-            for (j in seq.int(1, i)) {
+            for (j in seq.int(1, i))
                 ds_list[[j]]$close()
-            } 
+
             message(rasterfiles[i])
             stop("all input rasters must have the same extent",
                  call. = FALSE)
         }
     }
 
-    # list of RunningStats objects for the zones
+    # list of zones, with list of nMCMC RunningStats objects per zone
     rs_list <- list()
     for (z in zoneid) {
         rs_list[[z]] <- list()
@@ -1430,39 +1431,42 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
 
     # raster I/O function for RasterizePolygon()
     readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
+        x_len <- (xoff2 - xoff1) + 1
         m <- matrix(NA_integer_,
-                    nrow = (xoff2 - xoff1) + 1,
+                    nrow = x_len,
                     ncol = nraster + 1)
-        # TODO: handle helperidfld as NULL throughout
         names(m) <- c(prednames, helperidfld)
         for (i in seq.int(1, nraster)) {
             m[, i] <- ds_list[[i]]$read(band = 1,
-                                          xoff = xoff1,
-                                          yoff = yoff,
-                                          xsize = (xoff2 - xoff1) + 1,
-                                          ysize = 1,
-                                          out_xsize = (xoff2 - xoff1) + 1,
-                                          out_ysize = 1)
+                                        xoff = xoff1,
+                                        yoff = yoff,
+                                        xsize = x_len,
+                                        ysize = 1,
+                                        out_xsize = x_len,
+                                        out_ysize = 1)
         }
-        # TODO: if helperidfld not NULL
-        m[, nraster + 1] <- as.integer(burn_value) 
+        if (!is.null(helperidfld))
+            m[, nraster + 1] <- as.integer(burn_value) 
         
         if (xy) {
-            m_xy <- matrix(NA_real_, nrow = (xoff2 - xoff1) + 1, ncol = 2)
-            # TODO: xy
-            m_xy[, 1] <- # x
-            m_xy[, 2] <- # y
+            m_xy <- matrix(NA_real_, nrow = x_len, ncol = 2)
+            m_xy[, 1] <- seq(from = xoff1 + (cellsizeX / 2),
+                             by = cellsizeX,
+                             length.out = x_len)
+            m_xy[, 2] <- rep_len(ymax - (cellsizeY / 2) - (cellsizeY * yoff),
+                                 length.out = x_len)
         } else {
             xy <- NULL
         }
 
-        # call predfun
+        # predicted values
         preds <- predfun(m, xy)
-        # update rs objects
-        # attrib_value from zoneidfld
+        if (ncol(preds) != nMCMC)
+            stop("fatal: ncol(preds) != nMCMC")
+
+        # update rs objects, attrib_value from zoneidfld
         for (i in seq_len(nMCMC))
             preds[, i] |> rs_list[[attrib_value]][[i]]$update()
-            
             
         return()
     }
@@ -1513,9 +1517,17 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     close(pb)
 
     # make a data frame of zone ids and nMCMC columns of rs$get_mean()
-    # ...
+    zone.preds <- data.frame(zoneid, stringsAsFactors=FALSE)
+    for (z in zoneid) {
+        for (mcmc in seq_len(nMCMC)) {
+            nm <- paste0("MCMC_", mcmc)
+            zone.preds[zone.preds$zoneid == z, 1 + mcmc] <-
+                    rs_list[[z]][[mcmc]]$get_mean()
+        }
+    }
 
+    for (i in seq.int(1, nraster))
+        ds_list[[i]]$close()
 
-
-
+    return(zone.preds)
 }
