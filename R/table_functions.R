@@ -495,7 +495,7 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
       estpse.col <- crosstabx(colvar.est, colvar, estnm, psenm, allin1=allin1,
 		char.width=char.width, estnull=estnull, psenull=psenull,
 		estround=estround, pseround=pseround)
-	  estpse.col <- estpse.col[group.est[[colvar]]]
+	  estpse.col$est <- estpse.col$est[unique(group.est[[colvar]])]
 
       if (allin1) {
         estpse <- rbind(setDF(estpse), c(totals, estpse.col))
