@@ -1370,3 +1370,181 @@ zonalVariety <- function(dsn=NULL, layer=NULL, src = NULL, attribute,
     colnames(df_out)[2] <- "number_of_unique_values"
     return(df_out)
 }
+
+#' @rdname raster_desc
+#' @export
+zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
+                       helperidfld = NULL, rasterfiles, prednames,
+                       predfun, xy = FALSE, nMCMC = 100) {
+
+# 'zoneidfld' - attribute of the polygon layer that identifies zones to predict
+# on (values coerced to character).
+# 'helperidfld' - optional attribute of the polygon layer that identifies helper
+# polygon id (currently, integer IDs)
+# If both 'zoneidfld' and 'helperidfld' are used, it is expected that the
+# polygon layer resulted from an intersection or GIS union of the zone polygon
+# layer and helper polygon layer.
+
+    if (is.null(src))
+        src <- sf::st_read(dsn, layer, stringsAsFactors=FALSE, quiet=TRUE)
+    else if (!is(src, "sf"))
+        stop("'src' must be a polygon layer as 'sf' object")
+
+    if (length(rasterfiles) != length(prednames))
+        stop("'length(rasterfiles)' must equal 'length(prednames)'",
+                call. = FALSE)
+
+    n_pred_columns <- length(rasterfiles)
+    use_helper_polygons <- FALSE
+    if (!is.null(helperidfld)) {
+        use_helper_polygons <- TRUE
+        n_pred_columns = n_pred_columns + 1
+    }
+
+    zoneid <- unique(as.character(src[[zoneidfld]]))
+
+    # all predictor layers should have same extent and cell size
+    ds <- new(GDALRaster, rasterfiles[1], read_only = TRUE)
+    nrows <- ds$getRasterYSize()
+    ncols <- ds$getRasterXSize()
+    gt <- ds$getGeoTransform()
+    xmin <- ds$bbox()[1]
+    ymax <- ds$bbox()[4]
+    cellsizeX <- ds$res()[1]
+    cellsizeY <- ds$res()[2]
+    ds$close()
+
+    # list of raster datasets
+    nraster <- length(rasterfiles)
+    ds_list <- list()
+    for (i in 1:nraster) {
+        ds_list[[i]] <- new(GDALRaster, rasterfiles[i], read_only = TRUE)
+        if (ds_list[[i]]$getRasterYSize() != nrows ||
+                ds_list[[i]]$getRasterXSize() != ncols) {
+
+            for (j in 1:i)
+                ds_list[[j]]$close()
+
+            message(rasterfiles[i])
+            stop("all input rasters must have the same extent",
+                 call. = FALSE)
+        }
+    }
+
+    # list of zones, with list of nMCMC RunningStats objects per zone
+    rs_list <- list()
+    for (z in zoneid) {
+        rs_list[[z]] <- list()
+        for (i in 1:nMCMC) {
+            rs_list[[z]][[i]] <- new(RunningStats, na_rm=FALSE)
+        }
+    }
+
+    # raster I/O function for RasterizePolygon()
+    readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
+        x_len <- (xoff2 - xoff1) + 1
+        m <- matrix(NA_integer_,
+                    nrow = x_len,
+                    ncol = n_pred_columns)
+
+        names(m) <- c(prednames, helperidfld)
+        for (i in 1:nraster) {
+            m[, i] <- ds_list[[i]]$read(band = 1,
+                                        xoff = xoff1,
+                                        yoff = yoff,
+                                        xsize = x_len,
+                                        ysize = 1,
+                                        out_xsize = x_len,
+                                        out_ysize = 1)
+        }
+        if (use_helper_polygons)
+            m[, nraster + 1] <- as.integer(burn_value) 
+        
+        if (xy) {
+            m_xy <- matrix(NA_real_, nrow = x_len, ncol = 2)
+            m_xy[, 1] <- seq(from = xoff1 + (cellsizeX / 2),
+                             by = cellsizeX,
+                             length.out = x_len)
+            m_xy[, 2] <- rep_len(ymax - (cellsizeY / 2) - (cellsizeY * yoff),
+                                 length.out = x_len)
+        } else {
+            xy <- NULL
+        }
+
+        # predicted values
+        preds <- predfun(m, xy)
+        if (ncol(preds) != nMCMC)
+            stop("fatal: ncol(preds) != nMCMC")
+
+        # update rs objects, attrib_value from zoneidfld
+        for (i in seq_len(nMCMC))
+            preds[, i] |> rs_list[[attrib_value]][[i]]$update()
+            
+        return()
+    }
+
+    # data processing
+    geom_col <- attr(src, "sf_column")
+    geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
+    if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
+        stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
+
+    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+
+    for (i in seq_len(nrow(src))) {
+        this_zoneid <- as.character(src[[zoneidfld]][i])
+        this_helperid <- NA_integer_
+        if (use_helper_polygons)
+            this_helperid <- src[[helperidfld]][i]
+        coords <- src[i, geom_col] |> sf::st_coordinates()
+        parts <- numeric(0)
+        part_sizes <- numeric(0)
+        if (geom_type == "POLYGON") {
+            parts <- unique(coords[, "L1"])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j], ])
+            }
+        } else if (geom_type == "MULTIPOLYGON") {
+            parts <- unique(coords[, c("L1", "L2")])
+            for (j in seq_len(NROW(parts))) {
+                part_sizes[j] <- nrow(coords[coords[, "L1"] == parts[j, 1] &
+                                             coords[, "L2"] == parts[j, 2], ])
+            }
+        }
+
+        grid_xs <- vapply(coords[, "X"],
+                          getOffset,
+                          0.0,
+                          origin = xmin,
+                          gt_pixel_size = gt[2])
+        grid_ys <- vapply(coords[, "Y"],
+                          getOffset,
+                          0.0,
+                          origin = ymax,
+                          gt_pixel_size = gt[6])
+
+        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
+                         readRaster, this_helperid, this_zoneid)
+
+        utils::setTxtProgressBar(pb, i)
+    }
+
+    close(pb)
+
+    # output
+    # data frame of zone ids and nMCMC columns of rs$get_mean() by zoneid
+    zone.preds <- data.frame(zoneid, stringsAsFactors=FALSE)
+    for (mcmc in seq_len(nMCMC)) {
+        nm <- paste0("MCMC_", mcmc)
+        zone.preds[[nm]] <- NA_real_
+        for (z in zoneid) {
+            zone.preds[zone.preds$zoneid == z, nm] <-
+                    rs_list[[z]][[mcmc]]$get_mean()
+        }
+    }
+
+    for (i in 1:nraster)
+        ds_list[[i]]$close()
+
+    return(zone.preds)
+}

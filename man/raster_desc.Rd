@@ -31,6 +31,7 @@
 \alias{zonalMajority}
 \alias{zonalMinority}
 \alias{zonalVariety}
+\alias{zonalBayes}
 \alias{raster_desc}
 \alias{getrastlst}
 \alias{areacalc.pixel}
@@ -233,6 +234,19 @@ zonalVariety(
   band = 1,
   lut = NULL,
   ...
+)
+
+zonalBayes(
+  dsn = NULL,
+  layer = NULL,
+  src = NULL,
+  zoneidfld,
+  helperidfld = NULL,
+  rasterfiles,
+  prednames,
+  predfun,
+  xy = FALSE,
+  nMCMC = 100
 )
 
 getrastlst(
