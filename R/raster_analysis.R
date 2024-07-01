@@ -1390,6 +1390,17 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     else if (!is(src, "sf"))
         stop("'src' must be a polygon layer as 'sf' object")
 
+    if (length(rasterfiles) != length(prednames))
+        stop("'length(rasterfiles)' must equal 'length(prednames)'",
+                call. = FALSE)
+
+    n_pred_columns <- length(rasterfiles)
+    use_helper_polygons <- FALSE
+    if (!is.null(helperidfld)) {
+        use_helper_polygons <- TRUE
+        n_pred_columns = n_pred_columns + 1
+    }
+
     zoneid <- unique(as.character(src[[zoneidfld]]))
 
     # all predictor layers should have same extent and cell size
@@ -1406,12 +1417,12 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     # list of raster datasets
     nraster <- length(rasterfiles)
     ds_list <- list()
-    for (i in seq.int(1, nraster)) {
+    for (i in 1:nraster) {
         ds_list[[i]] <- new(GDALRaster, rasterfiles[i], read_only = TRUE)
         if (ds_list[[i]]$getRasterYSize() != nrows ||
                 ds_list[[i]]$getRasterXSize() != ncols) {
 
-            for (j in seq.int(1, i))
+            for (j in 1:i)
                 ds_list[[j]]$close()
 
             message(rasterfiles[i])
@@ -1424,7 +1435,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     rs_list <- list()
     for (z in zoneid) {
         rs_list[[z]] <- list()
-        for (i in seq.int(1, nMCMC)) {
+        for (i in 1:nMCMC) {
             rs_list[[z]][[i]] <- new(RunningStats, na_rm=FALSE)
         }
     }
@@ -1434,9 +1445,10 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
         x_len <- (xoff2 - xoff1) + 1
         m <- matrix(NA_integer_,
                     nrow = x_len,
-                    ncol = nraster + 1)
+                    ncol = n_pred_columns)
+
         names(m) <- c(prednames, helperidfld)
-        for (i in seq.int(1, nraster)) {
+        for (i in 1:nraster) {
             m[, i] <- ds_list[[i]]$read(band = 1,
                                         xoff = xoff1,
                                         yoff = yoff,
@@ -1445,7 +1457,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
                                         out_xsize = x_len,
                                         out_ysize = 1)
         }
-        if (!is.null(helperidfld))
+        if (use_helper_polygons)
             m[, nraster + 1] <- as.integer(burn_value) 
         
         if (xy) {
@@ -1471,6 +1483,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
         return()
     }
 
+    # data processing
     geom_col <- attr(src, "sf_column")
     geom_type <- sf::st_geometry_type(src, by_geometry = FALSE)
     if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
@@ -1480,7 +1493,9 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
 
     for (i in seq_len(nrow(src))) {
         this_zoneid <- as.character(src[[zoneidfld]][i])
-        this_helperid <- as.character(src[[helperidfld]][i])
+        this_helperid <- NA_integer_
+        if (use_helper_polygons)
+            this_helperid <- src[[helperidfld]][i]
         coords <- src[i, geom_col] |> sf::st_coordinates()
         parts <- numeric(0)
         part_sizes <- numeric(0)
@@ -1516,17 +1531,19 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
 
     close(pb)
 
-    # make a data frame of zone ids and nMCMC columns of rs$get_mean()
+    # output
+    # data frame of zone ids and nMCMC columns of rs$get_mean() by zoneid
     zone.preds <- data.frame(zoneid, stringsAsFactors=FALSE)
-    for (z in zoneid) {
-        for (mcmc in seq_len(nMCMC)) {
-            nm <- paste0("MCMC_", mcmc)
-            zone.preds[zone.preds$zoneid == z, 1 + mcmc] <-
+    for (mcmc in seq_len(nMCMC)) {
+        nm <- paste0("MCMC_", mcmc)
+        zone.preds[[nm]] <- NA_real_
+        for (z in zoneid) {
+            zone.preds[zone.preds$zoneid == z, nm] <-
                     rs_list[[z]][[mcmc]]$get_mean()
         }
     }
 
-    for (i in seq.int(1, nraster))
+    for (i in 1:nraster)
         ds_list[[i]]$close()
 
     return(zone.preds)
