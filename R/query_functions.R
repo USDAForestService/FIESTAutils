@@ -21,8 +21,8 @@ getjoinqry <- function (joinid1, joinid2, alias1 = "p.", alias2 = "plta.") {
 #' @rdname internal_desc
 #' @export
 classqry <- function(classcol, 
-                     fromval, 
-				     toval, 
+                     fromval,
+                     toval, 
                      classnm = NULL,
                      NAto0 = TRUE) {
   ## DESCRIPTION: creates a string to classify columns to use inside another query

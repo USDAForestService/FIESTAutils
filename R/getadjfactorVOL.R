@@ -60,7 +60,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
   if (!is.null(cpropvars)) {
     cvarlst <- unlist(cpropvars)
     cvarlst2 <- cvarlst[which(cvarlst%in% names(condx))]
-
+    
     if (length(cvarlst2) > 0) {
       cvarsum <- lapply(cpropvars, function(x) paste0(x, "_SUM"))
       cvaradj <- lapply(cpropvars, function(x) paste0("ADJ_FACTOR_", sub("PROP_UNADJ", "", x)))
@@ -101,20 +101,25 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
     if (!is.null(strvars)) n <- "n.strata"
 
     if (keepadjvars) {
-	  if (areawt == "CONDPROP_UNADJ" && !areawt %in% names(unitlut) && 
+	    if (areawt == "CONDPROP_UNADJ" && !areawt %in% names(unitlut) && 
 	                     "ADJ_FACTOR_MACR" %in% names(unitlut)) {
-		unitlut[, ADJ_FACTOR_COND := ifelse ((is.na(ADJ_FACTOR_MACR) | ADJ_FACTOR_MACR == 0), 
+		    unitlut[, ADJ_FACTOR_COND := ifelse ((is.na(ADJ_FACTOR_MACR) | ADJ_FACTOR_MACR == 0), 
 			           ADJ_FACTOR_SUBP, ADJ_FACTOR_MACR)]
-		unitlut[unitlut$ESTN_UNIT == 71 & unitlut$STRATUMCD == 135,]
+		    unitlut[unitlut$ESTN_UNIT == 71 & unitlut$STRATUMCD == 135,]
 
-		varadjlst <- unique(c("ADJ_FACTOR_COND", varadjlst))
-	  }
+		    varadjlst <- unique(c("ADJ_FACTOR_COND", varadjlst))
+	    }
     } else {
 
       ## Sum condition variable(s) in varlst by strata and rename varlst to *_sum
       cndadj <- condx[, lapply(.SD, sum, na.rm=TRUE), by=strunitvars, .SDcols=varlst]
       setnames(cndadj, varlst, varsumlst)
       setkeyv(cndadj, keyvars)
+      
+      ## Check class of keyvars
+      tabs <- check.matchclass(unitlut, cndadj, keyvars)
+      unitlut <- tabs$tab1
+      cndadj <- tabs$tab2
 
       ## Merge condition adjustment factors to strata table.
       unitlut <- unitlut[cndadj]
@@ -122,8 +127,8 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
       ## Calculate adjustment factor for conditions
       ## (divide summed condition proportions by total number of plots in strata)
       unitlut[, (varadjlst) := lapply(.SD,
-	  function(x, n) ifelse((is.na(x) | x==0), 0, get(n)/x), n), .SDcols=varsumlst]
-	}
+	          function(x, n) ifelse((is.na(x) | x==0), 0, get(n)/x), n), .SDcols=varsumlst]
+	  }
 #unitlut <- replacepopfun(unitlut, FIADBpop)
 
     ## Merge condition adjustment factors to cond table to get plot identifiers.
@@ -162,8 +167,8 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
       if ("TPROP_BASIS" %in% names(treex)) {
         treex[condx, tadjfac := ifelse(TPROP_BASIS == "MICR", get(tvaradj[["MICR"]]),
-		ifelse(TPROP_BASIS == "MACR", get(tvaradj[["MACR"]]),
-		get(tvaradj[["SUBP"]])))]
+		             ifelse(TPROP_BASIS == "MACR", get(tvaradj[["MACR"]]),
+		    get(tvaradj[["SUBP"]])))]
       } else {
         treex[condx, tadjfac := 1]
       }
@@ -185,7 +190,7 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
     ## Calculate adjusted condition proportion for plots
     pltadj[, (varadjlst) := lapply(.SD,
-	function(x) ifelse((is.na(x) | x==0), 0, 1/x)), .SDcols=varsumlst]
+	       function(x) ifelse((is.na(x) | x==0), 0, 1/x)), .SDcols=varsumlst]
     condx <- condx[pltadj]
 
     ## Change name of condition adjustment factor to cadjfac
@@ -209,12 +214,12 @@ getadjfactorVOL <- function(adj=adj, condx=NULL, treex=NULL, seedx=NULL,
 
       if ("TPROP_BASIS" %in% names(treex)) {
         treex[pltadj, tadjfac := ifelse(TPROP_BASIS == "MICR", get(tvaradj[["MICR"]]),
-		ifelse(TPROP_BASIS == "MACR", get(tvaradj[["MACR"]]),
-		get(tvaradj[["SUBP"]])))]
+		        ifelse(TPROP_BASIS == "MACR", get(tvaradj[["MACR"]]),
+		        get(tvaradj[["SUBP"]])))]
       } else {
         treex[pltadj, tadjfac := ifelse(TPA_UNADJ > 50, get(tvaradj[["MICR"]]),
- 		ifelse(TPA_UNADJ > 0 & TPA_UNADJ < 5, get(tvaradj[["MACR"]]),
- 		get(tvaradj[["SUBP"]])))]
+ 		        ifelse(TPA_UNADJ > 0 & TPA_UNADJ < 5, get(tvaradj[["MACR"]]),
+ 		        get(tvaradj[["SUBP"]])))]
       }
       treex[, tadjfac := ifelse(tadjfac > 0, tadjfac, 1)]
 
