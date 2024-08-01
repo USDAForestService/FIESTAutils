@@ -1436,7 +1436,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
     for (z in zoneid) {
         rs_list[[z]] <- list()
         for (i in 1:nMCMC) {
-            rs_list[[z]][[i]] <- new(RunningStats, na_rm=FALSE)
+            rs_list[[z]][[i]] <- new(RunningStats, na_rm = TRUE)
         }
     }
 
@@ -1447,7 +1447,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
                     nrow = x_len,
                     ncol = n_pred_columns)
 
-        names(m) <- c(prednames, helperidfld)
+        colnames(m) <- c(prednames, helperidfld)
         for (i in 1:nraster) {
             m[, i] <- ds_list[[i]]$read(band = 1,
                                         xoff = xoff1,
@@ -1472,14 +1472,22 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
         }
 
         # predicted values
+        anyisna <- function(x) { any(is.na(x)) }
+        na_rows <- apply(m, 1, anyisna)
+        m <- m[!na_rows, , drop = FALSE]
+
+        if (nrow(m) == 0)
+            return()
+
         preds <- predfun(m, xy)
-        if (ncol(preds) != nMCMC)
+
+        if (NROW(preds) != nMCMC) 
             stop("fatal: ncol(preds) != nMCMC")
 
-        # update rs objects, attrib_value from zoneidfld
-        for (i in seq_len(nMCMC))
-            preds[, i] |> rs_list[[attrib_value]][[i]]$update()
-            
+        for (i in seq_len(nMCMC)) {
+            rs_list[[attrib_value]][[i]]$update(preds[i, ])
+        }
+
         return()
     }
 
