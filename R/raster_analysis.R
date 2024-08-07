@@ -702,6 +702,7 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
 # Clip a larger raster to the extent of polygon layer.
 # Polygon layer from dsn/layer, or src if already open as Spatial object.
 # srcfile - source raster (big raster)
+# src_band - source band(s) to clip, defaults to all bands in srcfile
 # dstfile - destination raster (will be created)
 # fmt - GDAL format string, if NULL will use format of srcfile if possible
 # options - GDAL dataset creation options (driver-specific)
@@ -879,10 +880,36 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
         lapply(c(0:(clip_nrows-1)), writeRaster, xoff1=0, xoff2=clip_ncols-1, 0)
     }
 
-    message(paste("output written to:", dstfile))
+    # copy band properties to the destination raster
+    for (b in 1:nbands) {
+        # description
+        desc <- src_ds$getDescription(band = src_band[b])
+        dst_ds$setDescription(band = b, desc)
+        # unit type
+        unit_type <- src_ds$getUnitType(band = src_band[b])
+        dst_ds$setUnitType(band = b, unit_type)
+        # scale
+        scale_value <- src_ds$getScale(band = src_band[b])
+        if (!is.na(scale_value))
+            dst_ds$setScale(band = b, scale_value)
+        # offset
+        offset_value <- src_ds$getOffset(band = src_band[b])
+        if (!is.na(offset_value))
+            dst_ds$setOffset(band = b, offset_value)
+        # color interp
+        col_interp <- src_ds$getRasterColorInterp(band = src_band[b])
+        dst_ds$setRasterColorInterp(band = b, col_interp)
+        # color table
+        col_tbl <- src_ds$getColorTable(band = src_band[b])
+        pal_interp <- src_ds$getPaletteInterp(band = src_band[b])
+        if (!is.null(col_tbl))
+            dst_ds$setColorTable(band = b, col_tbl, pal_interp)
+    }
 
     src_ds$close()
     dst_ds$close()
+    
+    message(paste("output written to:", dstfile))
 
     invisible(dstfile)
 }
