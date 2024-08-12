@@ -1,5 +1,5 @@
 ## check.numeric
-# RtoSQL    Convert logical R statement syntax to SQL syntax
+## RtoSQL    Convert logical R statement syntax to SQL syntax
 ## check.logic
 ## check.matchclass
 ## check.matchval
@@ -58,17 +58,17 @@ RtoSQL <- function(filter, x=NULL) {
       if (not) {
         part <- gsub("!", "", part)
 		if (grepl("%in%c", gsub(" ", "", part), ignore.case=TRUE)) {
-          part <- gsub("%in%c", " not in", gsub(" ", "", part))
+          part <- gsub("%in%c", " NOT IN", gsub(" ", "", part))
 		} else if (grepl("%in%", gsub(" ", "", part), ignore.case=TRUE)) {
 		  stop("invalid statement")
-          part <- gsub("%in%", " not in", gsub(" ", "", part))
+          part <- gsub("%in%", " NOT IN", gsub(" ", "", part))
 		}
       } else {
 		if (grepl("%in%c", gsub(" ", "", part), ignore.case=TRUE)) {
-          part <- gsub("%in%c", " in", gsub(" ", "", part))
+          part <- gsub("%in%c", " IN", gsub(" ", "", part))
 		} else if (grepl("%in%", gsub(" ", "", part), ignore.case=TRUE)) {
 		  stop("invalid statement")
-          part <- gsub("%in%", " in", gsub(" ", "", part))
+          part <- gsub("%in%", " IN", gsub(" ", "", part))
 		}
 		if (grepl(":", part)) {
 		  p1 <- strsplit(part, ":")[[1]][1]
@@ -88,10 +88,10 @@ RtoSQL <- function(filter, x=NULL) {
       post <- ifelse (is.na(strsplit(basetmp, "\\)")[[1]][2]), "", strsplit(basetmp, "\\)")[[1]][2])
 
       if (not) {
-        part <- paste0(pre, base, " is not NULL", post)
+        part <- paste0(pre, base, " IS NOT NULL", post)
         part <- gsub("!", "", part)
       } else {
-        part <- paste0(pre, base, " is NULL", post)
+        part <- paste0(pre, base, " IS NULL", post)
       }
     }
 
@@ -99,9 +99,9 @@ RtoSQL <- function(filter, x=NULL) {
   }
  
   if (grepl("&", filter)) {
-    sql <- paste(sapply(unlist(strsplit(filter, "&")), checkpart), collapse = " and ")
+    sql <- paste(sapply(unlist(strsplit(filter, "&")), checkpart), collapse = " AND ")
   } else if (grepl("\\|", filter)) {
-    sql <- paste(sapply(unlist(strsplit(sql, "\\|")), checkpart), collapse = " or ")
+    sql <- paste(sapply(unlist(strsplit(sql, "\\|")), checkpart), collapse = " OR ")
   } else {
     sql <- checkpart(filter)
   }
@@ -212,22 +212,22 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   ## Define function to remove odd parentheses
   remove.paren <- function(x) {
     x <- gsub(" ", "", x)
-	leftp <- sum(as.vector(gregexpr("\\(", x)[[1]]) > 0) 
-	rightp <- sum(as.vector(gregexpr("\\)", x)[[1]])> 0)
-	if (leftp > rightp) {
-	  x <- sub("\\(", "", x)
-	} else if (rightp > leftp) {
-	  x <- sub("\\)", "", x)
+	  leftp <- sum(as.vector(gregexpr("\\(", x)[[1]]) > 0) 
+	  rightp <- sum(as.vector(gregexpr("\\)", x)[[1]])> 0)
+	  if (leftp > rightp) {
+	    x <- sub("\\(", "", x)
+	  } else if (rightp > leftp) {
+	    x <- sub("\\)", "", x)
     }
-	return(x)
+	  return(x)
   }
 
   ## Return NULL if statement is NULL
   if (is.null(statement) || statement == "") {
     if (stopifnull) {
-	  stop()
-	} else {
-	  return(NULL)
+	    stop()
+	  } else {
+	    return(NULL)
     }
   }
 
@@ -271,13 +271,13 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
     grept <- Rlogic.chars.diff[unlist(sapply(Rlogic.chars.diff,
 		          function(x, statement){grepl(x, statement, ignore.case=TRUE)}, statement))]
 				  
-	if (length(grept) > 0) {
-	  if (syntax == "SQL") {
-	    message("syntax is R")
-		statement <- RtoSQL(statement)
-	  }
-	  syntax <- "R"
-	} 
+	  if (length(grept) > 0) {
+	    if (syntax == "SQL") {
+	      message("syntax is R")
+		    statement <- RtoSQL(statement)
+	    }
+	    syntax <- "R"
+	  } 
     if (grepl("&", statement, ignore.case=TRUE) || grepl("\\|", statement, ignore.case=TRUE)) {
       syntax <- "R"
     } else if (grepl(" and ", statement, ignore.case=TRUE) || grepl(" or ", statement, ignore.case=TRUE)) {
@@ -290,7 +290,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
     } else if (syntax == "SQL") {
       logic.chars <- SQLlogic.chars
     }
-	if (syntax == "R") {
+	  if (syntax == "R") {
 #      if (grepl("==", statement) && sum(gregexpr(equalsign, statement)>0) == 0) {
 #        message("must be R syntax.. changing = to ==")
 #        statement <- gsub("=", "==", statement)
@@ -301,37 +301,37 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       if (grepl("\\|\\|", statement)) {
         statement <- gsub("\\|\\|", "\\|", statement)
       }
-	}
+	  }
 
     ## Check parentheses
     paren.left <- sum(attr(gregexpr("\\(", statement)[[1]], "match.length") > 0)
     paren.right <- sum(attr(gregexpr("\\)", statement)[[1]], "match.length") > 0)
     if (paren.left < paren.right) {
-	  message("invalid logical statement... missing left parenthesis")
-	  if (stopifinvalid) {
+	    message("invalid logical statement... missing left parenthesis")
+	    if (stopifinvalid) {
         stop()
-	  } else {
-	    return(NULL)
-	  }
+	    } else {
+	      return(NULL)
+	    }
     } else if (paren.left > paren.right) {
-	  message("invalid logical statement... missing right parenthesis")
-	  if (stopifinvalid) {
+	    message("invalid logical statement... missing right parenthesis")
+	    if (stopifinvalid) {
         stop("invalid logical statement... missing right parenthesis")
-	  } else {
-	    return(NULL)
-	  }
+	    } else {
+	      return(NULL)
+	    }
     } 
 
-	#statement <- gsub(" ", "", statement)
-	if (syntax == "R") {
-	  andnm <- "&"
+	  #statement <- gsub(" ", "", statement)
+	  if (syntax == "R") {
+	    andnm <- "&"
       ornm <- "\\|"
-	} else {
+	  } else {
       andnm <- "^and$"
-	  ornm <- "^or$"
+	    ornm <- "^or$"
       andnm <- ifelse(grepl(" and ", statement), " and ", " AND ")
       ornm <- ifelse(grepl(" or ", statement), " or ", " OR ")	  
-	}
+	  }
 
     if (grepl(andnm, statement) && grepl(ornm, statement)) {
       partsAND <- trimws(unlist(strsplit(statement, andnm)[[1]]))
@@ -341,10 +341,10 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 		    sum(attr(gregexpr("\\)", partsAND)[[1]], "match.length"))) {
 
         ## Split AND parts
-		parts <- unlist(sapply(partsAND, function(x) strsplit(x, ornm)))
+		    parts <- unlist(sapply(partsAND, function(x) strsplit(x, ornm)))
 		  
-		## Remove odd parentheses
-		parts <- sapply(as.vector(parts), remove.paren)
+		    ## Remove odd parentheses
+		    parts <- sapply(as.vector(parts), remove.paren)
 
         ## Check if there are any variables in x that match filter
         chkparts <- sapply(parts, chkpartnm, x, logic.chars)
@@ -353,10 +353,10 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 		    sum(attr(gregexpr("\\)", partsOR)[[1]], "match.length"))) {
 			
         ## Split OR parts 
-		parts <- unlist(sapply(partsOR, function(x) strsplit(x, andnm)))
+		    parts <- unlist(sapply(partsOR, function(x) strsplit(x, andnm)))
 		  
-		## Remove odd parentheses
-		parts <- sapply(as.vector(parts), remove.paren)
+		    ## Remove odd parentheses
+		    parts <- sapply(as.vector(parts), remove.paren)
 
         ## Check if there are any variables in x that match filter
         chkparts <- sapply(parts, chkpartnm, x, logic.chars, returnvar)
@@ -377,25 +377,25 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       ## Check if there are any variables in x that match filter
       chkparts <- sapply(parts, chkpartnm, x, logic.chars, returnvar)
 
-	} else {
+	  } else {
 	
-	  chkparts <- chkpartnm(statement, x, logic.chars, returnvar)
-	}
+	    chkparts <- chkpartnm(statement, x, logic.chars, returnvar)
+	  }
 
     if (is.null(chkparts) || any(sapply(chkparts, is.null))) {
-	  message(fwarning)
-	  if (returnpart) { 
-	    if (all(sapply(chkparts, is.null))) {
-		  if (stopifinvalid) {
+	    message(fwarning)
+	    if (returnpart) { 
+	      if (all(sapply(chkparts, is.null))) {
+		      if (stopifinvalid) {
             stop()
           } else {
             return(NULL)
           }
-		}
-	    if (sum(sapply(chkparts, is.null)) > 0 && sum(sapply(chkparts, is.null)) < length(chkparts)) {
-		  return(names(chkparts)[!sapply(chkparts, is.null)])
-		}
-	  }
+		    }
+	      if (sum(sapply(chkparts, is.null)) > 0 && sum(sapply(chkparts, is.null)) < length(chkparts)) {
+		      return(names(chkparts)[!sapply(chkparts, is.null)])
+		    }
+	    }
       if (stopifinvalid) {
         stop()
       } else {

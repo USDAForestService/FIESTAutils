@@ -143,15 +143,16 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
     if (is.null(uniquex2)) stop("must include uniquex2")
     if (!"data.table" %in% class(uniquex2)) {
       uniquex2 <- setDT(uniquex2)
-	}
+	  }
     byvars <- c(byvars, xvar2)
 
     if (xvar.add0 && xvar2.add0) {
        uniquex.exp <- unique(expand.grid(uniquex[[xvar]], uniquex2[[xvar2]],
-		stringsAsFactors=FALSE))
+		                    stringsAsFactors=FALSE))
       if (!is.null(unitvar)) {
-        uniquex.exp <- data.table(uvar=rep(unique(x[[unitvar]]),
-			each=nrow(uniquex.exp)), uniquex.exp)
+        uniquex.exp <- 
+          data.table(uvar = rep(unique(x[[unitvar]]),
+			               each = nrow(uniquex.exp)), uniquex.exp)
         setnames(uniquex.exp, c(unitvar, xvar, xvar2))
         chkvars <- c(unitvar, xvar, xvar2)
       } else {
@@ -295,8 +296,8 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       if (!is.null(unitvar)) {
         setnames(x, unitvar, "uvar")
         x <- x[uniquex[rep(1:nrow(uniquex), uniqueN(x$uvar)),
-		c(.SD, list(uvar=rep(unique(x$uvar), each=nrow(uniquex))))],
-		on=c("uvar", xvar)]
+		            c(.SD, list(uvar=rep(unique(x$uvar), each=nrow(uniquex))))],
+		            on=c("uvar", xvar)]
         setnames(x, "uvar", unitvar)
         x[is.na(x)] <- 0
       } else {

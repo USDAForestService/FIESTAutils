@@ -3,6 +3,8 @@
 popTabchk <- function(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb=FALSE) {
   ## DESCRIPTION: check name in tabs list
   
+  tabnames <- c("pltu", "plotu", "plt", "plot")
+  
   tabx=tabnm <- NULL
   tabchk <- sapply(tabnames, findnm, names(tabs), returnNULL = TRUE)
   tabchk <- tabchk[!sapply(tabchk, is.null)]
@@ -19,17 +21,19 @@ popTabchk <- function(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb
 
     if (!is.null(dbconn)) {
       dbtabchk <- sapply(tablst, findnm, dbtablst, returnNULL = TRUE)
-      dbtabchk <- names(dbtabchk)[!unlist(lapply(dbtabchk, is.null))]
-	    if (all(is.na(dbtabchk))) {
+      dbtabnmchk <- names(dbtabchk)[!unlist(lapply(dbtabchk, is.null))]
+	    if (all(is.na(dbtabnmchk))) {
 	      message("invalid name for ", tabtext, ": ", tab)
 	      return(0)
-	    } else if (length(dbtabchk) > 1) {
-	      dbtabchk <- dbtabchk[1]
+	    } else if (length(dbtabnmchk) > 1) {
+	      dbtabnmchk <- dbtabnmchk[1]
 	    }
-      tab <- tabs[[dbtabchk]]
-      tabid <- tabIDs[[dbtabchk]]
+
+      tab <- tabs[[dbtabnmchk]]
+      tabid <- tabIDs[[dbtabnmchk]]
       tabflds <- DBI::dbListFields(dbconn, tab)
-      tabnm <- tablst[[dbtabchk]]
+      tabnm <- findnm(tablst[[dbtabnmchk]], dbtablst)
+      
 	  } else {
 	    tabchk1 <- unlist(tabchk)[1]
       if (length(tabchk) > 1) {

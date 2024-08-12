@@ -23,7 +23,7 @@ GBest.pbar <- function(sumyn="CONDPROP_ADJ", ysum, sumyd=NULL, esttype="AREA",
   ## dhat.var	- variance of estimated proportion, for denominator
   ## covar		- covariance of numerator and denominator
   ########################################################################################
-  strunitvars <- c(unitvar, strvar)
+  strunitvars <- c(unitvars, strvar)
 
   if ("data.table" %in% class(stratalut)) {
     stratalut <- setDT(stratalut)

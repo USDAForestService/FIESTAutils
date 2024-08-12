@@ -50,7 +50,7 @@ classqry <- function(classcol,
   if (NAto0) {
     classify2.qry <- paste(" \n   WHEN", classcol, "IS NULL THEN '0'")
   }
-  for (i in 1:(length(fromval)-1)) {  
+  for (i in 1:(length(fromval))) {  
     if (!is.na(fromval[i])) {
       classify2.qry <- paste(classify2.qry, 
                            "\n   WHEN", classcol, "=", fromval[i], "THEN", 
