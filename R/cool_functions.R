@@ -491,18 +491,41 @@ nbrdigits <- function(x) {
 
 #' @rdname internal_desc
 #' @export
-getfilter <- function(att, val, syntax="R") {
-## DESCRIPTION: create filter string from att and val
-## syntax - ('R', 'sql')
-  if (is.character(val)) {
-    val <- encodeString(val, quote="'")
+getfilter <- function(att, val, syntax = "R", like = FALSE) {
+  ## DESCRIPTION: create filter string from att and val
+  ## syntax - ('R', 'sql')
+  
+  if (!syntax %in% c("R", "sql")) {
+    stop("Invalid syntax. Must be either 'R' or 'sql'")
   }
-  filter <- paste0(att, " %in% c(", toString(val), ")")
-
-  if (syntax == 'sql') {
-    filter <- gsub("%in% c", "in", filter)
+  
+  if (like) {
+    
+    if (!is.character(val)) {
+      stop("'like' functionality only works with vals(s) of type character")
+    }
+    if (syntax == "R") {
+      valstr <- encodeString(paste0(val, collapse = "|"), quote = "'")
+      filt <- paste0("grepl(", valstr, ", ", att, ")")
+    } else {
+      filt <- paste0(att, " LIKE ", "'%", val, "%'", collapse = " OR ")
+    }
+    
+  } else {
+    
+    if (is.character(val)) {
+      val <- encodeString(val, quote = "'")
+    }
+    filt <- paste0(att, " %in% c(", toString(val), ")")
+    
+    if (syntax == 'sql') {
+      filt <- gsub("%in% c", "in", filt)
+    }
+    
   }
-  return(filter)
+  
+  return(filt)
+  
 }
 
 #' @rdname internal_desc
