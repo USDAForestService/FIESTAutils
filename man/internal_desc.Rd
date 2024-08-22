@@ -381,7 +381,7 @@ nbrdecimals(x)
 
 nbrdigits(x)
 
-getfilter(att, val, syntax = "R", quote = FALSE)
+getfilter(att, val, syntax = "R", quote = FALSE, like = FALSE)
 
 filter2qry(filt, layernm)
 
@@ -404,8 +404,6 @@ getSPGRPCD(states)
 addFORTYPGRPCD(cond)
 
 date2char(df, col, formatstr = "\%Y-\%m-\%d")
-
-getfilter(att, val, syntax = "R", quote = FALSE)
 
 checklevels(x, uniquex, xvar, keepNA = TRUE)
 
