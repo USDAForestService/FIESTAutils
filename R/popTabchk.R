@@ -3,8 +3,6 @@
 popTabchk <- function(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb=FALSE) {
   ## DESCRIPTION: check name in tabs list
   
-  tabnames <- c("pltu", "plotu", "plt", "plot")
-  
   tabx=tabnm <- NULL
   tabchk <- sapply(tabnames, findnm, names(tabs), returnNULL = TRUE)
   tabchk <- tabchk[!sapply(tabchk, is.null)]
