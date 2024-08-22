@@ -56,17 +56,18 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     }
   }
 
+#print(data.frame(stratacnt))
   ## Stop and send message if unitcombine=FALSE and total plots less than minplotnum.unit
   #######################################################################################
   if (!unitcombine) {
     if (any(unique(stratacnt$n.total) < minplotnum.unit)) {
       estunits <- unique(stratacnt[stratacnt$n.total < minplotnum.unit, unitvar, with=FALSE][[1]])
-      stop("estimation unit has less than ", minplotnum.unit, " plots",
-		"... remove or combine estimation units")
-      message(paste(estunits, collapse="; "))
+      message("one or more estimation units has less than ", minplotnum.unit, " plots",
+		         "... set unit_opts(unit.action) to remove or combine estimation units")
+      messagedf(stratacnt[stratacnt[[unitvar]] %in% estunits,])
+      stop()
     }
   }
-
 
   #############################################################################
   ## If stratcombine=TRUE and unitcombine=TRUE and number of total plots is less
@@ -175,9 +176,9 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     stratgrp <- unitgrpsum[, groupStrata(.SD, minplotnum.strat), by=unitvar]
 
     strlut <- stratgrp[, lapply(.SD, sum, na.rm=TRUE),
-		by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, "n.strata")]
+		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, "n.strata")]
     strlut[, n.total := stratgrp[match(strlut[[unitvar]], stratgrp[[unitvar]]),
-		"n.total"]]
+		     "n.total"]]
 
 
     ## Create look up table with original classes and new classes
@@ -229,3 +230,46 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
   }
   return(returnlst)
 }
+
+
+#' @rdname internal_desc
+#' @export
+getcombineqry <- function(lut, 
+                          classcols,
+                          fromcols,
+                          tocols,
+                          tab. = "") {
+  
+  classify.qry <- {}
+  for (to in 1:length(tocols)) {
+    tocol <- tocols[to]
+    
+    case.qry <- "\n(CASE"
+    for (i in 1:(nrow(lut))) { 
+      luti <- lut[i,]
+
+      classcolsi <- as.vector(t(luti[, classcols]))
+      fromcolsi <- as.vector(t(luti[, fromcols]))
+      tocolsi <- as.vector(t(luti[, tocol]))
+      
+      ## Build when query
+      when.qry <- paste0("\nWHEN (", tab., classcols[1], " = ", classcolsi[1]) 
+      for (j in 2:length(classcols)) {
+        when.qry <- paste0(when.qry, " AND ", tab., classcols[j], " = ", classcolsi[j])
+      }
+      when.qry <- paste0(when.qry, ")")
+
+      ## Build then query
+      for (k in 1:length(tocolsi)) {
+        case.qry <- paste0(case.qry, when.qry, " THEN '", tocolsi[k], "'")
+      }  
+    }
+    case.qry <- paste0(case.qry, " END) AS '", tocol, "'")
+    classify.qry <- paste0(classify.qry, case.qry)
+    if (to < length(tocols)) {
+      classify.qry <- paste0(classify.qry, ",")
+    }
+  }
+  return(classify.qry)
+}
+
