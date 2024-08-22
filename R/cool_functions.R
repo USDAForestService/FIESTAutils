@@ -489,9 +489,11 @@ nbrdigits <- function(x) {
   max(nchar(sapply(strsplit(as.character(x), "\\."), "[[", 1)), na.rm=TRUE)
 }
 
+
+
 #' @rdname internal_desc
 #' @export
-getfilter <- function(att, val, syntax = "R", like = FALSE) {
+getfilter <- function(att, val, syntax = "R", quote = FALSE, like = FALSE) {
   ## DESCRIPTION: create filter string from att and val
   ## syntax - ('R', 'sql')
   
@@ -512,10 +514,9 @@ getfilter <- function(att, val, syntax = "R", like = FALSE) {
     }
     
   } else {
-    
-    if (is.character(val)) {
+    if (is.character(val) || quote) {
       val <- encodeString(val, quote = "'")
-    }
+    } 
     filt <- paste0(att, " %in% c(", toString(val), ")")
     
     if (syntax == 'sql') {
@@ -728,23 +729,6 @@ date2char <- function(df, col, formatstr = '%Y-%m-%d') {
     df[[col]] <- as.character(format(df[[col]], formatstr))
   }
   return(df)
-}
-
-
-#' @rdname internal_desc
-#' @export
-getfilter <- function(att, val, syntax="R", quote=FALSE) {
-## DESCRIPTION: create filter string from att and val
-## syntax - ('R', 'sql')
-  if (is.character(val) || quote) {
-    val <- encodeString(val, quote="'")
-  } 
-  filter <- paste0(att, " %in% c(", toString(val), ")")
-
-  if (syntax == 'sql') {
-    filter <- gsub("%in% c", "IN", filter)
-  }
-  return(filter)
 }
 
 
