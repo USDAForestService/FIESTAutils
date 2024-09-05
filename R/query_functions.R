@@ -24,7 +24,8 @@ classqry <- function(classcol,
                      fromval,
                      toval, 
                      classnm = NULL,
-                     NAto0 = TRUE) {
+                     class. = NULL,
+                     fill = NULL) {
   ## DESCRIPTION: creates a string to classify columns to use inside another query
   ## classcol - name of column to classify
   ## fromval - vector of values in classcol to classify
@@ -42,19 +43,24 @@ classqry <- function(classcol,
   if (length(fromval) != length(toval)) {
     message("fromval and toval must be same length")
   }
+  
+  ## check fill
+  if (!is.null(fill) && (!is.vector(fill) || length(fill) != 1)) {
+    message("fill must be vector with length = 1")
+  }
+  
 
   ## Build classify query
   classify1.qry <- paste("  (CASE")
 
   classify2.qry <- {}
   if (NAto0) {
-    classify2.qry <- paste(" \n   WHEN", classcol, "IS NULL THEN '0'")
+    classify2.qry <- paste0(" \n   WHEN ", class., classcol, " IS NULL THEN '", fill, "'")
   }
   for (i in 1:(length(fromval))) {  
     if (!is.na(fromval[i])) {
-      classify2.qry <- paste(classify2.qry, 
-                           "\n   WHEN", classcol, "=", fromval[i], "THEN", 
-                           paste0("'", toval[i], "'"))
+      classify2.qry <- paste0(classify2.qry, 
+            "\n   WHEN ", class., classcol, " = ", fromval[i], " THEN '", toval[i], "'")
     }
   }
   classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", classnm)
@@ -69,13 +75,15 @@ classifyqry <- function(classcol,
                         cutbreaks,
                         cutlabels = NULL,
                         classnm = NULL,
-                        NAto0 = FALSE) {
+                        class. = NULL,
+                        fill = NULL) {
   ## DESCRIPTION: creates a string to classify columns to use inside another query
   ## classcol - name of column to classify
   ## cutbreaks - vector of values to split classcol into (e.g., c(10,20) - >=10 and < 20)
   ## cutlabels - vector of class labels, if NULL, creates labels from cutbreaks (e.g., 10-20)
   ## classnm - name of new attribute
   ## NAto0 - set NULL values to 0
+  ## fill - fill value
 
   
   ## Define default classnm
@@ -100,19 +108,28 @@ classifyqry <- function(classcol,
       }
     }
   }	
+  
+  ## check fill
+  if (!is.null(fill) && (!is.vector(fill) || length(fill) != 1)) {
+    message("fill must be vector with length = 1")
+  }
 
   ## Build classify query
   classify1.qry <- paste("  (CASE")
 
   classify2.qry <- {}
-  if (NAto0) {
-    classify2.qry <- paste(" \n   WHEN", classcol, "IS NULL THEN '0'")
+  if (!is.null(fill) && !is.na(fill)) {
+    classify2.qry <- paste0(" \n   WHEN ", class., classcol, " IS NULL THEN '", fill, "'")
   }
-  for (i in 1:(length(cutbreaks)-1)) {    
-    classify2.qry <- paste(classify2.qry, 
-                         "\n   WHEN", classcol, ">=", cutbreaks[i], "AND", 
-                                 classcol, "<", cutbreaks[i+1], "THEN", 
-                                 paste0("'", cutlabels[i], "'"))
+  for (i in 1:(length(cutbreaks))) {    
+    if (i == length(cutbreaks)) {
+      classify2.qry <- paste0(classify2.qry, 
+                              "\n   WHEN ", class., classcol, " >= ", cutbreaks[i], " THEN '", cutbreaks[i], "+'")
+    } else {
+      classify2.qry <- paste0(classify2.qry, 
+          "\n   WHEN ", class., classcol, " >= ", cutbreaks[i], " AND ", 
+          class., classcol, " < ", cutbreaks[i+1], " THEN '", cutlabels[i], "'")
+    }
   }
   classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", classnm)  
   return(classify.qry)
