@@ -546,6 +546,7 @@ sf_dissolve <- function(sflayer, col=NULL, areacalc=TRUE) {
   geocol <- attr(sflayer, "sf_column")
   sfd <- aggregate(sflayer[, geocol], by=sf::st_drop_geometry(sflayer[, col, drop=FALSE]), sum)
   names(sfd) <- c(col, "geometry")
+  #sfd <- sf::st_cast(sfd, "MULTIPOLYGON")
 
   if (areacalc) 
     sfd <- areacalc.poly(sfd)

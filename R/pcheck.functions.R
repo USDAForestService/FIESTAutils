@@ -1071,11 +1071,11 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
     }
   }
   geomtype <- layerlst$geomtype[layerlst$name == layer][[1]]
- 
+
   if (!is.na(geomtype)) {
     if (!checkonly) {
       chkarc <- NULL
-      if (ext.dsn == "gdb") {
+      if (ext.dsn %in% c("gdb", "gpkg")) {
 #        if ("arcgisbinding" %in% rownames(utils::installed.packages())) {
 #          chkarc <- tryCatch(arcgisbinding::arc.check_product(),
 #				error=function(err) {
@@ -1110,20 +1110,21 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
 
         if (!is.na(sql)) {
           sflayer <- tryCatch(sf::st_read(dsn=dsn, layer=layer, 
-				query=paste0("select * from ", layer, " where ", sql),
-				stringsAsFactors=stringsAsFactors, quiet=TRUE),
-				error=function(err) {
-					message(err, "\n")
-					return(NULL)
-				} )
+				      query=paste0("select * from ", layer, " where ", sql),
+				      stringsAsFactors=stringsAsFactors, quiet=TRUE),
+				      error=function(err) {
+					      message(err, "\n")
+					      return(NULL)
+				      } )
         } else {
           sflayer <- tryCatch(sf::st_read(dsn=dsn, layer=layer,
-				stringsAsFactors=stringsAsFactors, quiet=TRUE),
-				error=function(err) {
-					message(err, "\n")
-					return(NULL)
-				} )
+				      stringsAsFactors=stringsAsFactors, quiet=TRUE),
+				      error=function(err) {
+					       message(err, "\n")
+					       return(NULL)
+				      } )
         }
+
         return(sflayer)
       }
     } else {
