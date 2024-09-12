@@ -213,12 +213,12 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
   }
 
   ## Print new table
-  if (tabprint) {
-    msg <- "## new stratalut"
-    message("\n################################### \n",
-            msg, "\n###################################")
-    message(paste0(capture.output(strlut), collapse = "\n"))
-  }
+#  if (tabprint) {
+#    msg <- "## new stratalut"
+#    message("\n################################### \n",
+#            msg, "\n###################################")
+#    message(paste0(capture.output(strlut), collapse = "\n"))
+#  }
  
   returnlst <- list(pltstratx=pltstratx, strlut=strlut, unitvar=unitvar)
   if (!is.null(strvar)) returnlst$strvar <- strvar

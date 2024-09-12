@@ -54,7 +54,7 @@ classqry <- function(classcol,
   classify1.qry <- paste("  (CASE")
 
   classify2.qry <- {}
-  if (NAto0) {
+  if (!is.null(fill) && !is.na(fill)) {
     classify2.qry <- paste0(" \n   WHEN ", class., classcol, " IS NULL THEN '", fill, "'")
   }
   for (i in 1:(length(fromval))) {  
