@@ -13,7 +13,7 @@ write2postgresql <- function(layer,
   if (is.null(dbconn)) stop("must supply a database object.")
   if (!DBI::dbIsValid(dbconn)) stop("database object is not valid.")
   if (DBI::dbIsReadOnly(dbconn)) stop("database object is read only.")
-  
+
   if (append_layer && overwrite) {
     stop("append_layer and overwrite cannot both be set to TRUE")
   } else {
@@ -22,7 +22,7 @@ write2postgresql <- function(layer,
   }
   
   if (is.null(out_name)) out_name <- "layer"
-  layer <- pcheck.table(layer)
+  layer <- setDF(pcheck.table(layer))
   
   if (!is.null(schema)) {
     out_name_spec <- DBI::Id(table = out_name, schema = schema)
@@ -45,7 +45,7 @@ write2postgresql <- function(layer,
     }
     for (i in seq_along(index.unique)) {
       indexu_i <- index.unique[[i]]
-      
+
       if (!all(indexu_i %in% names(layer))) {
         stop("invalid index.unique... names not in layer: ", toString(indexu_i))
       } else {
@@ -79,7 +79,7 @@ write2postgresql <- function(layer,
     }
     for (i in seq_along(index)) {
       index_i <- index[[i]]
-      index_i_nm <- paste0(out_name, tolower(indexi), "idx", collapse = "_")
+      index_i_nm <- paste0(out_name, tolower(index_i), "idx", collapse = "_")
       if (!all(index_i %in% names(layer))) {
         stop("invalid index... names not in layer: ", toString(index_i))
       } else {
