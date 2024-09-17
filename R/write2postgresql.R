@@ -52,7 +52,7 @@ write2postgresql <- function(layer,
         indxu_i_nm <- paste0(out_name, tolower(indexu_i), "idx", collapse = "_")
         if (any(duplicated(layer[ , indexu_i]))) {
           warning(indxu_i_nm, " is not unique... creating non-unique index\n")
-          idxsql <- paste0("CREATE INDEX ", indxunm, " ON ",
+          idxsql <- paste0("CREATE INDEX ", indxu_i_nm, " ON ",
                            out_name_str, " USING ", index_type,
                            " (", paste0(indexu_i, collapse = ","), ")")
         } else {
@@ -86,7 +86,7 @@ write2postgresql <- function(layer,
         message("adding index: ", index_i_nm, " to ", out_name)
         idxsql <- paste0("CREATE INDEX ", index_i_nm, " ON ",
                          out_name_str, " USING ", index_type, 
-                         " (",  paste0(indexi, collapse = ","), ")")
+                         " (",  paste0(index_i, collapse = ","), ")")
         index_add <- tryCatch(
           DBI::dbExecute(dbconn, idxsql),
           error = function(err) {

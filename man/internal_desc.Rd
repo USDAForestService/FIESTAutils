@@ -83,6 +83,7 @@
 \alias{save1tab}
 \alias{save2tabs}
 \alias{strat.collapse}
+\alias{getcombineqry}
 \alias{subpsamp}
 \alias{subpsampP2VEG}
 \alias{allin1f}
@@ -557,14 +558,15 @@ groupUnits(
 
 getjoinqry(joinid1, joinid2, alias1 = "p.", alias2 = "plta.")
 
-classqry(classcol, fromval, toval, classnm = NULL, NAto0 = TRUE)
+classqry(classcol, fromval, toval, classnm = NULL, class. = NULL, fill = NULL)
 
 classifyqry(
   classcol,
   cutbreaks,
   cutlabels = NULL,
   classnm = NULL,
-  NAto0 = FALSE
+  class. = NULL,
+  fill = NULL
 )
 
 save1tab(
@@ -617,6 +619,8 @@ strat.collapse(
   vars2combine = NULL,
   ...
 )
+
+getcombineqry(lut, classcols, fromcols, tocols, tab. = "")
 
 subpsamp(
   cond,
