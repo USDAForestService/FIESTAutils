@@ -78,17 +78,18 @@
 #'
 #' @export table_options
 
-table_options <- function(row.FIAname = FALSE, col.FIAname = FALSE, 
-                          row.orderby = NULL, col.orderby = NULL, 
-						  row.add0 = FALSE, col.add0 = FALSE,
-                          rowlut = NULL, collut =NULL, 
-						  row.classify = NULL, col.classify = NULL, 
-						  rawonly = FALSE, raw.keep0 = FALSE,
-                          rowgrp = FALSE, rowgrpnm = NULL, rowgrpord = NULL,
-                          totals = TRUE, allin1 = FALSE, metric = FALSE, 
-						  estround = 1, pseround = 2,
-                          estnull="--", psenull="--", 
-						  divideby=NULL, ...) {
+table_options <- 
+  function(row.FIAname = FALSE, col.FIAname = FALSE, 
+           row.orderby = NULL, col.orderby = NULL, 
+					 row.add0 = FALSE, col.add0 = FALSE,
+           rowlut = NULL, collut =NULL, 
+					 row.classify = NULL, col.classify = NULL, 
+					 rawonly = FALSE, raw.keep0 = FALSE,
+           rowgrp = FALSE, rowgrpnm = NULL, rowgrpord = NULL,
+           totals = TRUE, allin1 = FALSE, metric = FALSE, 
+					 estround = 1, pseround = 2,
+           estnull="--", psenull="--", 
+					 divideby=NULL, ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(table_options)))
