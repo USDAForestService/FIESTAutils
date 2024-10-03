@@ -25,6 +25,7 @@ classqry <- function(classcol,
                      toval, 
                      classnm = NULL,
                      class. = NULL,
+                     prefixnm = NULL,
                      fill = NULL) {
   ## DESCRIPTION: creates a string to classify columns to use inside another query
   ## classcol - name of column to classify
@@ -63,7 +64,7 @@ classqry <- function(classcol,
             "\n   WHEN ", class., classcol, " = ", fromval[i], " THEN '", toval[i], "'")
     }
   }
-  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", classnm)
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", prefixnm, classnm)
   return(classify.qry)
 }
 
@@ -76,6 +77,7 @@ classifyqry <- function(classcol,
                         cutlabels = NULL,
                         classnm = NULL,
                         class. = NULL,
+                        prefixnm = NULL,
                         fill = NULL) {
   ## DESCRIPTION: creates a string to classify columns to use inside another query
   ## classcol - name of column to classify
@@ -131,6 +133,6 @@ classifyqry <- function(classcol,
           class., classcol, " < ", cutbreaks[i+1], " THEN '", cutlabels[i], "'")
     }
   }
-  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", classnm)  
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", prefixnm, classnm)  
   return(classify.qry)
 }

@@ -1456,7 +1456,7 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
   tblnm <- NULL
   
   if (is.character(dbconn)) {
-    message("must check an open connection")
+    message("must be an open connection to check")
 	return(NULL)
   }
 
@@ -1477,11 +1477,11 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
       tablst <- DBI::dbListTables(dbconn)
     } else {
       qry <- paste0(
-         "SELECT DISTINCT OBJECT_NAME 
-          FROM ALL_OBJECTS
-          WHERE OBJECT_TYPE = 'TABLE'
-		  AND OWNER = 'FS_FIADB'
-		  ORDER BY OBJECT_NAME")
+         "SELECT DISTINCT object_name 
+          FROM all_objects
+          WHERE object_type = 'TABLE'
+		  AND owner = 'FS_FIADB'
+		  ORDER BY object_name")
       tablst <- DBI::dbGetQuery(dbconn, qry)[,1]
     }
   
@@ -1489,7 +1489,7 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
     tblnm <- unique(unlist(sapply(tbl, findnm, tablst, returnNULL=TRUE)))
     if (is.null(tblnm)) {
       warning(tbl, " does not exist")
-	  message("tables in database: ", toString(tablst))
+	    message("tables in database: ", toString(tablst))
       return(0)
     }
   }
@@ -1497,14 +1497,16 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
   ## Check tbl
   ######################################################  
   if (datsource == "sqlite") {
-    index.qry <- paste0("SELECT name, tbl_name, sql", 
-                 "\nFROM sqlite_master",
-				 "\nWHERE type = 'index'")
+    index.qry <- paste0(
+      "SELECT name, tbl_name, sql", 
+      "\nFROM sqlite_master",
+			"\nWHERE type = 'index'")
     if (!is.null(tblnm)) {
-	  index.qry <- paste(index.qry,
-	               "\n   AND tbl_name in(", addcommas(tblnm, quotes=TRUE), ")",
-				   "\nORDER BY tbl_name")
-	}
+	    index.qry <- paste(
+	      index.qry,
+	      "\n   AND tbl_name in(", addcommas(tblnm, quotes=TRUE), ")",
+			  "\nORDER BY tbl_name")
+	  }
   } else {  ## datsource != 'sqlite'
     index.qry <- paste0("SELECT table_name, index_name", 
 	              "\nFROM all_indexes")
@@ -1512,37 +1514,40 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
 	if (!is.null(schema)) {
 	  if (!is.character(schema) || length(schema) > 1) {
 	    message("schema must be a character vector of length = 1")
-		return(0)
+		  return(0)
 	  }
 	  index.qry <- paste0(index.qry,
 				  "\nWHERE table_owner = '", schema, "'")
 	
 	  indices <- tryCatch(
-	            data.table(DBI::dbGetQuery(dbconn, index.qry)),
+	      DBI::dbGetQuery(dbconn, index.qry),
 				error=function(e) {
-				warning(e)
-  			    return(NULL)}
-                )
+				    warning(e)
+  			    return(NULL)})
 	  if (is.null(indices)) {
 	    schema.qry <- "SELECT DISTINCT table_owner FROM all_indexes"
 	    schemalst <-  DBI::dbGetQuery(dbconn, schema.qry)[,1]
-		message("schema is invalid: ", toString(schemalst))
+		  message("schema is invalid: ", toString(schemalst))
+	  } else {
+	    indices <- setDT(indices)
 	  }
 	}  
 				  
-    if (!is.null(tblnm)) {
+  if (!is.null(tblnm)) {
 	  if (!is.null(schema)) {
-	    index.qry <- paste0(index.qry,
-	             "\n   AND table_name in(", addcommas(tblnm, quotes=TRUE), ")",
-				 "\nORDER BY table_name")
+	    index.qry <- paste0(
+	      index.qry,
+	      "\n   AND table_name in(", addcommas(tblnm, quotes=TRUE), ")",
+				"\nORDER BY table_name")
 	  } else {
-	  	index.qry <- paste0(index.qry,
-	             "\nWHERE table_name in(", addcommas(tblnm, quotes=TRUE), ")",
-				 "\nORDER BY table_name")
-	  }
-	}			 
+	  	index.qry <- paste0(
+	  	  index.qry,
+	      "\nWHERE table_name in(", addcommas(tblnm, quotes=TRUE), ")",
+				"\nORDER BY table_name")
+	    }
+	  }			 
   }
-  message(index.qry)
+  #message(index.qry)
      
   indices <- DBI::dbGetQuery(dbconn, index.qry)
   if (is.null(tblnm)) {
@@ -1560,7 +1565,7 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
         split2 <- strsplit(split1, "\\)")[[1]][1]
 	    return(split2)
 		}
-	indices$cols <- sapply(indices$sql, getcols)
+	  indices$cols <- sapply(indices$sql, getcols)
 
     if (!is.null(index_cols)) {
       index_test <- data.frame(sapply(index_cols, 
@@ -1574,14 +1579,13 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
       } 
     } else {
       return(indices[, c("tbl_name", "sql", "cols")])
-	}
+	  }
   } else {
     return(indices)
   }
   if (!dbconnopen) {
     DBI::dbDisconnect(dbconn)
   }
-
 }
 
 #' @rdname internal_desc
