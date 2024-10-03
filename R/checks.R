@@ -273,7 +273,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 				  
 	  if (length(grept) > 0) {
 	    if (syntax == "SQL") {
-	      message("syntax is R")
+	      #message("syntax is R")
 		    statement <- RtoSQL(statement)
 	    }
 	    syntax <- "R"
