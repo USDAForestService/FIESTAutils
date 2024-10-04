@@ -558,7 +558,15 @@ groupUnits(
 
 getjoinqry(joinid1, joinid2, alias1 = "p.", alias2 = "plta.")
 
-classqry(classcol, fromval, toval, classnm = NULL, class. = NULL, fill = NULL)
+classqry(
+  classcol,
+  fromval,
+  toval,
+  classnm = NULL,
+  class. = NULL,
+  prefixnm = NULL,
+  fill = NULL
+)
 
 classifyqry(
   classcol,
@@ -566,6 +574,7 @@ classifyqry(
   cutlabels = NULL,
   classnm = NULL,
   class. = NULL,
+  prefixnm = NULL,
   fill = NULL
 )
 
