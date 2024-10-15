@@ -5,3 +5,4 @@
 ^CRAN-SUBMISSION$
 ^\.github$
 ^revdep$
+^docs$
