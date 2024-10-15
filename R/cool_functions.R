@@ -520,7 +520,7 @@ getfilter <- function(att, val, syntax = "R", quote = FALSE, like = FALSE) {
     filt <- paste0(att, " %in% c(", toString(val), ")")
     
     if (syntax == 'sql') {
-      filt <- gsub("%in% c", "in", filt)
+      filt <- gsub("%in% c", "IN ", filt)
     }
     
   }
