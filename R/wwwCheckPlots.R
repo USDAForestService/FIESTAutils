@@ -71,7 +71,6 @@ wwwCheckPlots <- function(popType,
   ##################################################################################
   ## 3. Check plot filters.
   ##################################################################################
-  source("C:\\_tsf\\_GitHub\\tfrescino\\FIESTAdev\\R\\getpopFilterqry.R")
   datfilter <- 
     getpopFilterqry(popType = popType,
                   popFilter = popFilter,
