@@ -62,8 +62,13 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
       indexu <- index.unique[[i]]
 	  
 	    if (!all(indexu %in% names(layer))) {
-        warning("invalid index.unique... names not in ", out_name)
-		    message(toString(indexu))
+	      indexuchk <- sapply(indexu, findnm, names(layer), returnNULL = TRUE)
+	      if (all(is.null(unlist(indexuchk)))) {
+          warning("invalid index.unique... names not in ", out_name)
+		      message(toString(indexu))
+	      } else {
+	        indexu <- indexuchk
+	      }
       }
 
       if (!all(indexu %in% names(layer))) {
@@ -97,7 +102,13 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
     for (i in 1:length(index)) {
       indexi <- index[[i]]
       if (!all(indexi %in% names(layer))) {
-        warning("invalid index... names not in layer: ", toString(indexi))
+        indexichk <- sapply(indexu, findnm, names(layer), returnNULL = TRUE)
+        if (all(is.null(unlist(indexi)))) {
+          warning("invalid index... names not in layer: ", toString(indexi))
+          message(toString(indexichk))
+        } else {
+          indexi <- indexichk
+        }
       } else {
 
         indxnm <- paste0(out_name, "_", paste(tolower(indexi), collapse="_"), "_idx")
