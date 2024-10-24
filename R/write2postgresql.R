@@ -18,7 +18,7 @@ write2postgresql <- function(layer,
     stop("append_layer and overwrite cannot both be set to TRUE")
   } else {
     txt <- ifelse(append_layer, "appending ",
-                  ifelse(overwrite, "overwritting ", "writing "))
+                  ifelse(overwrite, "overwriting ", "writing "))
   }
   
   if (is.null(out_name)) out_name <- "layer"
@@ -47,7 +47,12 @@ write2postgresql <- function(layer,
       indexu_i <- index.unique[[i]]
 
       if (!all(indexu_i %in% names(layer))) {
-        stop("invalid index.unique... names not in layer: ", toString(indexu_i))
+        indexuchk <- sapply(indexu_i, findnm, names(layer), returnNULL = TRUE)
+        if (all(is.null(unlist(indexuchk)))) {
+          stop("invalid index.unique... names not in layer: ", toString(indexu_i))
+        } else {
+          indexu_i <- indexuchk
+        }
       } else {
         indxu_i_nm <- paste0(out_name, tolower(indexu_i), "idx", collapse = "_")
         if (any(duplicated(layer[ , indexu_i]))) {
@@ -80,8 +85,14 @@ write2postgresql <- function(layer,
     for (i in seq_along(index)) {
       index_i <- index[[i]]
       index_i_nm <- paste0(out_name, tolower(index_i), "idx", collapse = "_")
+      
       if (!all(index_i %in% names(layer))) {
-        stop("invalid index... names not in layer: ", toString(index_i))
+        indexchk <- sapply(index_i, findnm, names(layer), returnNULL = TRUE)
+        if (all(is.null(unlist(indexchk)))) {
+          stop("invalid index... names not in layer: ", toString(index_i))
+        } else {
+          index_i <- indexchk
+        }
       } else {
         message("adding index: ", index_i_nm, " to ", out_name)
         idxsql <- paste0("CREATE INDEX ", index_i_nm, " ON ",

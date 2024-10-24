@@ -416,9 +416,10 @@ SAest <- function(yn="CONDPROP_ADJ", dat.dom, cuniqueid, pltassgn,
       cvfolds <- ifelse(nrow(dunitlut.dom) >= 50, 20, 10)
 	  
       ## Select predictors for unit-level models using elastic net via mase
-      predselect.unitlst <- suppressMessages(preds.select(y=yn,
-                            plt=pltdat.dom, auxlut=dunitlut.dom, 
-                            prednames=prednames, cvfolds=cvfolds))
+      predselect.unitlst <- suppressMessages(
+        preds.select(y = yn,
+        plt = pltdat.dom, auxlut = dunitlut.dom, 
+        prednames = prednames, cvfolds = cvfolds))
       predselect.unit <- predselect.unitlst$preds.enet
       predselect.unit.coef <- predselect.unitlst$preds.coef
 
@@ -1019,7 +1020,7 @@ SAest.dom <- function(dom, dat, cuniqueid, dunitlut, pltassgn, dunitvar="DOMAIN"
   ## Subset tomdat to domain=dom
   dat.dom <- dat[dat[[domain]] == dom,]
   if (domain != "TOTAL") {
-    message(dom)
+    #message(dom)
   }
 
   if (nrow(dat.dom) == 0 || sum(!is.na(dat.dom[[domain]])) == 0) {
@@ -1086,9 +1087,11 @@ SAest.large <- function(largebnd.val, dat, cuniqueid, largebnd.unique,
 
   ## get unique domain units and subset domain lut for largebnd value
   #dunits <- sort(unique(dat.large[[dunitvar]]))
-  #dunitlut.large <- dunitlut[dunitlut[[dunitvar]] %in% dunits,]
-  dunits <- sort(unique(dat.large[[dunitvar]]))
-  dunitlut.large <- dunitlut
+  #if (largebnd.unique %in% names(dunitlut)) {
+    dunitlut.large <- dunitlut[dunitlut[[largebnd.unique]] == largebnd.val,]
+  #} else {
+  #  dunitlut.large <- dunitlut
+  #}
 
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))

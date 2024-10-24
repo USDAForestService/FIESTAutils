@@ -103,7 +103,7 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
       indexi <- index[[i]]
       if (!all(indexi %in% names(layer))) {
         indexichk <- sapply(indexu, findnm, names(layer), returnNULL = TRUE)
-        if (all(is.null(unlist(indexi)))) {
+        if (all(is.null(unlist(indexichk)))) {
           warning("invalid index... names not in layer: ", toString(indexi))
           message(toString(indexichk))
         } else {

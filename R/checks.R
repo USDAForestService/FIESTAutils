@@ -152,43 +152,43 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
     part <- as.vector(part)
 
     ## Check if there are any variables in x that match filter
-    chk <- sum(sapply(x, function(x, y){ grepl(x, y) }, part))
+    chk <- sum(sapply(x, function(x, y){ grepl(x, y, ignore.case = TRUE) }, part))
     if (chk == 0) {
-	  return(NULL)
+	    return(NULL)
     } else {
-      chkvar <- x[sapply(x, function(x, y){ grepl(x, y) }, part)]
-	  if (grepl("\n", part)) {
-	    part <- gsub("\n", "", part)
-	  }
-	  if (grepl("\t", part)) {
-	    part <- gsub("\t", "", part)
-	  }
-	  if (grepl("!", part) && !grepl("!=", part)) {
-	    part <- gsub("!", "", part)
-	  }
-	  chklogicchar <- logic.chars[sapply(logic.chars, 
+      chkvar <- x[sapply(x, function(x, y){ grepl(x, y, ignore.case = TRUE) }, part)]
+	    if (grepl("\n", part)) {
+	      part <- gsub("\n", "", part)
+	    }
+	    if (grepl("\t", part)) {
+	      part <- gsub("\t", "", part)
+	    }
+	    if (grepl("!", part) && !grepl("!=", part)) {
+	      part <- gsub("!", "", part)
+	    }
+	    chklogicchar <- logic.chars[sapply(logic.chars, 
 	               function(x, part){ grepl(x, part, ignore.case=TRUE) }, part)]
  
-	  if (length(chklogicchar) > 1) { 
-	    if (length(chklogicchar) == 2 && all(c("notin", "in") %in% chklogicchar)) {
-	      chklogicchar <- "notin"
-	    } else if (length(chklogicchar) == 2 && all(c("NOTIN", "IN") %in% chklogicchar)) {
-	      chklogicchar <- "NOTIN"
-	    } else if (length(chklogicchar) == 3 && all(c("<", ">", "<>") %in% chklogicchar)) {
-	      chklogicchar <- "<>"
-	    } else if (length(chklogicchar) == 3 && all(c("=", "<=", "<") %in% chklogicchar)) {
-	      chklogicchar <- "<="
-	    } else if (length(chklogicchar) == 3 && all(c("=", ">=", ">") %in% chklogicchar)) {
-	      chklogicchar <- ">="
-	    } else if (length(chklogicchar) == 2 && all(c("<=", "<") %in% chklogicchar)) {
-	      chklogicchar <- "<="
-	    } else if (length(chklogicchar) == 2 && all(c(">=", ">") %in% chklogicchar)) {
-	      chklogicchar <- ">="
-	    } else if (length(chklogicchar) == 2 && all(c("<", ">") %in% chklogicchar)) {
-	      chklogicchar <- "<>"
-	    } else {
-		  stop("more than one logic char: ", toString(chklogicchar))
-		}
+	    if (length(chklogicchar) > 1) { 
+	      if (length(chklogicchar) == 2 && all(c("notin", "in") %in% chklogicchar)) {
+	        chklogicchar <- "notin"
+	      } else if (length(chklogicchar) == 2 && all(c("NOTIN", "IN") %in% chklogicchar)) {
+	        chklogicchar <- "NOTIN"
+	      } else if (length(chklogicchar) == 3 && all(c("<", ">", "<>") %in% chklogicchar)) {
+	        chklogicchar <- "<>"
+	      } else if (length(chklogicchar) == 3 && all(c("=", "<=", "<") %in% chklogicchar)) {
+	        chklogicchar <- "<="
+	      } else if (length(chklogicchar) == 3 && all(c("=", ">=", ">") %in% chklogicchar)) {
+	        chklogicchar <- ">="
+	      } else if (length(chklogicchar) == 2 && all(c("<=", "<") %in% chklogicchar)) {
+	        chklogicchar <- "<="
+	      } else if (length(chklogicchar) == 2 && all(c(">=", ">") %in% chklogicchar)) {
+	        chklogicchar <- ">="
+	      } else if (length(chklogicchar) == 2 && all(c("<", ">") %in% chklogicchar)) {
+	        chklogicchar <- "<>"
+	      } else {
+		    stop("more than one logic char: ", toString(chklogicchar))
+		  }
 	
 	    if (chklogicchar %in% c("is.na", "is.null", "IS.NA", "IS.NULL")) {
 	      partsplit <- unlist(strsplit(gsub(" ", "", part), paste0(chklogicchar, "\\(")))[[2]]
@@ -199,11 +199,11 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
         partmatch <- sum(partsplit %in% x)
 	    if (partmatch != 1) {
 	      return(NULL)
-		} else {
-		  if (returnvar) {
-		    return(partsplit[partsplit %in% x])
-		  }
-        }
+		  } else {
+		    if (returnvar) {
+		      return(partsplit[partsplit %in% x])
+		    }
+      }
 	  }
 	  return(part)
     }
@@ -407,7 +407,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   if (returnvar) {
     return(unlist(names(chkparts))) 
   } else {
-    message(statement)
+    #message(statement)
     return(statement)
   }
 }
