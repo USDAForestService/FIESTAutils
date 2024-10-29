@@ -80,10 +80,10 @@
 \alias{getjoinqry}
 \alias{classqry}
 \alias{classifyqry}
+\alias{getcombineqry}
 \alias{save1tab}
 \alias{save2tabs}
 \alias{strat.collapse}
-\alias{getcombineqry}
 \alias{subpsamp}
 \alias{subpsampP2VEG}
 \alias{allin1f}
@@ -556,7 +556,7 @@ groupUnits(
   keepvars = NULL
 )
 
-getjoinqry(joinid1, joinid2, alias1 = "p.", alias2 = "plta.")
+getjoinqry(joinid1, joinid2 = NULL, alias1 = "p.", alias2 = "plta.")
 
 classqry(
   classcol,
@@ -577,6 +577,8 @@ classifyqry(
   prefixnm = NULL,
   fill = NULL
 )
+
+getcombineqry(lut, classcols, fromcols, tocols, tab. = "")
 
 save1tab(
   tab,

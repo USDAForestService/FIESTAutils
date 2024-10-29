@@ -1,8 +1,18 @@
 #' @rdname write2_desc
 #' @export
-write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
- 	outfolder=NULL, overwrite=FALSE, append_layer=FALSE, createnew=FALSE,
-	dbconn=NULL, dbconnopen=FALSE, index.unique=NULL, index=NULL){
+write2sqlite <- function(layer, 
+                         SQLitefn = NULL, 
+                         out_name = NULL, 
+                         lowernames = FALSE,
+                         gpkg = FALSE,
+                         outfolder = NULL, 
+                         overwrite = FALSE, 
+                         append_layer = FALSE, 
+                         createnew = FALSE,
+                         dbconn = NULL, 
+                         dbconnopen = FALSE, 
+                         index.unique = NULL, 
+                         index = NULL){
   ###################################################################################
   ## DESCRIPTION: Internal function to write to csv file.
   ##
@@ -40,7 +50,10 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
 
   ## Check layer
   layer <- pcheck.table(layer)
-
+  if (lowernames) {
+    names(layer) <- tolower(names(layer))
+  }
+  
 
   ## Change columns of type POSIX* to character before writing to database
   if (any(grepl("POSIX", lapply(layer, class)))) {
@@ -60,7 +73,10 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
     }
     for (i in 1:length(index.unique)) {
       indexu <- index.unique[[i]]
-	  
+      if (lowernames) {
+        indexu <- tolower(indexu)
+      }
+      
 	    if (!all(indexu %in% names(layer))) {
 	      indexuchk <- sapply(indexu, findnm, names(layer), returnNULL = TRUE)
 	      if (all(is.null(unlist(indexuchk)))) {
@@ -101,8 +117,12 @@ write2sqlite <- function(layer, SQLitefn=NULL, out_name=NULL, gpkg=FALSE,
     }
     for (i in 1:length(index)) {
       indexi <- index[[i]]
+      if (lowernames) {
+        indexi <- tolower(indexi)
+      }
+      
       if (!all(indexi %in% names(layer))) {
-        indexichk <- sapply(indexu, findnm, names(layer), returnNULL = TRUE)
+        indexichk <- sapply(indexi, findnm, names(layer), returnNULL = TRUE)
         if (all(is.null(unlist(indexichk)))) {
           warning("invalid index... names not in layer: ", toString(indexi))
           message(toString(indexichk))

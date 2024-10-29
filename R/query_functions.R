@@ -3,7 +3,10 @@
 
 #' @rdname internal_desc
 #' @export
-getjoinqry <- function (joinid1, joinid2, alias1 = "p.", alias2 = "plta.") {
+getjoinqry <- function (joinid1, joinid2=NULL, alias1 = "p.", alias2 = "plta.") {
+  if (is.null(joinid2)) {
+    joinid2 <- joinid1
+  }
   joinqry <- "ON ("
   for (i in 1:length(joinid1)) {
     joinqry <- paste0(joinqry, alias1, joinid1[i], " = ", alias2, 
@@ -11,7 +14,11 @@ getjoinqry <- function (joinid1, joinid2, alias1 = "p.", alias2 = "plta.") {
     if (i == length(joinid1)) {
       joinqry <- paste0(joinqry, ")")
     } else {
-      joinqry <- paste(joinqry, "AND ")
+      if (length(joinid1) >= 4 && i == 2) {
+        joinqry <- paste(joinqry, "\n             AND ")
+      } else {
+        joinqry <- paste(joinqry, "AND ")
+      }
     }
   }
   return(joinqry)

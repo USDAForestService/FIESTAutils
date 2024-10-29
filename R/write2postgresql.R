@@ -3,6 +3,7 @@
 write2postgresql <- function(layer, 
                              dbconn,
                              out_name = NULL,
+                             lowernames = FALSE,
                              schema = NULL,
                              append_layer = FALSE, 
                              overwrite = FALSE,
@@ -23,6 +24,9 @@ write2postgresql <- function(layer,
   
   if (is.null(out_name)) out_name <- "layer"
   layer <- setDF(pcheck.table(layer))
+  if (lowernames) {
+    names(layer) <- tolower(names(layer))
+  }
   
   if (!is.null(schema)) {
     out_name_spec <- DBI::Id(table = out_name, schema = schema)
@@ -45,6 +49,9 @@ write2postgresql <- function(layer,
     }
     for (i in seq_along(index.unique)) {
       indexu_i <- index.unique[[i]]
+      if (lowernames) {
+        indexu_i <- tolower(indexu_i)
+      }
 
       if (!all(indexu_i %in% names(layer))) {
         indexuchk <- sapply(indexu_i, findnm, names(layer), returnNULL = TRUE)
@@ -84,6 +91,9 @@ write2postgresql <- function(layer,
     }
     for (i in seq_along(index)) {
       index_i <- index[[i]]
+      if (lowernames) {
+        index_i <- tolower(index_i)
+      }
       index_i_nm <- paste0(out_name, tolower(index_i), "idx", collapse = "_")
       
       if (!all(index_i %in% names(layer))) {
