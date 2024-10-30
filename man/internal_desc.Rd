@@ -256,7 +256,14 @@ checkidx(
   dbconnopen = TRUE
 )
 
-createidx(dbconn, tbl, index_cols, unique = FALSE, dbconnopen = TRUE)
+createidx(
+  dbconn,
+  schema = NULL,
+  tbl,
+  index_cols,
+  unique = FALSE,
+  dbconnopen = TRUE
+)
 
 dbclassify(
   dbconn,

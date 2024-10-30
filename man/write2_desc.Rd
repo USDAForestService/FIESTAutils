@@ -10,6 +10,7 @@
 \usage{
 write2csv(
   layer,
+  lowernames = FALSE,
   outfile = NULL,
   outfolder = NULL,
   outfilenm = NULL,
@@ -27,7 +28,7 @@ write2postgresql(
   layer,
   dbconn,
   out_name = NULL,
-  lowernames = FALSE,
+  lowernames = TRUE,
   schema = NULL,
   append_layer = FALSE,
   overwrite = FALSE,
@@ -40,7 +41,7 @@ write2sqlite(
   layer,
   SQLitefn = NULL,
   out_name = NULL,
-  lowernames = FALSE,
+  lowernames = TRUE,
   gpkg = FALSE,
   outfolder = NULL,
   overwrite = FALSE,
