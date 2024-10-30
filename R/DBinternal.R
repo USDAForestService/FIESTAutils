@@ -1590,18 +1590,23 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
 
 #' @rdname internal_desc
 #' @export
-createidx <- function(dbconn, tbl, index_cols, unique=FALSE, dbconnopen=TRUE) {
+createidx <- function(dbconn, schema=NULL, tbl, index_cols, unique=FALSE, dbconnopen=TRUE) {
   ## DESCRIPTION: create index
 
+  SCHEMA. <- ""
   if (is.character(dbconn)) {
     message("must check an open connection")
-	return(NULL)
+	  return(NULL)
   }
 
   if (!DBI::dbIsValid(dbconn)) {
     message("dbconn is not valid")
     return(NULL)
   }
+  if (!is.null(schema)) {
+    SCHEMA. <- paste0(schema, ".")
+  }
+  
   flds <- DBI::dbListTables(dbconn)
 
   tblnm <- findnm(tbl, flds, returnNULL=TRUE)
