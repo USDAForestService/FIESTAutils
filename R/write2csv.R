@@ -1,8 +1,18 @@
 #' @rdname write2_desc
 #' @export
-write2csv <- function(layer, outfile=NULL, outfolder=NULL, outfilenm=NULL,
-	outfn.pre=NULL, outfn.date=FALSE, overwrite=FALSE, tabtitle=NULL,
-	appendfile=FALSE, closefn=TRUE, outtxt=NULL, gui=FALSE){
+write2csv <- function(layer, 
+                      lowernames = FALSE,
+                      outfile = NULL, 
+                      outfolder = NULL, 
+                      outfilenm = NULL,
+                      outfn.pre = NULL, 
+                      outfn.date = FALSE, 
+                      overwrite = FALSE, 
+                      tabtitle = NULL,
+                      appendfile = FALSE, 
+                      closefn = TRUE, 
+                      outtxt = NULL, 
+                      gui = FALSE){
   ###################################################################################
   ## DESCRIPTION: Internal function to write to csv file.
   ##
@@ -21,6 +31,14 @@ write2csv <- function(layer, outfile=NULL, outfolder=NULL, outfilenm=NULL,
   if (nargs() == 0) gui <- TRUE
   cnames <- TRUE
   appendtext <- ifelse(appendfile, "appended to", "written to")
+  
+  
+  ## Check layer
+  layer <- pcheck.table(layer)
+  if (lowernames) {
+    names(layer) <- tolower(names(layer))
+  }
+  
 
   if (is.null(outfile)) {
     ## Check outfilenm
@@ -46,12 +64,12 @@ write2csv <- function(layer, outfile=NULL, outfolder=NULL, outfilenm=NULL,
   } else {
     if (!is.null(outfilenm) && is.character(outfilenm)) {
       msg <- ifelse (!is.null(outtxt) && is.character(outtxt),
-		paste(outtxt, appendtext, outfilenm),
-		paste("data frame", appendtext, outfilenm))
+		  paste(outtxt, appendtext, outfilenm),
+		  paste("data frame", appendtext, outfilenm))
     } else {
       msg <- ifelse (!is.null(outtxt) && is.character(outtxt),
         	paste(outtxt, appendtext, outfolder),
-		paste("data frame", appendtext, outfolder))
+		  paste("data frame", appendtext, outfolder))
     }
   }
 
@@ -62,7 +80,7 @@ write2csv <- function(layer, outfile=NULL, outfolder=NULL, outfilenm=NULL,
 
   ## Write table to file.
   suppressWarnings(write.table(layer, outfile, row.names=FALSE,
-	append=TRUE, sep=",", col.names=cnames))
+	           append=TRUE, sep=",", col.names=cnames))
 
   ## If closefn is TRUE, close the file.
   if (closefn) {

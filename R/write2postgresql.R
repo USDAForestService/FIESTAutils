@@ -3,7 +3,7 @@
 write2postgresql <- function(layer, 
                              dbconn,
                              out_name = NULL,
-                             lowernames = FALSE,
+                             lowernames = TRUE,
                              schema = NULL,
                              append_layer = FALSE, 
                              overwrite = FALSE,
