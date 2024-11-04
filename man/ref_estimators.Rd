@@ -5,7 +5,7 @@
 \alias{ref_estimators}
 \title{Reference table - FIESTA estimators.}
 \format{
-A dataframe with 7 columns: ESTIMATOR, SHORTNAME, PACKAGE, OUTNAME, ESTIMATOR_TYPE, ESTIMATOR_DATA, DESCRIPTION
+A dataframe with 7 columns: ESTIMATOR, SHORTNAME, PACKAGE, OUTNAME, ESTIMATOR_TYPE, ESTIMATOR_DATA, DESCRIPTION, CITATION
 }
 \source{
 Comma-delimited file.

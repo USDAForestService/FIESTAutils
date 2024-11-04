@@ -114,7 +114,8 @@ DBvars.default(
   issubp = FALSE,
   regionVars = FALSE,
   plotgeom = FALSE,
-  regionVarsRS = "RMRS"
+  regionVarsRS = "RMRS",
+  iscwd = FALSE
 )
 
 DBgetfn(

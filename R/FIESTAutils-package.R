@@ -395,7 +395,7 @@ NULL
 #' 
 #' @name ref_estimators
 #' @docType data
-#' @format A dataframe with 7 columns: ESTIMATOR, SHORTNAME, PACKAGE, OUTNAME, ESTIMATOR_TYPE, ESTIMATOR_DATA, DESCRIPTION
+#' @format A dataframe with 7 columns: ESTIMATOR, SHORTNAME, PACKAGE, OUTNAME, ESTIMATOR_TYPE, ESTIMATOR_DATA, DESCRIPTION, CITATION
 #' @source Comma-delimited file.
 #' @keywords datasets
 NULL

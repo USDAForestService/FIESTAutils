@@ -18,11 +18,12 @@
 #' @rdname internal_desc
 #' @export
 DBvars.default <- function(istree=FALSE, isseed=FALSE, isveg=FALSE, isgrm=FALSE, 
-	isdwm=FALSE, issubp=FALSE, regionVars=FALSE, plotgeom=FALSE, regionVarsRS="RMRS") {
+	isdwm=FALSE, issubp=FALSE, regionVars=FALSE, plotgeom=FALSE, regionVarsRS="RMRS",
+	iscwd=FALSE) {
 
   ## Set global variables
   treevarlst=tsumvarlst=seedvarlst=ssumvarlst=vsubpsppvarlst=vsubpstrvarlst=
-	dwmlst=pgeomvarlst <- NULL
+	dwmlst=pgeomvarlst=cwdlst <- NULL
 
   ## DESCRIPTION: Set default variables for FIA plot data extraction
 
