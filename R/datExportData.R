@@ -10,6 +10,8 @@
 #' index.
 #' @param index String. Name of variable(s) in dfobj to make (non-unique)
 #' index.
+#' @param lowernames Logical. If TRUE, convert column names to lowercase 
+#' before writing to output.
 #' dbconnopen Logical. If TRUE, keep database connection open.
 #' @param savedata_opts List. See help(savedata_options()) for a list
 #' of options.
@@ -29,6 +31,7 @@ datExportData <- function(dfobj,
                           create_dsn = FALSE,
                           index.unique = NULL, 
                           index = NULL, 
+                          lowernames = FALSE,
                           savedata_opts = savedata_options(),
                           dbconn = NULL,
                           dbconnopen = FALSE
@@ -95,10 +98,11 @@ datExportData <- function(dfobj,
   }
  
   ## Check output data
-  outlst <- pcheck.output(out_fmt=out_fmt, outfolder=outfolder,
-	out_dsn=out_dsn, overwrite_dsn=overwrite_dsn, overwrite_layer=overwrite_layer,
-	outfn.date=outfn.date, add_layer=add_layer, append_layer=append_layer,
-	outfn.pre=outfn.pre, out_conn=dbconn, dbconnopen=TRUE)
+  outlst <- pcheck.output(out_fmt = out_fmt, outfolder = outfolder,
+	                  out_dsn=out_dsn, overwrite_dsn = overwrite_dsn, 
+	                  overwrite_layer = overwrite_layer, outfn.date = outfn.date, 
+	                  add_layer = add_layer, append_layer = append_layer,
+	                  outfn.pre = outfn.pre, out_conn = dbconn, dbconnopen = TRUE)
   out_fmt <- outlst$out_fmt
   out_dsn <- outlst$out_dsn
   outfolder <- outlst$outfolder
@@ -124,11 +128,15 @@ datExportData <- function(dfobj,
   if (out_fmt %in% c("sqlite", "gpkg")) {
     gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
  
-    dbconn <- write2sqlite(setDT(dfobj), SQLitefn=out_dsn, 
-          out_name=out_layer, gpkg=gpkg,
-          overwrite=overwrite_layer, append_layer=append_layer,
-          index.unique=index.unique, index=index, createnew=create_dsn, 
-          dbconn=out_conn, dbconnopen=TRUE)
+    dbconn <- write2sqlite(setDT(dfobj), 
+                           SQLitefn = out_dsn, 
+                           lowernames = lowernames,
+                           out_name = out_layer, gpkg = gpkg, 
+                           overwrite = overwrite_layer, 
+                           append_layer = append_layer,
+                           index.unique = index.unique, 
+                           index = index, createnew = create_dsn, 
+                           dbconn = out_conn, dbconnopen = TRUE)
 
   } else if (out_fmt == "gdb") {
      stop("cannot write to a geodatabase")
@@ -139,21 +147,30 @@ datExportData <- function(dfobj,
 #			overwrite=overwrite_layer)
 
   } else if (out_fmt == "csv") {
-    write2csv(dfobj, outfolder=outfolder, outfilenm=out_layer,
-		outfn.pre=outfn.pre, outfn.date=outfn.date, overwrite=overwrite_layer,
-		appendfile=append_layer)
+    write2csv(dfobj, 
+              lowernames = lowernames,
+              outfolder = outfolder, outfilenm = out_layer, 
+              outfn.pre = outfn.pre, outfn.date = outfn.date, 
+              overwrite = overwrite_layer, appendfile = append_layer)
 
   } else if (out_fmt == "rda") {
-    objfn <- getoutfn(outfn=out_layer, outfolder=outfolder, outfn.pre=outfn.pre,
-		outfn.date=outfn.date, overwrite=overwrite_layer, ext="rda")
+    objfn <- getoutfn(outfn = out_layer, 
+                      outfolder = outfolder, 
+                      outfn.pre = outfn.pre, 
+                      outfn.date = outfn.date, 
+                      overwrite = overwrite_layer, ext =" rda")
     save(dfobj, file=objfn)
   } else if (out_fmt == "rds") {
-    objfn <- getoutfn(outfn=out_layer, outfolder=outfolder, outfn.pre=outfn.pre,
-		outfn.date=outfn.date, overwrite=overwrite_layer, ext="rds")
+    objfn <- getoutfn(outfn=out_layer, 
+                      outfolder=outfolder, 
+                      outfn.pre=outfn.pre, outfn.date = outfn.date, 
+                      overwrite = overwrite_layer, ext = "rds")
     save(dfobj, file=objfn)
   } else if (out_fmt == "llo") {
-    objfn <- getoutfn(outfn=out_layer, outfolder=outfolder, outfn.pre=outfn.pre,
-		outfn.date=outfn.date, overwrite=overwrite_layer, ext="llo")
+    objfn <- getoutfn(outfn = out_layer, 
+                      outfolder = outfolder, 
+                      outfn.pre = outfn.pre, outfn.date = outfn.date, 
+                      overwrite = overwrite_layer, ext = "llo")
     save(dfobj, file=objfn)
   } else {
     stop(out_fmt, " currently not supported")
