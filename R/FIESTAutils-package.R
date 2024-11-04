@@ -388,3 +388,16 @@ NULL
 NULL
 
 
+#' Reference table - FIESTA estimators.
+#' 
+#' Table with list of estimators currently in FIESTA.
+#' 
+#' 
+#' @name ref_estimators
+#' @docType data
+#' @format A dataframe with 7 columns: ESTIMATOR, SHORTNAME, PACKAGE, OUTNAME, ESTIMATOR_TYPE, ESTIMATOR_DATA, DESCRIPTION
+#' @source Comma-delimited file.
+#' @keywords datasets
+NULL
+
+

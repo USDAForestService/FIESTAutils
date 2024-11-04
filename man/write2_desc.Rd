@@ -41,7 +41,7 @@ write2sqlite(
   layer,
   SQLitefn = NULL,
   out_name = NULL,
-  lowernames = TRUE,
+  lowernames = FALSE,
   gpkg = FALSE,
   outfolder = NULL,
   overwrite = FALSE,
