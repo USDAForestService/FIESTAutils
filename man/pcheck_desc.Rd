@@ -15,6 +15,7 @@
 \alias{pcheck.areaunits}
 \alias{pcheck.spatial}
 \alias{pcheck.params}
+\alias{pcheck.opts}
 \alias{pcheck_desc}
 \alias{popTabchk}
 \title{Parameter Check Functions}
@@ -97,6 +98,7 @@ pcheck.object(
 
 pcheck.output(
   out_fmt = "csv",
+  outsp_fmt = "shp",
   out_dsn = NULL,
   outfolder = NULL,
   outfn.pre = NULL,
@@ -105,10 +107,11 @@ pcheck.output(
   overwrite_layer = TRUE,
   add_layer = TRUE,
   append_layer = FALSE,
-  createSQLite = TRUE,
+  createSQLite = FALSE,
   out_conn = NULL,
   dbconnopen = FALSE,
-  gui = FALSE
+  gui = FALSE,
+  savedata_opts = NULL
 )
 
 pcheck.colors(colorlst, n)
@@ -140,8 +143,11 @@ pcheck.params(
   multest_opts = NULL,
   spMakeSpatial_opts = NULL,
   eval_opts = NULL,
-  xy_opts = NULL
+  xy_opts = NULL,
+  database_opts = NULL
 )
+
+pcheck.opts(optionlst)
 
 popTabchk(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb = FALSE)
 }

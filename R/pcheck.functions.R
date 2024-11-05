@@ -1422,6 +1422,8 @@ pcheck.opts <- function(optionlst) {
   ## popFilters
   ###################################################################
   if ("popFilter" %in% names(optionlst)) {
+    popFilter <- optionlst$popFilter
+    
     ## Set popFilters defaults
     popFilters_defaults_list <- formals(popFilters)[-length(formals(popFilters))]
     
@@ -1447,9 +1449,10 @@ pcheck.opts <- function(optionlst) {
   ## database options
   ###################################################################
   if ("database_opts" %in% names(optionlst)) {
-    ## Set database defaults
+    database_opts <- optionlst$database_opts
+
+        ## Set database defaults
     database_defaults_list <- formals(database_options)[-length(formals(database_options))]
-    
     for (i in 1:length(database_defaults_list)) {
       assign(names(database_defaults_list)[[i]], database_defaults_list[[i]])
     }
@@ -1476,9 +1479,10 @@ pcheck.opts <- function(optionlst) {
   ## savedata options
   ###################################################################
   if ("savedata_opts" %in% names(optionlst)) {
+    savedata_opts <- optionlst$savedata_opts
+
     ## Set savedata defaults
     savedata_defaults_list <- formals(savedata_options)[-length(formals(savedata_options))]
-
     for (i in 1:length(savedata_defaults_list)) {
       assign(names(savedata_defaults_list)[[i]], savedata_defaults_list[[i]])
     }
@@ -1501,9 +1505,10 @@ pcheck.opts <- function(optionlst) {
   ## unit options
   ###################################################################
   if ("unit_opts" %in% names(optionlst)) {
+    unit_opts <- optionlst$unit_opts
+
     ## Set unit defaults
     unit_defaults_list <- formals(unit_options)[-length(formals(unit_options))]
-    
     for (i in 1:length(unit_defaults_list)) {
       assign(names(unit_defaults_list)[[i]], unit_defaults_list[[i]])
     }
@@ -1526,9 +1531,10 @@ pcheck.opts <- function(optionlst) {
   ## strata options
   ###################################################################
   if ("strata_opts" %in% names(optionlst)) {
+    strata_opts <- optionlst$strata_opts
+
     ## Set strata defaults
     strata_defaults_list <- formals(strata_options)[-length(formals(strata_options))]
-    
     for (i in 1:length(strata_defaults_list)) {
       assign(names(strata_defaults_list)[[i]], strata_defaults_list[[i]])
     }
@@ -1552,9 +1558,10 @@ pcheck.opts <- function(optionlst) {
   ## popTables
   ###################################################################
   if ("popTables" %in% names(optionlst)) {
+    popTables <- optionlst$popTables
+    
     ## Set popTables defaults
     popTables_defaults_list <- formals(popTables)[-length(formals(popTables))]
-    
     for (i in 1:length(popTables_defaults_list)) {
       assign(names(popTables_defaults_list)[[i]], popTables_defaults_list[[i]])
     }  
@@ -1577,9 +1584,10 @@ pcheck.opts <- function(optionlst) {
   ## popTableIDs
   ###################################################################
   if ("popTableIDs" %in% names(optionlst)) {
-    ## Set popTables defaults
-    popTableIDs_defaults_list <- formals(popTableIDs)[-length(formals(popTableIDs))]
+    popTableIDs <- optionlst$popTableIDs
     
+    ## Set popTableIDs defaults
+    popTableIDs_defaults_list <- formals(popTableIDs)[-length(formals(popTableIDs))]
     for (i in 1:length(popTableIDs_defaults_list)) {
       assign(names(popTableIDs_defaults_list)[[i]], popTableIDs_defaults_list[[i]])
     }  

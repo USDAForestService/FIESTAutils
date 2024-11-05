@@ -9,6 +9,7 @@ datExportData(
   create_dsn = FALSE,
   index.unique = NULL,
   index = NULL,
+  lowernames = FALSE,
   savedata_opts = savedata_options(),
   dbconn = NULL,
   dbconnopen = FALSE
@@ -23,7 +24,10 @@ datExportData(
 index.}
 
 \item{index}{String. Name of variable(s) in dfobj to make (non-unique)
-index.
+index.}
+
+\item{lowernames}{Logical. If TRUE, convert column names to lowercase 
+before writing to output.
 dbconnopen Logical. If TRUE, keep database connection open.}
 
 \item{savedata_opts}{List. See help(savedata_options()) for a list
