@@ -1,4 +1,4 @@
-getevalid <- function(states = NULL, 
+getEvalid <- function(states = NULL, 
                       RS = NULL, 
                       evalCur = TRUE, 
                       evalEndyr = NULL, 

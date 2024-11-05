@@ -181,7 +181,7 @@ getcombineqry <- function(lut,
           case.qry <- paste0(case.qry, when.qry,  " THEN '", tocolsi[k], "'")
         }  
       }
-      case.qry <- paste0(case.qry, " END) AS '", classcolsi, "'")
+      case.qry <- paste0(case.qry, " END) AS \"", classcolsi, "\"")
       classify.qry <- paste0(classify.qry, case.qry)
       if (to < length(classcols)) {
         classify.qry <- paste0(classify.qry, ",")
