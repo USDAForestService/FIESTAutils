@@ -586,7 +586,7 @@ classifyqry(
   fill = NULL
 )
 
-getcombineqry(lut, classcols, fromcols, tocols, tab. = "")
+getcombineqry(lut, unitvars, classcols, fromcols, tocols, tab. = "")
 
 save1tab(
   tab,
@@ -638,8 +638,6 @@ strat.collapse(
   vars2combine = NULL,
   ...
 )
-
-getcombineqry(lut, classcols, fromcols, tocols, tab. = "")
 
 subpsamp(
   cond,

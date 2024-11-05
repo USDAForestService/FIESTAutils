@@ -1,3 +1,4 @@
+#' @export
 check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
 	strvars=NULL, savedata=FALSE, outfolder=NULL, outfn=NULL, overwrite=FALSE,
 	outfn.date=TRUE, outfn.pre=NULL, minplotnum.unit=10, minplotnum.strat=2,
