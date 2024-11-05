@@ -1,3 +1,4 @@
+#' @rdname internal_desc
 #' @export
 check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
 	strvars=NULL, savedata=FALSE, outfolder=NULL, outfn=NULL, overwrite=FALSE,
