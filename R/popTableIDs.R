@@ -36,10 +36,7 @@
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Grayson W. White
 #' @keywords list
-#' @examples
-#' popTableIDs(cond = "my_unique_id", tree = "my_tree_id")
 #' @export popTableIDs
-
 popTableIDs <- function(cond = "PLT_CN", 
                         plt = "CN", 
                         tree = "PLT_CN", 

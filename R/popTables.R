@@ -77,7 +77,6 @@
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Grayson W. White
 #' @keywords list
-#' @examples
 #' @export popTables
 
 popTables <- function(cond = "COND", 

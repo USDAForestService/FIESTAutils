@@ -102,9 +102,6 @@ table unique IDs to be supplied to *pop functions.
 \details{
 If no parameters, an empty list is returned.
 }
-\examples{
-popTableIDs(cond = "my_unique_id", tree = "my_tree_id")
-}
 \author{
 Grayson W. White
 }

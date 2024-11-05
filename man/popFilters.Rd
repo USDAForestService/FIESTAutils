@@ -70,9 +70,6 @@ data filters.
 \details{
 If no parameters, an empty list is returned.
 }
-\examples{
-popFilters(ACI = TRUE)
-}
 \author{
 Grayson W. White
 }
