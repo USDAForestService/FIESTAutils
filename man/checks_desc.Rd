@@ -2,6 +2,7 @@
 % Please edit documentation in R/checks.R, R/checks_desc.R, R/cool_functions.R
 \name{check.numeric}
 \alias{check.numeric}
+\alias{check.logic.vars}
 \alias{check.logic}
 \alias{check.matchclass}
 \alias{check.matchval}
@@ -12,6 +13,8 @@
 \title{Check Functions}
 \usage{
 check.numeric(x)
+
+check.logic.vars(statement, varlst)
 
 check.logic(
   x,

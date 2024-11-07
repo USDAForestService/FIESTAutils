@@ -125,6 +125,14 @@ RtoSQL <- function(filter, x=NULL) {
 
 #' @rdname checks_desc
 #' @export
+check.logic.vars <- function(statement, varlst) {
+  ## Checks for variables in varlst in statement
+  varlst[sapply(varlst, function(x, y){ grepl(x, y, ignore.case = TRUE)}, statement)]}
+
+
+
+#' @rdname checks_desc
+#' @export
 check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	stopifinvalid=TRUE, removeinvalid=FALSE, syntax="R", returnvar=FALSE,
 	returnpart = FALSE){

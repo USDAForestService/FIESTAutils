@@ -1328,12 +1328,16 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
     measCur <- FALSE
     measEndyr=measEndyr.filter <- NULL
   }
- 
+
   ## Check INVYR(S) 
   ###########################################################
   if (!measCur || !is.null(invyrs) || !is.null(measyrs)) {
+    if (allyrs) {
+      return(list(measCur=measCur, allyrs=allyrs, 
+                  invyrs=invyrs, measyrs=measyrs))
+    }
     if ((is.null(invyrs) || length(invyrs) == 0) && 
-		(is.null(measyrs) || length(measyrs) == 0)) {
+		           (is.null(measyrs) || length(measyrs) == 0)) {
       if (is.null(invyrtab)) {
         return(NULL)
       } 
@@ -1360,6 +1364,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
         }
         invyrlst[[state]] <- as.numeric(invyr)
       }
+
     } else if (!is.null(invyrs)) {
       if (!is(invyrs, "list")) {
         if (is.vector(invyrs) && is.numeric(invyrs)) {
@@ -1421,7 +1426,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
           stcd <- pcheck.states(state, "VALUE")
           names(invyrtab) <- toupper(names(invyrtab))
           yrnm <- ifelse("INVYR" %in% names(invyrtab), "INVYR", 
-			ifelse("MEASYEAR" %in% names(invyrtab), "MEASYEAR", "NONE"))
+			               ifelse("MEASYEAR" %in% names(invyrtab), "MEASYEAR", "NONE"))
           if (yrnm == "NONE") {
             stop("invyrtab is invalid")
           }           
@@ -1442,11 +1447,10 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
       }
     }
   }
-
   returnlst <- list(measCur=measCur, measEndyr=measEndyr, 
-		measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
-		invyrs=invyrs, measyrs=measyrs, 
-           invyrlst=invyrlst, measyrlst=measyrlst)
+		                measEndyr.filter=measEndyr.filter, allyrs=allyrs, 
+		                invyrs=invyrs, measyrs=measyrs, 
+                    invyrlst=invyrlst, measyrlst=measyrlst)
 }
 
 
