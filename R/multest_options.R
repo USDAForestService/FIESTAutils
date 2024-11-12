@@ -5,6 +5,10 @@
 #' 
 #' If no parameters, an empty list is returned.
 #' 
+#' @param multest_estimators String vector. If multest = TRUE, vector of estimators 
+#' to include in multest output ('JU.GREG','JU.EBLUP','JFH','hbsaeU','hbsaeA'). 
+#' See ref_estimators for descriptions. Use multest_estimators = 'all' to output
+#' all estimators.
 #' @param multest_fmt String. Format for multest output tables ('csv',
 #' 'sqlite', 'gpkg').
 #' @param multest_outfolder String. Outfolder for multest. If NULL, same as
@@ -27,9 +31,13 @@
 #' 
 #' @export multest_options
 
-multest_options <- function(multest_fmt="csv", multest_outfolder=NULL, 
-                          multest_dsn=NULL, multest_layer=NULL,
-                          multest.append=FALSE, multest.AOIonly=FALSE, ...) {
+multest_options <- function(multest_estimators = 'all', 
+                            multest_fmt = "csv", 
+                            multest_outfolder = NULL,
+                            multest_dsn = NULL, 
+                            multest_layer = NULL,
+                            multest.append = FALSE, 
+                            multest.AOIonly = FALSE, ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(multest_options)))

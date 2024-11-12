@@ -5,6 +5,7 @@
 \title{Multest output options.}
 \usage{
 multest_options(
+  multest_estimators = "all",
   multest_fmt = "csv",
   multest_outfolder = NULL,
   multest_dsn = NULL,
@@ -15,6 +16,11 @@ multest_options(
 )
 }
 \arguments{
+\item{multest_estimators}{String vector. If multest = TRUE, vector of estimators 
+to include in multest output ('JU.GREG','JU.EBLUP','JFH','hbsaeU','hbsaeA'). 
+See ref_estimators for descriptions. Use multest_estimators = 'all' to output
+all estimators.}
+
 \item{multest_fmt}{String. Format for multest output tables ('csv',
 'sqlite', 'gpkg').}
 

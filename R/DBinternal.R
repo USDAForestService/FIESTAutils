@@ -1332,6 +1332,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
   ## Check INVYR(S) 
   ###########################################################
   if (!measCur || !is.null(invyrs) || !is.null(measyrs)) {
+
     if (allyrs) {
       return(list(measCur=measCur, allyrs=allyrs, 
                   invyrs=invyrs, measyrs=measyrs))
@@ -1349,18 +1350,21 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
         } else if ("STATECD" %in% names(invyrtab)) {
           stcd <- pcheck.states(state, "VALUE")
           stinvyrlst <- sort(invyrtab[invyrtab$STATECD == stcd, "INVYR"])
-        }        
+        }  
         if (allyrs) {
           invyr <- stinvyrlst
-        } else {
-          if (!gui) {
-            return(NULL)
-          }
+        } else if (gui) {
+          #if (!gui) {
+          #  return(NULL)
+          #}
           ## GET INVENTORY YEAR(S) FROM USER
           invyr <- select.list(as.character(stinvyrlst),
                          title = paste("Inventory year(s) -", stabbr), 
                          multiple = TRUE)
           if (length(invyr) == 0) stop("")
+        } else {
+          invyr <- stinvyrlst
+          allyrs <- TRUE
         }
         invyrlst[[state]] <- as.numeric(invyr)
       }

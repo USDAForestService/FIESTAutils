@@ -17,37 +17,78 @@
 
 #' @rdname spatial_desc
 #' @export
-polyfix.sf <- function(x) {
+polyfix.sf <- function(x, nolonglat=TRUE) {
   # any bad polys?
 
   valid <- NULL
-  message("checking polygons...")
-  if (suppressWarnings(sum(sf::st_is_valid(x) == FALSE)) > 0) {
-    message("poly invalid")
-
-    ## Remove empty geometries
- 	if (sum(sf::st_is_empty(x)) > 0) {
-	  x <- x[!sf::st_is_empty(x),]
-	}
-
-    ## Check 
-    if (sf::st_is_longlat(x)) {
-      stop("polygons layer must be projected")
+  xvalid <- tryCatch(sf::st_is_valid(x),
+                     error=function(e) {
+                       return(NULL) })
+  if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
+    sf_use_s2(FALSE)
+    
+    ## Check for bad geometries
+    badgeomtypes <- c("LINESTRING", "MULTIPOINT", "MULTILINESTRING",
+                      "CIRCULARSTRING", "COMPOUNDCURVE", "CURVEPOLYGON",
+                      "MULTICURVE", "MULTISURFACE", "CURVE", "SURFACE")
+    if (any(unique(sf::st_geometry_type(x)) %in% badgeomtypes)) {
+      x <- sf::st_cast(x, "MULTIPOLYGON")
     }
-	
-    # this is a well known R / GEOS hack (usually combined with the above) to
-    # deal with "bad" polygons
-    message("buffering poly with 0 width...")
-    x <- sf::st_buffer(x[!is.na(valid)], 0.0)
-
-    message("checking polygons after buffer...")
-    if (sum(sf::st_is_valid(x) == FALSE) > 0) {
-	  message("invalid polygons exist")
-	  sf::st_make_valid(x)
-	}
+    
+    xvalid <- tryCatch(sf::st_is_valid(x),
+                       error=function(e) {
+                         return(NULL) })
+    
+    if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
+      x <- sf::st_make_valid(x, 
+                           geos_method = 'valid_structure', 
+                           geos_keep_collapsed = FALSE)
+    
+      xvalid <- tryCatch(sf::st_is_valid(x),
+                       error=function(e) {
+                         return(NULL) })
+      
+      if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
+        # this is a well known R / GEOS hack (usually combined with the above) to
+        # deal with "bad" polygons
+        
+        message("buffering poly with 0 width...")
+        x <- checksf.longlat(x)
+        x <- sf::st_buffer(x[!is.na(valid)], 0.0)
+        
+        message("checking polygons after buffer...")
+        xvalid <- tryCatch(sf::st_is_valid(x),
+                           error=function(e) {
+                             return(NULL) })
+        
+        if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
+          message("invalid polygons exist")
+          x <- sf::st_make_valid(x)
+          
+          
+          xvalid <- tryCatch(sf::st_is_valid(x),
+                             error=function(e) {
+                               return(NULL) })
+          if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
+            message("invalid polygons still exist... cannot fix")
+            stop()
+          }  
+        }  
+      }  
+    }
   }
+  ## Remove empty geometries
+#  if (sum(sf::st_is_empty(x)) > 0) {
+#    x <- x[!sf::st_is_empty(x),]
+#  }
+
+  ## Check longlat
+  if (nolonglat) {
+    x <- checksf.longlat(x)
+  }  
   return(x)
 }
+
 
 #' @rdname spatial_desc
 #' @export

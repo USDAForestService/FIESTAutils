@@ -18,7 +18,7 @@
 \alias{check.area}
 \title{Spatial Data Functions}
 \usage{
-polyfix.sf(x)
+polyfix.sf(x, nolonglat = TRUE)
 
 build.prj4str(
   prj,
