@@ -284,10 +284,11 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   
  
   ## Define estimators
-  SAEunit_estimators <- c("all", "saeU", "JU.EBLUP", "JU.GREG", "JU.Synth", "hbsaeU")
-  SAEarea_estimators <- c("all", "saeA", "JFH", "JA.Synth", "hbsaeA")
-  JoSAE_estimatorsA <- c("all", "JFH", "JA.Synth")
-  JoSAE_estimatorsU <- c("all", "JU.EBLUP", "JU.GREG", "JU.Synth")
+  SAEunit_estimators <- c("all", "saeU", "JU.EBLUP", "JU.EBLUP.se.1", "JU.GREG", "JU.GREG.se", 
+                          "JU.Synth", "hbsaeU", "hbsaeU.se")
+  SAEarea_estimators <- c("all", "saeA", "JFH", "JFH.se", "JA.Synth", "hbsaeA", "hbsaeA.se")
+  JoSAE_estimatorsA <- c("all", "JFH", "JFH.se", "JA.Synth")
+  JoSAE_estimatorsU <- c("all", "JU.EBLUP", "JU.EBLUP.se.1", "JU.GREG", "JU.GREG.se", "JU.Synth")
   
   ## Merge dat.dom to pltassgn
   pltdat.dom <- dat.dom[pltassgn]
@@ -1184,8 +1185,9 @@ SAest.large <- function(largebnd.val, dat,
 			        multest = multest, multest_estimators = multest_estimators,
 			        save4testing = save4testing)
 
-  SAEunit_estimators <- c("all", "saeU", "JU.EBLUP", "JU.GREG", "JU.Synth", "hbsaeU")
-  SAEarea_estimators <- c("all", "saeA", "JFH", "JA.Synth", "hbsaeA")
+  SAEunit_estimators <- c("all", "saeU", "JU.EBLUP", "JU.EBLUP.se.1", "JU.GREG", "JU.GREG.se", 
+                          "JU.Synth", "hbsaeU", "hbsaeU.se")
+  SAEarea_estimators <- c("all", "saeA", "JFH", "JFH.se", "JA.Synth", "hbsaeA", "hbsaeA.se")
   
   if (length(doms) > 1) {
     est.large <- data.table(largebnd=largebnd.val,
