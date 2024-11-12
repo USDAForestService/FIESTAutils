@@ -320,7 +320,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
 
   ## Check if all plots are zero
   if (sum(pltdat.dom[[yn]]) == 0) {
-    message(yn, " has all 0 values... returning NULL")
+    message(yn, " has all 0 values... returning NA values")
 
     if (multest) {
       est <- data.table(dunitlut.dom[[dunitvar]], 
@@ -708,16 +708,16 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
 				} )
 
       if (is.null(unit.JoSAE.obj)) {
-        unit.JoSAE <- data.frame(DOMAIN = dunitlut.dom[[dunitvar]], 
+        unit.JoSAE <- data.table(DOMAIN = dunitlut.dom[[dunitvar]], 
                                JU.Synth = NA, JU.GREG = NA, JU.GREG.se = NA, 
                                JU.EBLUP = NA, JU.EBLUP.se.1 = NA)
         setnames(unit.JoSAE, "DOMAIN", dunitvar)
         
       } else {
         ## subset dataframe before returning
-        unit.JoSAE <- unit.JoSAE.obj[,c("DOMAIN.domain", 
+        unit.JoSAE <- setDT(unit.JoSAE.obj[,c("DOMAIN.domain", 
                          "Synth", "GREG", "GREG.se",
-                         "EBLUP", "EBLUP.se.1")]
+                         "EBLUP", "EBLUP.se.1")])
         names(unit.JoSAE) <- c("DOMAIN", "JU.Synth", "JU.GREG",
                       "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
       }  
@@ -725,7 +725,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       if (!"all" %in% multest_estimators) {
         inest <- multest_estimators[multest_estimators %in% names(unit.JoSAE)]
         if (length(inest) > 0) {
-          unit.JoSAE <- unit.JoSAE[, c(dunitvar, inest)]
+          unit.JoSAE <- unit.JoSAE[, c(dunitvar, inest), with = FALSE]
         }
       }
       
@@ -774,36 +774,36 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
     }
   } else {
 
-    #message("no predictors were selected for unit-level models... returning NAs")
+    message("no predictors were selected for unit-level model... returning NA values")
     if (multest) {
-      est2 <- data.frame(est, JU.Synth = NA, 
+      est.NA <- data.table(est, JU.Synth = NA, 
                       JU.GREG = NA, JU.GREG.se = NA, 
                       JU.EBLUP = NA, JU.EBLUP.se.1 = NA, 
                       hbsaeU = NA, hbsaeU.se = NA)
-      setnames(est, "DOMAIN", dunitvar)
+      setnames(est.NA, "DOMAIN", dunitvar)
       
       if (!"all" %in% multest_estimators) {
-        inest <- multest_estimators[multest_estimators %in% names(est)]
-        if (length(inest) > 0) {
-          est <- est[, c(dunitvar, "NBRPLT", inest)]
+        inest <- multest_estimators[multest_estimators %in% names(est.NA)]
+        if (length(est.NA) > 0) {
+          est.NA <- est.NA[, c(dunitvar, inest), with = FALSE]
         }
       }
-      
     } else {
       if (SAmethod == "unit") {
         if (SApackage == "JoSAE") {
-          est <- data.frame(est, JU.Synth = NA, 
+          est <- data.table(est, JU.Synth = NA, 
                             JU.GREG = NA, JU.GREG.se = NA, 
                             JU.EBLUP = NA, JU.EBLUP.se.1 = NA)
         } else if (SApackage == "hbsae") {
-          est <- data.frame(est, hbsaeU = NA, hbsaeU.se = NA)
+          est <- data.table(est, hbsaeU = NA, hbsaeU.se = NA)
         }
       }
-    }   
+    } 
+    est <- merge(est, est.NA, by="DOMAIN")
   }
 
   if (length(predselect.area) > 0) {
-    message("using following predictors for area-level models...", toString(predselect.area))
+    message("using following predictors for area-level model...", toString(predselect.area))
 
     ## create model formula with predictors
     ## note: the variables selected can change depending on the order in original formula (fmla)
@@ -947,12 +947,12 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
 					return(NULL)
 				} )
       if (is.null(area.hbsae.obj)) {
-        area.hbsae <- data.frame(DOMAIN = dunitlut.dom[[dunitvar]],
+        area.hbsae <- data.table(DOMAIN = dunitlut.dom[[dunitvar]],
 		                             hbsaeA = NA, hbsaeA.se = NA)
         setnames(area.hbsae, "DOMAIN", dunitvar)
       } else {
       
-        area.hbsae <- data.frame(
+        area.hbsae <- data.table(
           DOMAIN = names(area.hbsae.obj$est),
           hbsaeA = area.hbsae.obj$est,
           hbsaeA.se = sqrt(area.hbsae.obj$mse)
@@ -980,8 +980,8 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   } else {
 
     if (multest) {
-      message("no predictors were selected for area-level models... returning NAs")
-      est.NA <- data.frame(DOMAIN = dunitlut.dom[[dunitvar]], 
+      #message("no predictors were selected for area-level model... returning NA values")
+      est.NA <- data.table(DOMAIN = dunitlut.dom[[dunitvar]], 
 			                     JFH = NA, JFH.se = NA, JA.synth = NA, JA.synth.se = NA,
 			                     saeA = NA, saeA.se = NA,
 			                     hbsaeA = NA, hbsaeA.se = NA)
@@ -990,19 +990,19 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       if (!"all" %in% multest_estimators) {
         inest <- multest_estimators[multest_estimators %in% names(est.NA)]
         if (length(inest) > 0) {
-          est.NA <- est.NA[, c(dunitvar, "NBRPLT", inest)]
+          est.NA <- est.NA[, c(dunitvar, inest), with = FALSE]
         }
       }
   
     } else {
-      est.NA <- data.frame(DOMAIN=dunitlut.dom[[dunitvar]])
+      est.NA <- data.table(DOMAIN=dunitlut.dom[[dunitvar]])
 
       if (SApackage == "JoSAE") {
-        est.NA <- data.frame(est.NA, JFH = NA, JFH.se = NA, JA.synth = NA, JA.synth.se = NA)
+        est.NA <- data.table(est.NA, JFH = NA, JFH.se = NA, JA.synth = NA, JA.synth.se = NA)
       } else if (SApackage == "sae") {
-        est.NA <- data.frame(est.NA, saeA = NA, saeA.se = NA)
+        est.NA <- data.table(est.NA, saeA = NA, saeA.se = NA)
       } else if (SApackage == "hbsae") {
-        est.NA <- data.frame(est.NA, hbsaeA = NA, hbsaeA.se = NA)
+        est.NA <- data.table(est.NA, hbsaeA = NA, hbsaeA.se = NA)
       }
     }
     est <- merge(est, est.NA, by="DOMAIN")
@@ -1083,11 +1083,12 @@ SAest.dom <- function(dom, dat, cuniqueid,
 		                  bayes = FALSE, bayes_opts = NULL, 
 		                  save4testing = FALSE) {
 
-  ## Subset tomdat to domain=dom
-  dat.dom <- dat[dat[[domain]] == dom,]
-  if (domain != "TOTAL") {
+  if (!domain %in% c("TOTAL", "total")) {
     message("getting estimates for ", dom, "...")
   }
+  
+  ## Subset tomdat to domain=dom
+  dat.dom <- dat[dat[[domain]] == dom,]
 
   if (nrow(dat.dom) == 0 || sum(!is.na(dat.dom[[domain]])) == 0) {
     domest <- data.table(dom, matrix(c(0, rep(NA,17)), 1, 18), 0, 1)
@@ -1110,7 +1111,7 @@ SAest.dom <- function(dom, dat, cuniqueid,
 			prior = prior, modelselect = modelselect, 
 			multest = multest, multest_estimators = multest_estimators,
 			save4testing = save4testing)
-  #print(dim(domest$dunitlut.dom))
+  #print(dim(domest$est))
 
   domest$est <- data.table(dom, domest$est)
   setnames(domest$est, "dom", domain)
@@ -1141,6 +1142,10 @@ SAest.large <- function(largebnd.val, dat,
 		                    bayes = FALSE, bayes_opts = NULL, 
 		                    vars2keep = NULL, save4testing = FALSE) {
  
+  if (largebnd.val != 1) {
+    message("getting estimates for ", largebnd.val, "...\n")
+  }
+  
   if (bayes && all(c("X","Y") %in% names(dat))) {
     xy <- c("X", "Y")
   } else {
@@ -1171,7 +1176,7 @@ SAest.large <- function(largebnd.val, dat,
 # dat=dat.large
 # dunitlut=dunitlut.large
 # pltassgn=pltassgn.large
-# dom=doms[i]
+# dom=doms[5]
   estlst <- lapply(doms, SAest.dom,
 			        dat = dat.large, cuniqueid = cuniqueid, 
 			        pltassgn = pltassgn.large,
@@ -1190,12 +1195,14 @@ SAest.large <- function(largebnd.val, dat,
   SAEarea_estimators <- c("all", "saeA", "JFH", "JFH.se", "JA.Synth", "hbsaeA", "hbsaeA.se")
   
   if (length(doms) > 1) {
+
     est.large <- data.table(largebnd=largebnd.val,
 				do.call(rbind, do.call(rbind, estlst)[,"est"]))
     setnames(est.large, "largebnd", largebnd.unique)
-
+    
     pltdat.dom <- data.table(largebnd.val, do.call(rbind,
 				do.call(rbind, estlst)[,"pltdat.dom"]))
+
     dunitlut.dom <- data.table(largebnd.val, do.call(rbind,
 				do.call(rbind, estlst)[,"dunitlut.dom"]))
 
