@@ -1118,7 +1118,7 @@ focalRaster <- function(srcfile, dstfile, w, fun=sum, na.rm=FALSE, ...,
 #' @export
 zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                        rasterfile, band = 1, lut=NULL, pixelfun=NULL,
-                       na.rm=TRUE, ignoreValue=NULL) {
+                       na.rm=TRUE, ignoreValue=NULL, show_progress = FALSE) {
     ## zoneid, npixels, mean, min, max, sum, var, sd
 
     ds <- new(GDALRaster, rasterfile, read_only = TRUE)
@@ -1168,7 +1168,8 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
         stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
 
-    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+    if (show_progress)
+        pb <- utils::txtProgressBar(min = 0, max = nrow(src))
 
     for (i in seq_len(nrow(src))) {
         this_attr <- as.character(src[[attribute]][i])
@@ -1201,11 +1202,12 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
         RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
                          readRaster, NA, this_attr)
-
-        utils::setTxtProgressBar(pb, i)
+        if (show_progress)
+            utils::setTxtProgressBar(pb, i)
     }
 
-    close(pb)
+    if (show_progress)
+        close(pb)
 
     npixels <- rep(0, length(zoneid))
     zone.stats <- data.frame(zoneid, npixels, stringsAsFactors=FALSE)
@@ -1245,7 +1247,7 @@ zonalMean <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 #' @export
 zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                       rasterfile, band=1, aggfun=NULL, lut=NULL,
-                      na.rm=FALSE, ignoreValue=NULL) {
+                      na.rm=FALSE, ignoreValue=NULL, show_progress = FALSE) {
     # aggfun is an aggregate function applied to the counts by zoneid,
     # like max to get the zonal most frequent value
 
@@ -1291,7 +1293,8 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     if (!geom_type %in% c("POLYGON", "MULTIPOLYGON"))
         stop("geometry type must be POLYGON or MULTIPOLYGON", call. = FALSE)
 
-    pb <- utils::txtProgressBar(min = 0, max = nrow(src))
+    if (show_progress)
+        pb <- utils::txtProgressBar(min = 0, max = nrow(src))
 
     for (i in seq_len(nrow(src))) {
         this_attr <- as.character(src[[attribute]][i])
@@ -1326,10 +1329,12 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
                          readRaster, this_attr_idx)
 
-        utils::setTxtProgressBar(pb, i)
+        if (show_progress)
+            utils::setTxtProgressBar(pb, i)
     }
 
-    close(pb)
+    if (show_progress)
+        close(pb)
 
     # for CRAN check only:
     count <- NULL
