@@ -174,7 +174,8 @@ zonalStats(
   lut = NULL,
   pixelfun = NULL,
   na.rm = TRUE,
-  ignoreValue = NULL
+  ignoreValue = NULL,
+  show_progress = FALSE
 )
 
 zonalMean(
@@ -200,7 +201,8 @@ zonalFreq(
   aggfun = NULL,
   lut = NULL,
   na.rm = FALSE,
-  ignoreValue = NULL
+  ignoreValue = NULL,
+  show_progress = FALSE
 )
 
 zonalMajority(
