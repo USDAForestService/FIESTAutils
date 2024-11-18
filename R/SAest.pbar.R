@@ -11,7 +11,9 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
 
 
   if (SApackage == "JoSAE") {
-
+    #message("generating estimates using unit-level empirical best linear unbiased predition (EBLUP) based on the Battese-Harter-Fuller model...")
+    #message("generating estimates using unit-level empirical best linear unbiased predition (EBLUP)...")
+    
     ## create linear mixed model
     ## note: see http://www.win-vector.com/blog/2018/09/r-tip-how-to-pass-a-formula-to-lm/
     dom.lme <- eval(bquote( nlme::lme(.(fmla.dom.unit), data=pltdat.unit, random=~1|DOMAIN)))
@@ -64,6 +66,9 @@ SAest.unit <- function(fmla.dom.unit, pltdat.dom, dunitlut.dom, yn, SApackage,
   }
 
   if (SApackage == "hbsae") {
+    #message("generating estimates using unit-level hierarchical Bayesian prediction with half-Cauchy prior based on the Fay-Herriot model...")
+    #message("generating estimates using unit-level hierarchical Bayesian prediction...")
+    
     #prior = function(x) 1 / (sqrt(x) * (1 + x))
     xpophb <- model.matrix(fmla.dom.unit[-2], dunitlut.unit)
     rownames(xpophb) <- dunitlut.unit[[dunitvar]]
@@ -116,6 +121,9 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
 	dunitvar="DOMAIN", predselect.area, yn, SApackage, prior=NULL) {
 
   if (SApackage == "JoSAE") {
+    #message("generating estimates using area-level empirical best linear prediction (EBLUP) on the Fay-Heriot model...")
+    #message("generating estimates using area-level empirical best linear prediction (EBLUP)...")
+    
     xpop.dom <- paste0(predselect.area, ".X.pop")
     fmla.dom.area2 <- as.formula(paste(paste0(yn, ".ybar.i"),
                                   paste(xpop.dom, collapse= "+"), sep="~"))
@@ -200,7 +208,9 @@ SAest.area <- function(fmla.dom.area, pltdat.area, dunitlut.area, cuniqueid,
   }
 
   if (SApackage == "hbsae") {
-
+    #message("generating estimates using area-level hierarchical Bayesian prediction with half-Cauchy prior based on the Fay-Herriot model...")
+    #message("generating estimates using area-level hierarchical Bayesian prediction...")
+    
     prior = function(x) 1 / (sqrt(x) * (1 + x))
     nm.var <- paste0(yn, ".var")
     dunitlut.area$var <- dunitlut.area[[nm.var]] / dunitlut.area$n.total
@@ -497,7 +507,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       cvfolds <- ifelse(nrow(dunitlut.dom) >= 50, 20, 10)
 
       ## Select predictors for area-level models using elastic net via mase
-      predselect.arealst <- suppressMessages(
+      predselect.arealst <- suppressWarnings(
         preds.select(y = yn,
                      plt = dunitlut.dom, auxlut = dunitlut.dom, 
                      prednames = prednames, cvfolds = cvfolds))
@@ -684,7 +694,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   setnames(est, "n.total", "NBRPLT")
 
   if (length(predselect.unit) > 0) {
-    message("using following predictors for unit-level models...", toString(predselect.unit))
+    #message("using following predictors for unit-level models...", toString(predselect.unit))
 
     ## create model formula with predictors
     ## note: the variables selected can change depending on the order in original formula (fmla)
@@ -803,7 +813,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   }
 
   if (length(predselect.area) > 0) {
-    message("using following predictors for area-level model...", toString(predselect.area))
+    #message("using following predictors for area-level model...", toString(predselect.area))
 
     ## create model formula with predictors
     ## note: the variables selected can change depending on the order in original formula (fmla)

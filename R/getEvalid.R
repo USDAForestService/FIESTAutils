@@ -1,3 +1,5 @@
+#' @rdname internal_desc
+#' @export
 getEvalid <- function(states = NULL, 
                       RS = NULL, 
                       evalCur = TRUE, 
