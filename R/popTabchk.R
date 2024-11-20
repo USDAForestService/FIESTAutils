@@ -13,7 +13,12 @@ popTabchk <- function(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb
     tablst <- lapply(tabchk, function(x) tabs[[x]])
 
     #tablst <- names(tablst)[!duplicated(lapply(names(tablst), findnm, dbtablst, returnNULL = TRUE))]
-    if (!all(unlist(lapply(tablst, is.data.frame)))) {
+    tabdfchk <- unlist(lapply(tablst, is.data.frame))
+    if (any(tabdfchk)) {
+      tab <- names(tabdfchk)[tabdfchk]
+      tabid <- tabIDs[[tab]]
+      tabx <- pcheck.table(tablst[[tab]], tabnm = tabtext)
+    } else {
       tablst <- tablst[!duplicated(lapply(tablst, findnm, dbtablst, returnNULL = TRUE))]
     }
 
@@ -34,6 +39,7 @@ popTabchk <- function(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb
       
 	  } else {
 	    tabchk1 <- unlist(tabchk)[1]
+	 
       if (length(tabchk) > 1) {
         tab <- tabs[[tabchk1]]
         tabid <- tabIDs[[tabchk1]]
