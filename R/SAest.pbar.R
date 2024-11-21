@@ -969,7 +969,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
         )
       
         names(area.hbsae)[names(area.hbsae) == "DOMAIN"] <- dunitvar
-        area.hbsae <- area.hbsae[, c(dunitvar, "hbsaeA", "hbsaeA.se")]
+        area.hbsae <- area.hbsae[, c(dunitvar, "hbsaeA", "hbsaeA.se"), with = FALSE]
       
         if (nrow(dunitlut.NA) > 0) {
           est.NA <- data.table(dunitlut.NA[[dunitvar]], 
