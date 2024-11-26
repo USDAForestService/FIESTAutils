@@ -137,10 +137,10 @@ check.logic.vars <- function(varlst, statement, ignore.case = FALSE, returnVars 
   chk <- sapply(varlst, function(x, statement, ignore.case) {
     grepl(paste0("(^|\\s)", x, "($|\\s)"), statement, perl = TRUE, ignore.case = ignore.case)},
     statement, ignore.case)
-  
-  if (chk) {
+
+  if (any(chk)) {
     if (returnVars) {
-      return(names(chk))
+      return(names(chk)[chk])
     } else {
       return(as.vector(chk))
     }

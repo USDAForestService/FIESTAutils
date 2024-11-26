@@ -1610,7 +1610,7 @@ pcheck.opts <- function(optionlst) {
   
   ## popTableIDs
   ###################################################################
-  if ("popTableIDs" %in% names(optionlst)) {
+  if ("popTabIDs" %in% names(optionlst)) {
     popTabIDs <- optionlst$popTabIDs
     
     ## Set popTableIDs defaults
