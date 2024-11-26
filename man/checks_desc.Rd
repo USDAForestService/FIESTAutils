@@ -14,7 +14,7 @@
 \usage{
 check.numeric(x)
 
-check.logic.vars(statement, varlst)
+check.logic.vars(varlst, statement, ignore.case = FALSE, returnVars = FALSE)
 
 check.logic(
   x,

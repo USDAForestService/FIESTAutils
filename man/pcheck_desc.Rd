@@ -144,7 +144,8 @@ pcheck.params(
   spMakeSpatial_opts = NULL,
   eval_opts = NULL,
   xy_opts = NULL,
-  database_opts = NULL
+  database_opts = NULL,
+  datSum_opts = NULL
 )
 
 pcheck.opts(optionlst)

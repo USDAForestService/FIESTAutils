@@ -1,5 +1,6 @@
 ## check.numeric
 ## RtoSQL    Convert logical R statement syntax to SQL syntax
+## check.logic.vars   Check if variables are in statement
 ## check.logic
 ## check.matchclass
 ## check.matchval
@@ -125,9 +126,32 @@ RtoSQL <- function(filter, x=NULL) {
 
 #' @rdname checks_desc
 #' @export
-check.logic.vars <- function(statement, varlst) {
+check.logic.vars <- function(varlst, statement, ignore.case = FALSE, returnVars = FALSE) {
+  
+  ## Description: checks if variables in varlst are in statement.
+  if (all(is.null(varlst))) {
+    return(FALSE)
+  }
+  
   ## Checks for variables in varlst in statement
-  varlst[sapply(varlst, function(x, y){ grepl(x, y, ignore.case = TRUE)}, statement)]}
+  chk <- sapply(varlst, function(x, statement, ignore.case) {
+    grepl(paste0("(^|\\s)", x, "($|\\s)"), statement, perl = TRUE, ignore.case = ignore.case)},
+    statement, ignore.case)
+  
+  if (chk) {
+    if (returnVars) {
+      return(names(chk))
+    } else {
+      return(as.vector(chk))
+    }
+  } else {
+    if (returnVars) {
+      return(NULL)
+    } else {
+      return(FALSE)
+    }
+  }
+}
 
 
 

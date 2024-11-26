@@ -1236,7 +1236,8 @@ pcheck.params <- function(input.params, strata_opts = NULL,
                  unit_opts = NULL, table_opts = NULL, title_opts = NULL,
                  savedata_opts = NULL, multest_opts = NULL,
                  spMakeSpatial_opts = NULL, eval_opts = NULL,
-                 xy_opts = NULL, database_opts = NULL) {
+                 xy_opts = NULL, database_opts = NULL,
+                 datSum_opts = NULL) {
   ## DESCRIPTION: function to check input list parameters
 
   if (!is.null(strata_opts)) {
@@ -1406,6 +1407,24 @@ pcheck.params <- function(input.params, strata_opts = NULL,
       }
     }
   }
+  
+  if (!is.null(datSum_opts)) {
+    if ("datSum_opts" %in% input.params) {
+      if (!is.list(datSum_opts)) {
+        datSum_opts <- as.list(datSum_opts)
+      }
+      if (is.null(names(datSum_opts))) {
+        stop("invalid datSum_opts... see datSum_options()")
+      }
+      formallst.datSum <- names(formals(datSum_options))[-length(formals(datSum_options))]
+      datSum.params <- names(datSum_opts)[!names(datSum_opts) %in% c("formallst", "input.params")]
+      if (!all(datSum.params %in% formallst.datSum)) {
+        miss <- datSum.params[!datSum.params %in% formallst.datSum]
+        stop("invalid parameter: ", toString(miss))
+      }
+    }
+  }
+  
 }
 
 
@@ -1436,7 +1455,9 @@ pcheck.opts <- function(optionlst) {
     if (length(popFilter) > 0) {
       for (i in 1:length(popFilter)) {
         if (names(popFilter)[[i]] %in% names(popFilters_defaults_list)) {
-          popFilter2[[names(popFilter)[[i]]]] <- popFilter[[i]]
+          if (!is.null(popFilter[[i]])) {
+            popFilter2[[names(popFilter)[[i]]]] <- popFilter[[i]]
+          }
         } else {
           stop(paste("Invalid parameter: ", names(popFilter)[[i]]))
         }
@@ -1465,8 +1486,9 @@ pcheck.opts <- function(optionlst) {
       #}
       for (i in 1:length(database_opts)) {
         if (names(database_opts)[[i]] %in% names(database_defaults_list)) {
-          database_opts2[[names(database_opts)[[i]]]] <- database_opts[[i]]
-          #assign(names(database_opts)[[i]], database_opts[[i]])
+          if (!is.null(database_opts[[i]])) {
+            database_opts2[[names(database_opts)[[i]]]] <- database_opts[[i]]
+          }
         } else {
           stop(paste("Invalid parameter: ", names(database_opts)[[i]]))
         }
@@ -1492,8 +1514,9 @@ pcheck.opts <- function(optionlst) {
     if (length(savedata_opts) > 0) {
       for (i in 1:length(savedata_opts)) {
         if (names(savedata_opts)[[i]] %in% names(savedata_defaults_list)) {
-          savedata_opts2[[names(savedata_opts)[[i]]]] <- savedata_opts[[i]]
-          #assign(names(savedata_opts)[[i]], savedata_opts[[i]])
+          if (!is.null(savedata_opts[[i]])) {
+            savedata_opts2[[names(savedata_opts)[[i]]]] <- savedata_opts[[i]]
+          }
         } else {
           stop(paste("Invalid parameter: ", names(savedata_opts)[[i]]))
         }
@@ -1518,8 +1541,9 @@ pcheck.opts <- function(optionlst) {
     if (length(unit_opts) > 0) {
       for (i in 1:length(unit_opts)) {
         if (names(unit_opts)[[i]] %in% names(unit_defaults_list)) {
-          unit_opts2[[names(unit_opts)[[i]]]] <- unit_opts[[i]]
-          #assign(names(unit_opts)[[i]], unit_opts[[i]])
+          if (!is.null(unit_opts[[i]])) {
+            unit_opts2[[names(unit_opts)[[i]]]] <- unit_opts[[i]]
+          }
         } else {
           stop(paste("Invalid parameter: ", names(unit_opts)[[i]]))
         }
@@ -1544,8 +1568,9 @@ pcheck.opts <- function(optionlst) {
     if (length(strata_opts) > 0) {
       for (i in 1:length(strata_opts)) {
         if (names(strata_opts)[[i]] %in% names(strata_defaults_list)) {
-          strata_opts2[[names(strata_opts)[[i]]]] <- strata_opts[[i]]
-          #assign(names(strata_opts)[[i]], strata_opts[[i]])
+          if (!is.null(strata_opts[[i]])) {
+            strata_opts2[[names(strata_opts)[[i]]]] <- strata_opts[[i]]
+          }
         } else {
           stop(paste("Invalid parameter: ", names(strata_opts)[[i]]))
         }
@@ -1557,8 +1582,8 @@ pcheck.opts <- function(optionlst) {
   
   ## popTables
   ###################################################################
-  if ("popTables" %in% names(optionlst)) {
-    popTables <- optionlst$popTables
+  if ("popTabs" %in% names(optionlst)) {
+    popTabs <- optionlst$popTabs
     
     ## Set popTables defaults
     popTables_defaults_list <- formals(popTables)[-length(formals(popTables))]
@@ -1566,25 +1591,27 @@ pcheck.opts <- function(optionlst) {
       assign(names(popTables_defaults_list)[[i]], popTables_defaults_list[[i]])
     }  
     
-    ## Set user-supplied popTables options
-    popTables2 <- popTables_defaults_list
-    if (length(popTables) > 0) {
-      for (i in 1:length(popTables)) {
-        if (names(popTables)[[i]] %in% names(popTables_defaults_list)) {
-          popTables2[[names(popTables)[[i]]]] <- popTables[[i]]
+    ## Set user-supplied popTabs options
+    popTabs2 <- popTables_defaults_list
+    if (length(popTabs) > 0) {
+      for (i in 1:length(popTabs)) {
+        if (names(popTabs)[[i]] %in% names(popTables_defaults_list)) {
+          if (!is.null(popTabs[[i]])) {
+            popTabs2[[names(popTabs)[[i]]]] <- popTabs[[i]]
+          }
         } else {
-          stop(paste("Invalid parameter: ", names(popTables)[[i]]))
+          stop(paste("Invalid parameter: ", names(popTabs)[[i]]))
         }
       }
     }
-    returnlst$popTables <- popTables2
+    returnlst$popTabs <- popTabs2
   }
   
   
   ## popTableIDs
   ###################################################################
   if ("popTableIDs" %in% names(optionlst)) {
-    popTableIDs <- optionlst$popTableIDs
+    popTabIDs <- optionlst$popTabIDs
     
     ## Set popTableIDs defaults
     popTableIDs_defaults_list <- formals(popTableIDs)[-length(formals(popTableIDs))]
@@ -1592,19 +1619,78 @@ pcheck.opts <- function(optionlst) {
       assign(names(popTableIDs_defaults_list)[[i]], popTableIDs_defaults_list[[i]])
     }  
     
-    ## Set user-supplied popTableIDs options
-    popTableIDs2 <- popTableIDs_defaults_list
-    if (length(popTableIDs) > 0) {
-      for (i in 1:length(popTableIDs)) {
-        if (names(popTableIDs)[[i]] %in% names(popTableIDs_defaults_list)) {
-          popTables2[[names(popTableIDs)[[i]]]] <- popTableIDs[[i]]
+    ## Set user-supplied popTabIDs options
+    popTabIDs2 <- popTableIDs_defaults_list
+    if (length(popTabIDs) > 0) {
+      for (i in 1:length(popTabIDs)) {
+        if (names(popTabIDs)[[i]] %in% names(popTableIDs_defaults_list)) {
+          if (!is.null(popTabIDs[[i]])) {
+            popTabIDs2[[names(popTabIDs)[[i]]]] <- popTabIDs[[i]]
+          }
         } else {
-          stop(paste("Invalid parameter: ", names(popTableIDs)[[i]]))
+          stop(paste("Invalid parameter: ", names(popTabIDs)[[i]]))
         }
       }
     }
-    returnlst$popTableIDs <- popTableIDs2
+    returnlst$popTabIDs <- popTabIDs2
   }
+  
+  
+  ## tableIDs
+  ###################################################################
+  if ("tabIDs" %in% names(optionlst)) {
+    tabIDs <- optionlst$tabIDs
+    
+    ## Set tableIDs defaults
+    tableIDs_defaults_list <- formals(tableIDs)[-length(formals(tableIDs))]
+    for (i in 1:length(tableIDs_defaults_list)) {
+      assign(names(tableIDs_defaults_list)[[i]], tableIDs_defaults_list[[i]])
+    }  
+    
+    ## Set user-supplied popTableIDs options
+    tabIDs2 <- tableIDs_defaults_list
+    if (length(tabIDs) > 0) {
+      for (i in 1:length(tabIDs)) {
+        if (names(tabIDs)[[i]] %in% names(tableIDs_defaults_list)) {
+          if (!is.null(tabIDs[[i]])) {
+            tabIDs2[[names(tabIDs)[[i]]]] <- tabIDs[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(tabIDs)[[i]]))
+        }
+      }
+    }
+    returnlst$tabIDs <- tabIDs2
+  }
+  
+  
+  ## datSum options
+  ###################################################################
+  if ("datSum_opts" %in% names(optionlst)) {
+    datSum_opts <- optionlst$datSum_opts
+    
+    ## Set datSum defaults
+    datSum_defaults_list <- formals(datSum_options)[-length(formals(datSum_options))]
+    for (i in 1:length(datSum_defaults_list)) {
+      assign(names(datSum_defaults_list)[[i]], datSum_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied datSum values
+    datSum_opts2 <- datSum_defaults_list
+    if (length(datSum_opts) > 0) {
+      for (i in 1:length(datSum_opts)) {
+        if (names(datSum_opts)[[i]] %in% names(datSum_defaults_list)) {
+          if (!is.null(datSum_opts[[i]])) {
+            datSum_opts2[[names(datSum_opts)[[i]]]] <- datSum_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(datSum_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$datSum_opts <- datSum_opts2
+  }
+  
   
     # ## Set popTabIDs defaults
     # popTableIDs_defaults_list <- formals(popTableIDs)[-length(formals(popTableIDs))]

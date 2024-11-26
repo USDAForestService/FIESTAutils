@@ -33,7 +33,7 @@
 #' @param plotu String. 
 #' @param condu String. 
 #' @param ... For extendibility.
-#' @return A list of user-supplied parameters and parameter values for strata.
+#' @return A list of user-supplied unique identifier of a plot in population tables.
 #' @author Grayson W. White
 #' @keywords list
 #' @export popTableIDs

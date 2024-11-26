@@ -93,7 +93,7 @@ popTableIDs(
 \item{...}{For extendibility.}
 }
 \value{
-A list of user-supplied parameters and parameter values for strata.
+A list of user-supplied unique identifier of a plot in population tables.
 }
 \description{
 Returns a list of user-supplied parameters and parameter values for data 
