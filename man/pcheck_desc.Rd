@@ -109,6 +109,7 @@ pcheck.output(
   append_layer = FALSE,
   createSQLite = FALSE,
   out_conn = NULL,
+  outconn = NULL,
   dbconnopen = FALSE,
   gui = FALSE,
   savedata_opts = NULL

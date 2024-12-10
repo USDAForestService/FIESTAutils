@@ -81,6 +81,7 @@ getpse <- function(xdat, esttype="AREA", areavar=NULL,
       }
     }
   }
+
   if (esttype != "RATIO") {
     rawnames <- c("estn", "estn.var", "estn.se", "estn.cv")
     rawnames.new <- sub("n", "", rawnames)

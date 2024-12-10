@@ -711,17 +711,19 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
 
 #' @rdname pcheck_desc
 #' @export
-pcheck.output <- function(out_fmt="csv", outsp_fmt="shp", 
-                          out_dsn=NULL, outfolder=NULL,
-                          outfn.pre=NULL, outfn.date=FALSE, 
-                          overwrite_dsn=FALSE, overwrite_layer=TRUE, 
-                          add_layer=TRUE, append_layer=FALSE,
-                          createSQLite=FALSE, out_conn=NULL, 
-                          dbconnopen=FALSE, gui=FALSE, 
+pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp", 
+                          out_dsn = NULL, outfolder = NULL,
+                          outfn.pre = NULL, outfn.date = FALSE, 
+                          overwrite_dsn = FALSE, overwrite_layer = TRUE, 
+                          add_layer = TRUE, append_layer = FALSE,
+                          createSQLite=FALSE, out_conn = NULL, 
+                          outconn = NULL,
+                          dbconnopen = FALSE, gui = FALSE, 
                           savedata_opts = NULL) {
   
   if (!is.null(savedata_opts)) {
     outfolder <- savedata_opts$outfolder
+    out_dsn <- savedata_opts$out_dsn
     outfn.pre <- savedata_opts$outfn.pre
     outfn.date <- savedata_opts$outfn.date
     overwrite_dsn <- savedata_opts$overwrite_dsn
@@ -730,6 +732,11 @@ pcheck.output <- function(out_fmt="csv", outsp_fmt="shp",
     append_layer <- savedata_opts$append_layer
     out_fmt <- savedata_opts$out_fmt
     outsp_fmt <- savedata_opts$outsp_fmt
+    outconn = savedata_opts$outconn
+  } else {
+    if (is.null(outconn) && !is.null(out_conn)) {
+      outconn <- out_conn
+    }
   }
 
   ## check out_fmt
@@ -738,7 +745,6 @@ pcheck.output <- function(out_fmt="csv", outsp_fmt="shp",
   out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'shp')
   out_fmt <- pcheck.varchar(out_fmt, varnm="out_fmt", checklst=out_fmtlst,
 		caption="Out format", gui=gui)
-  
   
   ## check out_fmt
   ###########################################################
@@ -778,30 +784,36 @@ pcheck.output <- function(out_fmt="csv", outsp_fmt="shp",
   #  stop("invalid layer.pre")
   #}
  
-  if (!is.null(out_conn) && DBI::dbIsValid(out_conn)) {
-    out_dsn <- DBI::dbGetInfo(out_conn)$dbname
+  if (!is.null(outconn) && DBI::dbIsValid(outconn)) {
+    out_dsn <- DBI::dbGetInfo(outconn)$dbname
     outfolder <- NULL
     if (append_layer) {
       overwrite_layer <- FALSE
     }
  
-    return(list(out_dsn=out_dsn, outfolder=outfolder, out_fmt=out_fmt,
-		overwrite_layer=overwrite_layer, append_layer=append_layer,
-		outfn.date=outfn.date, outfn.pre=outfn.pre, out_conn=out_conn))
+    return(list(out_dsn = out_dsn, outfolder = outfolder, 
+                out_fmt = out_fmt,
+		            overwrite_layer = overwrite_layer, 
+		            append_layer = append_layer,
+		            outfn.date = outfn.date, outfn.pre = outfn.pre, 
+		            outconn = outconn,
+		            out_conn = outconn))
   }
-
-  if (any(c(out_fmt, outsp_fmt) %in% c("csv", "shp"))) {
+  
+  if (is.null(out_dsn) && any(c(out_fmt, outsp_fmt) %in% c("csv", "shp"))) {
     outfolder <- pcheck.outfolder(outfolder)
     if (append_layer) {
       overwrite_layer <- FALSE
     }
-    return(list(out_dsn=NULL, outfolder=outfolder, out_fmt=out_fmt,
-		overwrite_layer=overwrite_layer, append_layer=append_layer,
-		outfn.date=outfn.date, outfn.pre=outfn.pre))
+    return(list(out_dsn = NULL, outfolder = outfolder, 
+                out_fmt = out_fmt,
+                outsp_fmt = outsp_fmt,
+		            overwrite_layer = overwrite_layer, 
+		            append_layer = append_layer,
+		            outfn.date = outfn.date, outfn.pre = outfn.pre))
   }
 
   ## Check file name
-  ###########################################################
   chkfn <- checkfilenm(out_dsn, outfolder=outfolder)
   if (is.null(chkfn)) {
     ext <- "db"
@@ -829,15 +841,19 @@ pcheck.output <- function(out_fmt="csv", outsp_fmt="shp",
   }
  
   if (is.null(chkfn) || overwrite_dsn || !overwrite_dsn) {
-    out_dsn <- getoutfn(out_dsn, outfn.pre=outfn.pre, outfolder=outfolder,
-		outfn.date=outfn.date, overwrite=overwrite_dsn, outfn.default="data",
-		ext=ext, add=add_layer, append=append_layer)
+    out_dsn <- getoutfn(out_dsn, outfn.pre = outfn.pre, 
+                        outfolder = outfolder,
+		                    outfn.date = outfn.date, 
+		                    overwrite = overwrite_dsn, 
+		                    outfn.default = "data",
+		                    ext = ext, add = add_layer, 
+		                    append = append_layer)
     if (any(out_fmt %in% c("sqlite", "gpkg")) && createSQLite) {
       gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
       out_dsn <- DBcreateSQLite(out_dsn, gpkg=gpkg)
 
       if (dbconnopen) {
-        out_conn <- DBI::dbConnect(RSQLite::SQLite(), out_dsn, 
+        outconn <- DBI::dbConnect(RSQLite::SQLite(), out_dsn, 
                     loadable.extensions = TRUE)
       }
     }
@@ -856,11 +872,18 @@ pcheck.output <- function(out_fmt="csv", outsp_fmt="shp",
     overwrite_dsn <- FALSE
   }
 
-  return(list(out_fmt=out_fmt, outfolder=outfolder, out_dsn=out_dsn,
-	overwrite_dsn=overwrite_dsn, overwrite_layer=overwrite_layer,
-	add_layer=add_layer, append_layer=append_layer, outfn.date=outfn.date,
-      out_conn=out_conn))
+  return(list(out_fmt = out_fmt, 
+              outsp_fmt = outsp_fmt, 
+              outfolder = outfolder, 
+              out_dsn = out_dsn,
+	            overwrite_dsn = overwrite_dsn, 
+              overwrite_layer = overwrite_layer,
+	            add_layer = add_layer, append_layer = append_layer, 
+              outfn.date = outfn.date,
+              outconn = outconn,
+              out_conn = outconn))
 }
+
 
 #' @rdname pcheck_desc
 #' @export
@@ -1432,6 +1455,9 @@ pcheck.params <- function(input.params, strata_opts = NULL,
 #' @export
 pcheck.opts <- function(optionlst) {
   
+  ## Description:
+  ## This function sets default options.
+  
   
   ## Set empty returnlst
   returnlst <- vector(mode = "list", length = length(optionlst))
@@ -1579,6 +1605,87 @@ pcheck.opts <- function(optionlst) {
     returnlst$strata_opts <- strata_opts2
   }
   
+  ## multest options
+  ###################################################################
+  if ("multest_opts" %in% names(optionlst)) {
+    multest_opts <- optionlst$multest_opts
+    
+    ## Set multest defaults
+    multest_defaults_list <- formals(multest_options)[-length(formals(multest_options))]
+    for (i in 1:length(multest_defaults_list)) {
+      assign(names(multest_defaults_list)[[i]], multest_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied multest options
+    multest_opts2 <- multest_defaults_list
+    if (length(multest_opts) > 0) {
+      for (i in 1:length(multest_opts)) {
+        if (names(multest_opts)[[i]] %in% names(multest_defaults_list)) {
+          if (!is.null(multest_opts[[i]])) {
+            multest_opts2[[names(multest_opts)[[i]]]] <- multest_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(multest_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$multest_opts <- multest_opts2
+  }
+  
+  ## table options
+  ###################################################################
+  if ("table_opts" %in% names(optionlst)) {
+    table_opts <- optionlst$table_opts
+    
+    ## Set table defaults
+    table_defaults_list <- formals(table_options)[-length(formals(table_options))]
+    for (i in 1:length(table_defaults_list)) {
+      assign(names(table_defaults_list)[[i]], table_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied table options
+    table_opts2 <- table_defaults_list
+    if (length(table_opts) > 0) {
+      for (i in 1:length(table_opts)) {
+        if (names(table_opts)[[i]] %in% names(table_defaults_list)) {
+          if (!is.null(table_opts[[i]])) {
+            table_opts2[[names(table_opts)[[i]]]] <- table_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(table_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$table_opts <- table_opts2
+  }
+  
+  ## title options
+  ###################################################################
+  if ("title_opts" %in% names(optionlst)) {
+    title_opts <- optionlst$title_opts
+    
+    ## Set title defaults
+    title_defaults_list <- formals(title_options)[-length(formals(title_options))]
+    for (i in 1:length(title_defaults_list)) {
+      assign(names(title_defaults_list)[[i]], title_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied title options
+    title_opts2 <- title_defaults_list
+    if (length(title_opts) > 0) {
+      for (i in 1:length(title_opts)) {
+        if (names(title_opts)[[i]] %in% names(title_defaults_list)) {
+          if (!is.null(title_opts[[i]])) {
+            title_opts2[[names(title_opts)[[i]]]] <- title_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(title_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$title_opts <- title_opts2
+  }
+  
   
   ## popTables
   ###################################################################
@@ -1662,6 +1769,62 @@ pcheck.opts <- function(optionlst) {
     }
     returnlst$tabIDs <- tabIDs2
   }
+  
+  ## eval options
+  ###################################################################
+  if ("eval_opts" %in% names(optionlst)) {
+    eval_opts <- optionlst$eval_opts
+    
+    ## Set eval defaults
+    eval_defaults_list <- formals(eval_options)[-length(formals(eval_options))]
+    for (i in 1:length(eval_defaults_list)) {
+      assign(names(eval_defaults_list)[[i]], eval_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied eval options
+    eval_opts2 <- eval_defaults_list
+    if (length(eval_opts) > 0) {
+      for (i in 1:length(eval_opts)) {
+        if (names(eval_opts)[[i]] %in% names(eval_defaults_list)) {
+          if (!is.null(eval_opts[[i]])) {
+            eval_opts2[[names(eval_opts)[[i]]]] <- eval_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(eval_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$eval_opts <- eval_opts2
+  }
+  
+  
+  ## xy options
+  ###################################################################
+  if ("xy_opts" %in% names(optionlst)) {
+    xy_opts <- optionlst$xy_opts
+    
+    ## Set xy defaults
+    xy_defaults_list <- formals(xy_options)[-length(formals(xy_options))]
+    for (i in 1:length(xy_defaults_list)) {
+      assign(names(xy_defaults_list)[[i]], xy_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied xy options
+    xy_opts2 <- xy_defaults_list
+    if (length(xy_opts) > 0) {
+      for (i in 1:length(xy_opts)) {
+        if (names(xy_opts)[[i]] %in% names(xy_defaults_list)) {
+          if (!is.null(xy_opts[[i]])) {
+            xy_opts2[[names(xy_opts)[[i]]]] <- xy_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(xy_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$xy_opts <-xy_opts2
+  }
+  
   
   
   ## datSum options

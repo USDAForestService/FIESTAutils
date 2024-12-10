@@ -96,7 +96,7 @@ datExportData <- function(dfobj,
       assign(names(savedata_opts)[[i]], savedata_opts[[i]])
     }
   }
- 
+  
   ## Check output data
   outlst <- pcheck.output(out_fmt = out_fmt, outfolder = outfolder,
 	                  out_dsn=out_dsn, overwrite_dsn = overwrite_dsn, 

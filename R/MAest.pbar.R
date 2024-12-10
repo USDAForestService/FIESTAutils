@@ -148,7 +148,6 @@ MAest.greg <- function(y,
     xsample <- x_sample[, preds.selected, drop=FALSE]
     xpop <- x_pop[, preds.selected, drop=FALSE]
   }
-
   estgreg <- tryCatch(mase::greg(y = y,
                                  xsample = xsample,
                                  xpop = x_pop,
@@ -168,7 +167,6 @@ MAest.greg <- function(y,
 				message(err, "\n")
 				return(NULL)
 			} )
-
   if (is.null(estgreg)) {
     if (save4testing) {
       message("saving objects to working directory for testing: y, x_sample, x_pop, N")

@@ -290,6 +290,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   ########################################################################################
   #dunitvar <- "DOMAIN"
   predselect.area=predselect.unit <- NULL
+  estall <- FALSE
   SAobjlst <- list()
   
  
@@ -299,6 +300,10 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   SAEarea_estimators <- c("all", "saeA", "JFH", "JFH.se", "JA.Synth", "hbsaeA", "hbsaeA.se")
   JoSAE_estimatorsA <- c("all", "JFH", "JFH.se", "JA.Synth")
   JoSAE_estimatorsU <- c("all", "JU.EBLUP", "JU.EBLUP.se.1", "JU.GREG", "JU.GREG.se", "JU.Synth")
+  
+  if ("all" %in% multest_estimators) {
+    estall <- TRUE
+  }
   
   ## Merge dat.dom to pltassgn
   pltdat.dom <- dat.dom[pltassgn]
@@ -513,7 +518,10 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
                      prednames = prednames, cvfolds = cvfolds))
       predselect.area <- predselect.arealst$preds.enet
       predselect.area.coef <- predselect.arealst$preds.coef
-
+      if (all(predselect.area.coef == 0)) {
+        message("no predictors were selected for area-level models")
+      }
+        
       ## Get number of predictors with elastic net coefficients greater than 0
       predselect.area.coef.absgt0 <- predselect.area[abs(predselect.area.coef) > 0]
 
@@ -683,7 +691,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
   }
 
   ## Get direct estimate
-  if ("all" %in% multest_estimators) {
+  if (estall || "DIR" %in% multest_estimators) {
     nm.var <- paste0(yn, ".var")
     dunitlut.dom$DIR <- dunitlut.dom[[yn]]
     dunitlut.dom$DIR.se <- sqrt(dunitlut.dom[[nm.var]] / dunitlut.dom$n.total)
@@ -732,9 +740,13 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
                       "JU.GREG.se", "JU.EBLUP", "JU.EBLUP.se.1")
       }  
 
-      if (!"all" %in% multest_estimators) {
+      if (!estall) {
         inest <- multest_estimators[multest_estimators %in% names(unit.JoSAE)]
         if (length(inest) > 0) {
+          #inest <- c(inest, paste0(inest, ".se"))
+          #if ("JU.EBLUP.se" %in% inest) {
+          #  inest[inest == "JU.EBLUP.se"] <- "JU.EBLUP.se.1"
+          #}
           unit.JoSAE <- unit.JoSAE[, c(dunitvar, inest), with = FALSE]
         }
       }
@@ -792,9 +804,10 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
                       hbsaeU = NA, hbsaeU.se = NA)
       setnames(est.NA, "DOMAIN", dunitvar)
       
-      if (!"all" %in% multest_estimators) {
+      if (!estall) {
         inest <- multest_estimators[multest_estimators %in% names(est.NA)]
         if (length(est.NA) > 0) {
+          #inest <- c(inest, paste0(inest, ".se"))
           est.NA <- est.NA[, c(dunitvar, inest), with = FALSE]
         }
       }
@@ -880,6 +893,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       if (!"all" %in% multest_estimators) {
         inest <- multest_estimators[multest_estimators %in% names(area.JoSAE)]
         if (length(inest) > 0) {
+          #inest <- c(inest, paste0(inest, ".se"))
           area.JoSAE <- area.JoSAE[, c(dunitvar, inest), with=FALSE]
         }
       }
@@ -988,7 +1002,6 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
     }
 
   } else {
-
     if (multest) {
       #message("no predictors were selected for area-level model... returning NA values")
       est.NA <- data.table(DOMAIN = dunitlut.dom[[dunitvar]], 
@@ -1000,10 +1013,11 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       if (!"all" %in% multest_estimators) {
         inest <- multest_estimators[multest_estimators %in% names(est.NA)]
         if (length(inest) > 0) {
+          #inest <- c(inest, paste0(inest, ".se"))
           est.NA <- est.NA[, c(dunitvar, inest), with = FALSE]
         }
       }
-  
+
     } else {
       est.NA <- data.table(DOMAIN=dunitlut.dom[[dunitvar]])
 
@@ -1183,10 +1197,10 @@ SAest.large <- function(largebnd.val, dat,
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
 
-# dat=dat.large
-# dunitlut=dunitlut.large
-# pltassgn=pltassgn.large
-# dom=doms[5]
+#dat=dat.large
+#dunitlut=dunitlut.large
+#pltassgn=pltassgn.large
+#dom=doms[1]
   estlst <- lapply(doms, SAest.dom,
 			        dat = dat.large, cuniqueid = cuniqueid, 
 			        pltassgn = pltassgn.large,
@@ -1270,10 +1284,10 @@ SAest.large <- function(largebnd.val, dat,
   returnlst <- list(est.large=est.large,
 			pltdat.dom=pltdat.dom, dunitlut.dom=dunitlut.dom)
 
-  if (multest || SAmethod == "unit") {
+  if ((multest && any(multest_estimators %in% SAEunit_estimators)) || SAmethod == "unit") {
     returnlst$predselect.unit <- predselect.unit
   }
-  if (multest || SAmethod == "area") {
+  if ((multest && any(multest_estimators %in% SAEarea_estimators)) || SAmethod == "area") {
     returnlst$predselect.area <- predselect.area
   }
   returnlst$SAobjlst.dom <- SAobjlst.dom
