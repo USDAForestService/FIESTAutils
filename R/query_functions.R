@@ -156,38 +156,32 @@ getcombineqry <- function(lut,
                           tab. = "") {
   ## DESCRIPTION: create classification query for combining strata
   classify.qry <- {}
-  for (col in 1:length(classcols)) {
-    classcolsi <- classcols[col]
-    
-    for (to in 1:length(classcols)) {
-      #tocol <- tocols[to]
+  for (to in 1:length(classcols)) {
+    tocol <- tocols[to]
       
-      case.qry <- "\n(CASE"
-      for (i in 1:(nrow(lut))) { 
+    case.qry <- "\n(CASE"
+    for (i in 1:(nrow(lut))) { 
         
-        luti <- lut[i,]
-        fromcolsi <- as.vector(t(luti[, fromcols]))
-        tocolsi <- as.vector(t(luti[, classcols]))
-      
-        ## Build when query
-        when.qry <- paste0("\nWHEN (", tab., fromcols[1], " = '", fromcolsi[1], "'") 
-        for (j in 2:length(fromcols)) {
-          when.qry <- paste0(when.qry, " AND ", tab., fromcols[j], " = '", fromcolsi[j], "'")
-        }
-        when.qry <- paste0(when.qry, ")")
-      
-        ## Build then query
-        for (k in 1:length(tocolsi)) {
-          case.qry <- paste0(case.qry, when.qry,  " THEN '", tocolsi[k], "'")
-        }  
+      luti <- lut[i,]
+      fromcolsi <- as.vector(t(luti[, fromcols]))
+      tocolsi <- as.vector(t(luti[, classcols]))
+
+      ## Build when query
+      when.qry <- paste0("\nWHEN (", tab., fromcols[1], " = '", fromcolsi[1], "'") 
+      for (j in 2:length(fromcols)) {
+        when.qry <- paste0(when.qry, " AND ", tab., fromcols[j], " = '", fromcolsi[j], "'")
       }
-      case.qry <- paste0(case.qry, " END) AS \"", classcolsi, "\"")
-      classify.qry <- paste0(classify.qry, case.qry)
-      if (to < length(classcols)) {
-        classify.qry <- paste0(classify.qry, ",")
-      }
+      when.qry <- paste0(when.qry, ")")
+      case.qry <- paste0(case.qry, when.qry, " THEN ", tocolsi[j])
+      
+    }
+    case.qry <- paste0(case.qry, " END) AS \"", tocol, "\"")
+    classify.qry <- paste0(classify.qry, case.qry)
+    if (to < length(classcols)) {
+      classify.qry <- paste0(classify.qry, ",")
     }
   }
-  return(classify.qry)
+
+    return(classify.qry)
 }
 
