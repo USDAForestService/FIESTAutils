@@ -157,7 +157,7 @@ getcombineqry <- function(lut,
   ## DESCRIPTION: create classification query for combining strata
   classify.qry <- {}
   for (to in 1:length(classcols)) {
-    tocol <- tocols[to]
+    tocol <- classcols[to]
       
     case.qry <- "\n(CASE"
     for (i in 1:(nrow(lut))) { 
@@ -172,7 +172,7 @@ getcombineqry <- function(lut,
         when.qry <- paste0(when.qry, " AND ", tab., fromcols[j], " = '", fromcolsi[j], "'")
       }
       when.qry <- paste0(when.qry, ")")
-      case.qry <- paste0(case.qry, when.qry, " THEN ", tocolsi[j])
+      case.qry <- paste0(case.qry, when.qry, " THEN ", tocolsi)
       
     }
     case.qry <- paste0(case.qry, " END) AS \"", tocol, "\"")
