@@ -805,7 +805,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       setnames(est.NA, "DOMAIN", dunitvar)
       
       if (!estall) {
-        inest <- multest_estimators[multest_estimators %in% names(est.NA)]
+        inest <- multest_estimators[multest_estimators %in% SAEunit_estimators]
         if (length(est.NA) > 0) {
           #inest <- c(inest, paste0(inest, ".se"))
           est.NA <- est.NA[, c(dunitvar, inest), with = FALSE]
@@ -1197,10 +1197,11 @@ SAest.large <- function(largebnd.val, dat,
   ## get unique domains
   doms <- sort(as.character(na.omit(unique(dat.large[[domain]]))))
 
-#dat=dat.large
-#dunitlut=dunitlut.large
-#pltassgn=pltassgn.large
-#dom=doms[1]
+# dat=dat.large
+# dunitlut=dunitlut.large
+# pltassgn=pltassgn.large
+# dom=doms[1]
+# doms = c("995", "999")
   estlst <- lapply(doms, SAest.dom,
 			        dat = dat.large, cuniqueid = cuniqueid, 
 			        pltassgn = pltassgn.large,
