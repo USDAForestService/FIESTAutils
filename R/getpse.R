@@ -51,6 +51,15 @@ getpse <- function(xdat, esttype="AREA", areavar=NULL,
       xdat[, estn.var := get(nhatcol.var)]
     }
 
+    ## Recommendation from Paul   
+    if (any(!is.na(xdat$estn.var) & (xdat$estn.var < 0 & xdat$estn.var > -1))) {
+      xdat[!is.na(xdat$estn.var) & (xdat$estn.var < 0 & xdat$estn.var > -1), "estn.var"] <- 0
+      if (any(!is.na(xdat$estn.var) & xdat$estn.var < 0)) {
+        message("negative values exist... returning NaN")
+      }
+    }
+    
+
     ## Calculate standard error (se), coefficient of variation (cv), and
     ##	percent sampling error (pse). for numerator
     suppressWarnings(
