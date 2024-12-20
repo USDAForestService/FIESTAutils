@@ -156,32 +156,37 @@ getcombineqry <- function(lut,
                           tab. = "") {
   ## DESCRIPTION: create classification query for combining strata
   classify.qry <- {}
-  for (to in 1:length(classcols)) {
-    tocol <- classcols[to]
-      
+  for (col in 1:length(classcols)) {
+    tocol <- classcols[col]
+    fromcol <- fromcols[col]
+
     case.qry <- "\n(CASE"
     for (i in 1:(nrow(lut))) { 
         
       luti <- lut[i,]
+      tocolsi <- as.vector(t(luti[, tocols]))
       fromcolsi <- as.vector(t(luti[, fromcols]))
-      tocolsi <- as.vector(t(luti[, classcols]))
-
+      
+      ## value to change
+      tocolval <- luti[[tocol]]
+      fromcolval <- luti[[fromcol]]
+      
       ## Build when query
       when.qry <- paste0("\nWHEN (", tab., fromcols[1], " = '", fromcolsi[1], "'") 
       for (j in 2:length(fromcols)) {
         when.qry <- paste0(when.qry, " AND ", tab., fromcols[j], " = '", fromcolsi[j], "'")
       }
       when.qry <- paste0(when.qry, ")")
-      case.qry <- paste0(case.qry, when.qry, " THEN ", tocolsi)
+      case.qry <- paste0(case.qry, when.qry, " THEN ", tocolval)
       
     }
     case.qry <- paste0(case.qry, " END) AS \"", tocol, "\"")
     classify.qry <- paste0(classify.qry, case.qry)
-    if (to < length(classcols)) {
+    if (col < length(classcols)) {
       classify.qry <- paste0(classify.qry, ",")
     }
   }
 
-    return(classify.qry)
+  return(classify.qry)
 }
 

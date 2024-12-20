@@ -588,7 +588,13 @@ getrhat(x)
 
 groupEstunit(x, minplotnum)
 
-groupStrata(x, minplotnum, nvar = "n.strata")
+groupStrata(
+  x,
+  minplotnum,
+  nvar = "n.strata",
+  strvar = NULL,
+  stratalevels = NULL
+)
 
 groupUnits(
   tabest,
@@ -680,6 +686,7 @@ strat.collapse(
   getwt = FALSE,
   stratcombine = TRUE,
   unitcombine = FALSE,
+  stratalevels = NULL,
   vars2combine = NULL,
   ...
 )

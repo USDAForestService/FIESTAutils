@@ -2,7 +2,8 @@
 #' @export
 strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
 	minplotnum.strat=2, unitarea, areavar, unitvar, unitvar2=NULL, strvar,
-	getwt=FALSE, stratcombine=TRUE, unitcombine=FALSE, vars2combine=NULL, ...) {
+	getwt=FALSE, stratcombine=TRUE, unitcombine=FALSE, stratalevels=NULL,
+	vars2combine=NULL, ...) {
   ## unitcombine - If TRUE, combine estimation units, If FALSE, only combine strata
 
   ## Set global variables
@@ -159,13 +160,9 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
   #############################################################################
   ## If stratcombine=TRUE and number of total plots is less than minplotnum.strat
   #############################################################################
-  if ("n.strata" %in% names(unitgrpsum) &&
-		any(unique(unitgrpsum$n.strata) < minplotnum.strat)) {
-   #if ("n.strata" %in% names(unitgrpsum) &&
-	#	any(unique(unitgrpsum$n.strata) < 60)) {
-     
+  if ("n.strata" %in% names(unitgrpsum) && any(unique(unitgrpsum$n.strata) < minplotnum.strat)) {
+    
     tabprint <- TRUE
-
     unitgrpsum$strat <- unitgrpsum[[strvar]]
     if (!is.factor(unitgrpsum$strat)) {
       unitgrpsum$strat <- factor(unitgrpsum$strat)
@@ -173,8 +170,8 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     unitgrpsum$strat <- as.numeric(unitgrpsum$strat)
     unitgrpsum$stratnew <- as.character(-1)
 
-    stratgrp <- unitgrpsum[, groupStrata(.SD, minplotnum.strat), by=unitvar]
-
+    stratgrp <- unitgrpsum[, groupStrata(.SD, minplotnum=minplotnum.strat, strvar=strvar, 
+                                         stratalevels=stratalevels), by=unitvar]
     strlut <- stratgrp[, lapply(.SD, sum, na.rm=TRUE),
 		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, "n.strata")]
     strlut[, n.total := stratgrp[match(strlut[[unitvar]], stratgrp[[unitvar]]),

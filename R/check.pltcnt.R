@@ -145,7 +145,6 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
   }
 
   if (showwarnings && any(pltcnt$errtyp == "warn")) {
-
     msg <- "## warnings/errors"
     message("\n################################### \n",
             msg, "\n###################################")

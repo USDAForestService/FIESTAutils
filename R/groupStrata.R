@@ -44,7 +44,8 @@ groupEstunit <- function(x, minplotnum) {
 
 #' @rdname internal_desc
 #' @export
-groupStrata <- function(x, minplotnum, nvar="n.strata") {
+groupStrata <- function(x, minplotnum, nvar = "n.strata", 
+                        strvar = NULL, stratalevels = NULL) {
   ## DESCRIPTION: Groups strata with total plots <= minplotnum.
   ## Strata that have less than minplotnum are combined with the strata
   ## next in order (numeric or alphabetical). If there are no strata
@@ -54,16 +55,34 @@ groupStrata <- function(x, minplotnum, nvar="n.strata") {
 
   ## set global variables
   strat=stratnew <- NULL
-  # print(x) # commented out by Grayson... don't think this should be here
+   #print(x) # commented out by Grayson... don't think this should be here
+
+  ## make strata factor
+  getfactor <- FALSE
+  if (!is.null(strvar) && !is.factor(x[[strvar]])) {
+    getfactor <- TRUE
+    strvarclass <- class(x[[strvar]])
+    if (!is.null(stratalevels)) {
+      x[[strvar]] <- factor(x[[strvar]], levels=stratalevels)
+    } else (
+      x[[strvar]] <- factor(x[[strvar]])
+    )
+  }
 
   if (any(x[[nvar]] < minplotnum)) {
     strats <- x$strat
     agstrats <- {}
+
     for (stratum in strats) {
       if (!stratum %in% agstrats) {
-        agstrats <- c(stratum)
-        if (x[strat %in% stratum][[nvar]] >= minplotnum) {
-          x[strat %in% stratum][["stratnew"]] <- stratum
+        agstrats <- stratum
+        if (!is.null(strvar) && strvar %in% names(x)) {
+          newnm <- x[strat %in% stratum, get(strvar)]
+        } else {
+          newnm <- stratum
+        }
+        if (x[x$strat %in% stratum][[nvar]] >= minplotnum) {
+          x[x$strat %in% stratum][["stratnew"]] <- newnm
         } else {
           maxag <- sum(x[strat %in% stratum][[nvar]])
           while (maxag < minplotnum) {
@@ -76,7 +95,11 @@ groupStrata <- function(x, minplotnum, nvar="n.strata") {
               stratag <- x[stratnew == as.character(stratnewcd)][["strat"]]
               agstrats <- c(stratag, agstrats)
             }
-            agstratsnm <- paste(agstrats, collapse="-")
+            if (!is.null(strvar)) {
+              agstratsnm <- paste(x[strat %in% agstrats, get(strvar)], collapse="-")
+            } else {
+              agstratsnm <- paste(agstrats, collapse="-")
+            }
             maxag <- sum(x[strat %in% agstrats][[nvar]])
             x[strat %in% agstrats][["stratnew"]] <- agstratsnm
           }
@@ -86,6 +109,14 @@ groupStrata <- function(x, minplotnum, nvar="n.strata") {
 
   } else {
     x$stratnew <- as.character(x$strat)
+  }
+  
+  if (getfactor) {
+    if (strvarclass == "integer") {
+      x[[strvar]] <- as.integer(as.character(x[[strvar]]))
+    } else if (strvarclass == "character") {
+      x[[strvar]] <- as.character(x[[strvar]])
+    }
   }
   return(x)
 }
