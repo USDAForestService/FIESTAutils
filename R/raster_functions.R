@@ -7,7 +7,7 @@
 #' @rdname raster_desc
 #' @export
 getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
-	stopifnull=FALSE, gui=FALSE, quiet=FALSE){
+	stopifnull=FALSE, stopifinvalid=FALSE, gui=FALSE, quiet=FALSE){
 
   #########################################################################
   ## DESCRIPTION:
@@ -138,6 +138,9 @@ getrastlst <- function(rastnmlst, rastfolder=NULL, stopifLonLat=FALSE,
          notexist <- rastfnlst[sapply(rastfnlst, file.exists) == FALSE]
          message("invalid rastnm in rastmlst:")
          message(paste(unlist(notexist), collapse=", "))
+         if (stopifinvalid) {
+           stop()
+         }
       }
     }
   }

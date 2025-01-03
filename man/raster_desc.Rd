@@ -256,6 +256,7 @@ getrastlst(
   rastfolder = NULL,
   stopifLonLat = FALSE,
   stopifnull = FALSE,
+  stopifinvalid = FALSE,
   gui = FALSE,
   quiet = FALSE
 )
@@ -271,6 +272,7 @@ getrastlst.rgdal(
   rastfolder = NULL,
   stopifLonLat = FALSE,
   stopifnull = FALSE,
+  stopifinvalid = FALSE,
   gui = FALSE,
   quiet = FALSE
 )
