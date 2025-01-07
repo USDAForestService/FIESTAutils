@@ -3,46 +3,16 @@
 strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
 	minplotnum.strat=2, unitarea, areavar, unitvar, unitvar2=NULL, strvar,
 	getwt=FALSE, stratcombine=TRUE, unitcombine=FALSE, stratalevels=NULL,
-	vars2combine=NULL, ...) {
+	vars2combine=NULL, UNITCD=NULL, ...) {
   ## unitcombine - If TRUE, combine estimation units, If FALSE, only combine strata
 
   ## Set global variables
-  n.strata=n.total=puniqueid=unitstrgrplut=UNITCD=unitnew=strvarnew <- NULL
+  n.strata=n.total=puniqueid=unitstrgrplut=unitnew=strvarnew <- NULL
   addUNITCD <- FALSE
 
   if (!"data.table" %in% class(stratacnt)) stratacnt <- setDT(stratacnt)
   if (!"data.table" %in% class(unitarea)) unitarea <- setDT(unitarea)
 
-
-  ## If number of plots per strata <= minplotnum.strat is more than 50%, collapse to 1 strata.
-#  if (stratcombine && sum(errtab$n.strata < minplotnum.strat)/nrow(stratacnt) >= .5) {
-#    message(paste("number of plots per strata <=", minplotnum,
-#		"is greater than 50%... collapsing strata with less than",
-#		minplotnum, "plots in a strata to 1 strata"))
-#
-#    unitvars <- c(unitvar, unitvar2)
-#    strunitvars <- c(unitvars, strvar)
-#    errtab[, MATCH := do.call(paste, .SD), .SDcols=unitvars]
-#    stratacnt[, MATCH := do.call(paste, .SD), .SDcols=unitvars]
-#    stratacnt[MATCH %in% unique(errtab$MATCH), (strvar) := 1]
-#    stratacnt[, MATCH := NULL]
-#
-#    strsumvars <- c("n.strata", "n.total")
-#    if (getwt) {
-#      strsumvars <- c(vars2combine, strsumvars)
-#    } else {
-#      strsumvars <- c("strwt", strsumvars)
-#    }
-#    strlut <- stratacnt[, lapply(.SD, sum, na.rm=TRUE), by=strunitvars, .SDcols=strsumvars]
-#    pltstratx[, (strvar) := 1]
-#    strlut[, n.strata := NULL][, n.total := NULL]
-#
-#    ## Check again for number of plots by strata. If < 2 plots still with 1 strata, stop.
-#    stratacnts2 <- check.pltcnt(pltx=pltstratx, puniqueid=puniqueid,
-#		unitlut=strlut, unitvars=unitvar, strvars=strvar)
-#    stratacnt <- stratacnts2$unitlut
-#    errtab <- stratacnts2$errtab
-#  }
 
   ## Stop and send message if stratcombine=FALSE
   ######################################################################################
@@ -57,7 +27,6 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     }
   }
 
-#print(data.frame(stratacnt))
   ## Stop and send message if unitcombine=FALSE and total plots less than minplotnum.unit
   #######################################################################################
   if (!unitcombine) {
@@ -89,25 +58,20 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     } else {
       unitcombinevar <- unitvar2
     }
-
-    if (!is.factor(stratacnt[[unitvar]])) {
-      stratacnt[[unitvar]] <- factor(stratacnt[[unitvar]])
-    }
-    stratacnt$unitvar <- as.numeric(stratacnt[[unitvar]])
-    stratacnt$unitnew <- as.character(-1)
-    #setkeyv(stratacnt, c(unitcombinevar, unitvar))
-
-    ## Group estimation units if less than minplotnum
-    unitgrp <- stratacnt[, groupEstunit(.SD, minplotnum.unit), by=UNITCD]
+    
+    ## Group estimation units (by UNITCD) if less than minplotnum
+    unitgrp <- stratacnt[, groupClasses(.SD, minplotnum = minplotnum.unit, 
+                                        nvar="n.total", xvar = unitvar,
+                                        sumvar = "n.strata",
+                                        xvarlevels = NULL), by=UNITCD]
+    setnames(unitgrp, "classnew", "unitnew")
+  
+    ## define collapsed unitvar as 'unitnew'
     unitvarnew <- "unitnew"
-    #setkeyv(unitgrp, c(unitcombinevar, unitvar))
-#    stratacnt <- merge(stratacnt[,unitnew:=NULL],
-#		unitgrp[, c(unitvar, unitcombinevar, "unitvar", unitvarnew), with=FALSE],
-#		by=c(unitvar, unitcombinevar, "unitvar"))
     SDcols <- c(vars2combine, "n.strata", "n.total")
     SDcols <- SDcols[SDcols %in% names(stratacnt)]
     unitgrpsum <- unitgrp[, lapply(.SD, sum, na.rm=TRUE),
-			by=c(unitcombinevar, unitvarnew, strvar), .SDcols=SDcols]
+			           by=c(unitcombinevar, unitvarnew, strvar), .SDcols=SDcols]
     setkeyv(unitgrpsum, c(unitcombinevar, unitvarnew, strvar))
 
     if (addUNITCD) {
@@ -119,8 +83,6 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
 
     ## Create look up table with original classes and new classes
     unitgrpvars <- c(unitjoinvars, unitvarnew)
-    #unitgrplut <- unique(stratacnt[, unitgrpvars, with=FALSE])
-    #unitstrgrplut <- unique(stratacnt[, c(unitgrpvars, strvar), with=FALSE])
     unitgrplut <- unique(unitgrp[, unitgrpvars, with=FALSE])
     unitstrgrplut <- unique(unitgrp[, c(unitgrpvars, strvar), with=FALSE])
 
@@ -159,19 +121,21 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
 
   #############################################################################
   ## If stratcombine=TRUE and number of total plots is less than minplotnum.strat
+  ## NOTE: minplotnum must not be greater than the minimum number
+  ##		or plots by estimation unit plus 1.
   #############################################################################
   if ("n.strata" %in% names(unitgrpsum) && any(unique(unitgrpsum$n.strata) < minplotnum.strat)) {
     
     tabprint <- TRUE
-    unitgrpsum$strat <- unitgrpsum[[strvar]]
-    if (!is.factor(unitgrpsum$strat)) {
-      unitgrpsum$strat <- factor(unitgrpsum$strat)
-    }
-    unitgrpsum$strat <- as.numeric(unitgrpsum$strat)
-    unitgrpsum$stratnew <- as.character(-1)
-
-    stratgrp <- unitgrpsum[, groupStrata(.SD, minplotnum=minplotnum.strat, strvar=strvar, 
-                                         stratalevels=stratalevels), by=unitvar]
+    
+    ## Group strata (by unitvar) if less than minplotnum
+    stratgrp <- unitgrpsum[, groupClasses(.SD, minplotnum = minplotnum.strat, 
+                                        nvar="n.strata", xvar = strvar,
+                                        sumvar = "n.strata",
+                                        xvarlevels = stratalevels), by=unitvar]
+    setnames(stratgrp, "classnew", "stratnew")
+    
+    
     strlut <- stratgrp[, lapply(.SD, sum, na.rm=TRUE),
 		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, "n.strata")]
     strlut[, n.total := stratgrp[match(strlut[[unitvar]], stratgrp[[unitvar]]),
@@ -203,8 +167,11 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     pltstratx <- merge(pltstratx,
 		unique(unitstrgrplut[,c(unitstrjoinvars, "stratnew"), with=FALSE]),
 		by=unitstrjoinvars)
+    
+    ## define collapsed strvar as 'stratnew'
     strvar <- "stratnew"
     strunitvars=c(unitvar, strvar)
+    
   } else {
     strlut <- unitgrpsum
   }

@@ -78,6 +78,7 @@
 \alias{getrhat}
 \alias{groupEstunit}
 \alias{groupStrata}
+\alias{groupClasses}
 \alias{groupUnits}
 \alias{internal_desc}
 \alias{getjoinqry}
@@ -596,6 +597,8 @@ groupStrata(
   stratalevels = NULL
 )
 
+groupClasses(x, minplotnum, nvar, xvar, sumvar = "n.strata", xvarlevels = NULL)
+
 groupUnits(
   tabest,
   domain,
@@ -688,6 +691,7 @@ strat.collapse(
   unitcombine = FALSE,
   stratalevels = NULL,
   vars2combine = NULL,
+  UNITCD = NULL,
   ...
 )
 
