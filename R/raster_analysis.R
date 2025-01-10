@@ -1295,7 +1295,6 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
 
     if (show_progress)
         pb <- utils::txtProgressBar(min = 0, max = nrow(src))
-
     for (i in seq_len(nrow(src))) {
         this_attr <- as.character(src[[attribute]][i])
         this_attr_idx <- match(this_attr, zoneid)

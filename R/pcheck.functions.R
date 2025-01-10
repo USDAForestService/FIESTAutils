@@ -1230,13 +1230,21 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
     ## If polyfix
     ############################################################
     if (polyfix) {
-	
-	  ## check for empty geometry
-	  if (sum(sf::st_is_empty(splayer)) > 0) {
-	    splayer <- splayer[!sf::st_is_empty(splayer),]
-	  }
+      ## check for empty geometry
+      if (sum(sf::st_is_empty(splayer)) > 0) {
+        message("there is missing geometry")
+        splayer <- splayer[!sf::st_is_empty(splayer),]
+      }
       #splayer <- polyfix.sf(splayer)
-	  splayer <- sf::st_make_valid(splayer)
+      if (any(!sf::st_is_valid(splayer))) {
+	      splayer <- sf::st_make_valid(splayer)
+      }
+    } else {
+      
+      ## check for empty geometry
+      if (sum(sf::st_is_empty(splayer)) > 0) {
+        message("there is missing geometry... set polyfix = TRUE")
+      }
     }
 
     ## Drop geometry in table

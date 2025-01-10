@@ -4,10 +4,11 @@
 %   R/cool_spfunctions.R, R/fileexistsnm.R, R/getEvalid.R, R/getRefcodes.R,
 %   R/getRefobject.R, R/getadjfactorDWM.R, R/getadjfactorGB.R,
 %   R/getadjfactorP2VEG.R, R/getadjfactorPLOT.R, R/getadjfactorVOL.R,
-%   R/getfunnm.R, R/getlt10char.R, R/getpse.R, R/getrhat.R, R/groupStrata.R,
-%   R/groupUnits.R, R/internal_desc.R, R/query_functions.R, R/save1tab.R,
-%   R/save2tabs.R, R/strat_collapse.R, R/subpsamp.R, R/subpsampP2VEG.R,
-%   R/table_functions.R, R/vector_proc.R, R/wtcalc.R, R/wtcalc_unit.R
+%   R/getfunnm.R, R/getlt10char.R, R/getpse.R, R/getrhat.R, R/groupClasses.R,
+%   R/groupStrata.R, R/groupUnits.R, R/internal_desc.R, R/query_functions.R,
+%   R/save1tab.R, R/save2tabs.R, R/strat_collapse.R, R/subpsamp.R,
+%   R/subpsampP2VEG.R, R/table_functions.R, R/vector_proc.R, R/wtcalc.R,
+%   R/wtcalc_unit.R
 \name{DBvars.default}
 \alias{DBvars.default}
 \alias{DBgetfn}
@@ -76,9 +77,9 @@
 \alias{getlt10char}
 \alias{getpse}
 \alias{getrhat}
+\alias{groupClasses}
 \alias{groupEstunit}
 \alias{groupStrata}
-\alias{groupClasses}
 \alias{groupUnits}
 \alias{internal_desc}
 \alias{getjoinqry}
@@ -587,6 +588,8 @@ getpse(
 
 getrhat(x)
 
+groupClasses(x, minplotnum, nvar, xvar, sumvar = "n.strata", xvarlevels = NULL)
+
 groupEstunit(x, minplotnum)
 
 groupStrata(
@@ -596,8 +599,6 @@ groupStrata(
   strvar = NULL,
   stratalevels = NULL
 )
-
-groupClasses(x, minplotnum, nvar, xvar, sumvar = "n.strata", xvarlevels = NULL)
 
 groupUnits(
   tabest,
