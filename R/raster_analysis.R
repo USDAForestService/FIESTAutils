@@ -336,7 +336,7 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
 
         # TODO: this seems not correct / not needed?
         # export functions needed by .getPixelValue
-        parallel::clusterExport(cl, c("getOffset", "getPixelValue", "Mode"))
+#        parallel::clusterExport(cl, c("getOffset", "getPixelValue", "Mode"))
     }
     else {
         ds <- new(GDALRaster, rasterfile, read_only=TRUE)
