@@ -783,8 +783,25 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
   #if (!is.null(layer.pre) && (!is.vector(layer.pre) || length(layer.pre) > 1)) {
   #  stop("invalid layer.pre")
   #}
- 
-  if (!is.null(outconn) && DBI::dbIsValid(outconn)) {
+
+  if (!is.null(outconn)) {
+    outconnchk <- tryCatch(
+      DBI::dbIsValid(outconn),
+                 error = function(e) {
+                 return(NULL) })
+    if (is.null(outconnchk)) {
+      message("outconn is invalid...\n", outconn)
+      stop()
+    }  
+    
+    ## check out_fmt
+    outconn_class <- class(outconn)
+    if (outconn_class == "SQLiteConnection") {
+      if (out_fmt != "sqlite") out_fmt <- "sqlite"
+    } else if (outconn_class == "PqConnection") {
+      if (out_fmt != "postgres") out_fmt <- "postgres"
+    }
+
     out_dsn <- DBI::dbGetInfo(outconn)$dbname
     outfolder <- NULL
     if (append_layer) {
@@ -796,8 +813,7 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
 		            overwrite_layer = overwrite_layer, 
 		            append_layer = append_layer,
 		            outfn.date = outfn.date, outfn.pre = outfn.pre, 
-		            outconn = outconn,
-		            out_conn = outconn))
+		            outconn = outconn))
   }
   
   if (is.null(out_dsn) && any(c(out_fmt, outsp_fmt) %in% c("csv", "shp"))) {
@@ -1091,10 +1107,9 @@ pcheck.spatial <- function(layer=NULL, dsn=NULL, sql=NA, fmt=NULL, tabnm=NULL,
   ## Check layer
   ######################################################
   layerlst <- tryCatch(sf::st_layers(dsn),
-				error=function(err) {
-					#message("", "\n")
-					return(NULL)
-				} )
+                       error = function(e) {
+                         message(e,"\n")
+                         return(NULL) })
   if (is.null(layerlst)) {
     if (file.exists(dsn)) {
       stop("file exists... but not spatial")
@@ -1336,6 +1351,7 @@ pcheck.params <- function(input.params, strata_opts = NULL,
       }
     }
   }
+
   if (!is.null(savedata_opts)) {
     if ("savedata_opts" %in% input.params) {
       if (!is.list(savedata_opts)) {

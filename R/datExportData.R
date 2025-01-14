@@ -34,7 +34,7 @@ datExportData <- function(dfobj,
                           lowernames = FALSE,
                           savedata_opts = savedata_options(),
                           dbconn = NULL,
-                          dbconnopen = FALSE
+                          dbconnopen = TRUE
                           ) {
   ###########################################################################
   ## DESCRIPTION: Exports a data.frame to file or database.
@@ -96,6 +96,10 @@ datExportData <- function(dfobj,
       assign(names(savedata_opts)[[i]], savedata_opts[[i]])
     }
   }
+
+  if (is.null(dbconn) && !is.null(outconn)) {
+    dbconn <- outconn
+  }
   
   ## Check output data
   outlst <- pcheck.output(out_fmt = out_fmt, outfolder = outfolder,
@@ -109,7 +113,8 @@ datExportData <- function(dfobj,
   overwrite_layer <- outlst$overwrite_layer
   append_layer <- outlst$append_layer
   out_conn <- outlst$out_conn
- 
+  
+
   ## Check out_layer
   ####################################################
   if (is.null(out_dsn) && is.null(out_layer)) {

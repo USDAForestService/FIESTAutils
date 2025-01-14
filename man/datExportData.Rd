@@ -12,7 +12,7 @@ datExportData(
   lowernames = FALSE,
   savedata_opts = savedata_options(),
   dbconn = NULL,
-  dbconnopen = FALSE
+  dbconnopen = TRUE
 )
 }
 \arguments{
