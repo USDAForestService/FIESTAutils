@@ -224,7 +224,7 @@ SAest(
   prior = NULL,
   modelselect = TRUE,
   multest = TRUE,
-  multest_estimators = "all",
+  multest_estimators = NULL,
   bayes = FALSE,
   bayes_opts = NULL,
   save4testing = FALSE
@@ -249,7 +249,7 @@ SAest.dom(
   prior = NULL,
   modelselect = TRUE,
   multest = TRUE,
-  multest_estimators = "all",
+  multest_estimators = NULL,
   bayes = FALSE,
   bayes_opts = NULL,
   save4testing = FALSE
