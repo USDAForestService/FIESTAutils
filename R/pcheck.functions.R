@@ -953,6 +953,7 @@ pcheck.areaunits <- function(unitarea, areavar, areaunits, metric=FALSE) {
       stop("invalid units... cannot convert ", areaunits, " to ", outunits)
     }
   }
+  unitarea[[areavar]] <- NULL
   areavar <- areausedvar
   return(list(unitarea=unitarea, areavar=areavar, outunits=outunits))
 }

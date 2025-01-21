@@ -67,6 +67,8 @@
 #' 'not sampled' for percent standard error.
 #' @param divideby String. Conversion number for output ('hundred', 'thousand',
 #' 'million').
+#' @param NA.FIAname String. The name to fill in NA name when row.FIAname or 
+#' col.FIAname = TRUE (Default = "Other')
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for outputting
 #' tables with custom aesthetics.
@@ -89,6 +91,7 @@ table_options <-
            totals = TRUE, allin1 = FALSE, metric = FALSE, 
 					 estround = 1, pseround = 2,
            estnull="--", psenull="--", 
+					 NA.FIAname = "Other",
 					 divideby=NULL, ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]

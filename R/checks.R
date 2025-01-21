@@ -447,7 +447,8 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 
 #' @rdname checks_desc
 #' @export
-check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2txt=NULL) {
+check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, 
+                             tab1txt=NULL, tab2txt=NULL) {
   ## Description: check that the class of matchcol in tab2 matches class in tab1
   ## 	  If different, changes class2 to class1
   ##	  For multiple variables with same name in both tables,
@@ -521,9 +522,18 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, tab1txt=NULL, tab2
       }
     } else if (inherits(tab1[[v1]], what = "factor")) {
       v1levels <- levels(tab1[[v1]])
+
       if (!all(unique(tab2[[v2]]) %in% v1levels)) {
         misslevel <- unique(tab2[[v2]])[!unique(tab2[[v2]]) %in% v1levels]
-        message("missing level values: ", toString(misslevel), "... returning NA factor values")
+        
+        #if (any(is.na(misslevel)) && factor.addNA) {
+        #  tab2[[v2]] <- addNA(tab2[[v2]])
+        #  v1levels <- levels(tab2[[v2]])
+        #}
+      
+        if (any(!is.na(misslevel))) {
+          message("missing level values: ", toString(misslevel), "... returning NA factor values")
+        }
       }
       if (all(v1levels %in% tab2[[v2]])) {
         tab2[[v2]] <- factor(tab2[[v2]], levels=v1levels)
