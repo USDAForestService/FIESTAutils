@@ -27,7 +27,7 @@ table_options(
   pseround = 2,
   estnull = "--",
   psenull = "--",
-  NA.FIAname = "Other",
+  NA.name = "Other",
   divideby = NULL,
   ...
 )
@@ -113,7 +113,7 @@ error.}
 \item{psenull}{Number or character. The number or symbol to use to indicate
 'not sampled' for percent standard error.}
 
-\item{NA.FIAname}{String. The name to fill in NA name when row.FIAname or 
+\item{NA.name}{String. The name to fill in NA name when row.FIAname or 
 col.FIAname = TRUE (Default = "Other')}
 
 \item{divideby}{String. Conversion number for output ('hundred', 'thousand',

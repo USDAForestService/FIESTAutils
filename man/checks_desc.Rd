@@ -6,6 +6,7 @@
 \alias{check.logic}
 \alias{check.matchclass}
 \alias{check.matchval}
+\alias{check.unique}
 \alias{checks_desc}
 \alias{checkfilenm}
 \alias{checknm}
@@ -48,6 +49,8 @@ check.matchval(
   stopifmiss = FALSE,
   subsetrows = FALSE
 )
+
+check.unique(x, xvar, uniquex, NA.name = "Other")
 
 checkfilenm(fn, outfolder = NULL, ext = NULL, stopifnull = FALSE)
 

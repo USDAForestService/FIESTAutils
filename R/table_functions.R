@@ -279,14 +279,16 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
     } else {
 	
       xchk <- check.matchclass(uniquex, x, xvar)
-      uniquex <- xchk$tab1
-      x <- xchk$tab2
+      uniquex <- data.table::setDF(xchk$tab1)
+      x <- data.table::setDF(xchk$tab2)
+      
       x <- merge(uniquex, x, by=xvar, all.y=TRUE)
 
       xchk <- check.matchclass(uniquex2, x, xvar2)
-      uniquex2 <- xchk$tab1
-      x <- xchk$tab2
-      x <- merge(uniquex2, x, by=xvar2, all.y=TRUE)
+      uniquex2 <- data.table::setDF(xchk$tab1)
+      x <- data.table::setDF(xchk$tab2)
+      
+      x <- setDT(merge(uniquex2, x, by=xvar2, all.y=TRUE))
     }
   } else {  ## is.null(xvar2)
     
@@ -307,10 +309,10 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       }
     } else {
       xchk <- check.matchclass(uniquex, x, byvars)
-      uniquex <- xchk$tab1
-      x <- xchk$tab2
+      uniquex <- data.table::setDF(xchk$tab1)
+      x <- data.table::setDF(xchk$tab2)
 
-      x <- merge(uniquex, x, by=byvars, all.y=TRUE)
+      x <- setDT(merge(setDF(uniquex), setDF(x), by=byvars, all.y=TRUE))
     }
   }
 
@@ -540,6 +542,7 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
       }
     }
   } else if (!is.null(colvar.est) || !is.null(rowvar.est)) {
+
     estpse.col <- crosstabx(colvar.est, colvar, estnm, psenm, 
                             allin1 = allin1,
 		                        char.width = char.width, 
@@ -552,7 +555,6 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
       est <- rbind(setDF(est), c(totals, estpse.col$est))
       pse <- rbind(setDF(pse), c(totals, estpse.col$pse))
     }
-
     estpse.row <- crosstabx(rowvar.est, rowvar, estnm, psenm, 
                             allin1 = allin1,
 		                        char.width = char.width, 
@@ -705,7 +707,7 @@ crossxbyunit <- function(unit=NULL, unit_grpest=NULL, unit_rowest=NULL,
 	             rowgrp=rowgrp, rowgrpnm=rowgrpnm, title.rnames=title.rnames,
  	             estnull=estnull, psenull=psenull, char.width=char.width,
 	             estround=estround, pseround=pseround)
-
+  
   if (allin1) {
     estpsetab <- tabs
     if (!is.null(estpsetab)) {

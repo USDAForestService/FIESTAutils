@@ -695,3 +695,29 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
 }
 
 
+
+#' @rdname checks_desc
+#' @export
+check.unique <- function(x, xvar, uniquex, NA.name = "Other") {
+ 
+  ## add NA factors if NA values are in dataset
+  if (!is.null(xvar)) {
+    if (any(is.na(as.character(x[[xvar]])))) {
+      if (ncol(uniquex) == 1) {
+        uniquex <- rbind(uniquex, list(NA))
+        uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+      } else {
+        if (!is.null(NA.name)) {
+          if (any(is.na(as.character(uniquex[[xvar]])))) {
+            uniquex[is.na(as.character(uniquex[[xvar]]))][[xvar]] <- NA.name
+          } else {
+            uniquex <- rbind(uniquex, list(NA, NA.name))
+            uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+          }
+        }
+      }
+    }
+  }
+  return(uniquex)
+}
+
