@@ -536,10 +536,10 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
         }
       }
       if (all(v1levels %in% tab2[[v2]])) {
-        tab2[[v2]] <- factor(tab2[[v2]], levels=v1levels)
+        tab2[[v2]] <- factor(tab2[[v2]], levels=v1levels, exclude = NULL)
       } else {
         #message("missing factor levels")
-        tab2[[v2]] <- factor(tab2[[v2]], levels=v1levels)
+        tab2[[v2]] <- factor(tab2[[v2]], levels=v1levels, exclude = NULL)
       }
     } else if (inherits(tab2[[v2]], what = "factor")) {
       tab2[[v2]] <- as.character(tab2[[v2]])
@@ -698,26 +698,51 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
 
 #' @rdname checks_desc
 #' @export
-check.unique <- function(x, xvar, uniquex, NA.name = "Other") {
- 
+check.unique <- function(x, xvar, 
+                         uniquex, 
+                         NAname = "Other",
+                         addfactors = TRUE) {
+  
+  ## DESCRIPTION: add factor levels to uniquex if missing
+  
+  
   ## add NA factors if NA values are in dataset
-  if (!is.null(xvar)) {
-    if (any(is.na(as.character(x[[xvar]])))) {
-      if (ncol(uniquex) == 1) {
+  if (any(is.na(as.character(x[[xvar]])))) {
+    if (ncol(uniquex) == 1) {
+      if (!any(is.na(as.vector(uniquex[[xvar]])))) {
         uniquex <- rbind(uniquex, list(NA))
+      }
+      if (!any(is.na(levels(uniquex[[xvar]])))) {
         uniquex[[xvar]] <- addNA(uniquex[[xvar]])
-      } else {
-        if (!is.null(NA.name)) {
-          if (any(is.na(as.character(uniquex[[xvar]])))) {
-            uniquex[is.na(as.character(uniquex[[xvar]]))][[xvar]] <- NA.name
-          } else {
-            uniquex <- rbind(uniquex, list(NA, NA.name))
-            uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+      }
+    } else {
+      if (!is.null(NAname)) {
+        
+        
+        if (any(is.na(as.character(uniquex[[xvar]])))) {
+          ## check if name exists... if exists, change name to 'NAname'_1
+          NAname <- checknm(NAname, uniquex[[xvar]])
+          
+          uniquex[is.na(as.character(uniquex[[xvar]]))][[xvar]] <- NAname
+        } else {
+          ## check if name exists... if exists, change name to 'NAname'_1
+          notxvar <- names(uniquex)[names(uniquex) != xvar]
+          if (length(notxvar) != 1) {
+            stop("only 2 columns allowed")
           }
+          NAname <- checknm(NAname, uniquex[[notxvar]])
+          
+          uniquex <- rbind(uniquex, list(NA, NAname))
+          uniquex[[xvar]] <- addNA(uniquex[[xvar]])
         }
       }
     }
   }
+  ## check other missing factor values and add if necessary
+  #xvalues <- sort(unique(x[[xvar]]))
+  #uniquexlevels <- sort(levels(uniquex[[xvar]]))
+  
+
   return(uniquex)
 }
 

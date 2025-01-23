@@ -148,7 +148,9 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
     byvars <- c(byvars, xvar2)
 
     if (xvar.add0 && xvar2.add0) {
-       uniquex.exp <- unique(expand.grid(uniquex[[xvar]], uniquex2[[xvar2]],
+      
+      ## Expand uniquex to all combinations
+      uniquex.exp <- unique(expand.grid(uniquex[[xvar]], uniquex2[[xvar2]],
 		                    stringsAsFactors=FALSE))
       if (!is.null(unitvar)) {
         uniquex.exp <- 
@@ -161,79 +163,86 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         chkvars <- c(xvar, xvar2)
       }
       ordvars <- chkvars
- 
+      
+      ## Match classes of xvar in x with xvar in uniquex
+      xchk <- check.matchclass(uniquex, uniquex.exp, xvar)
+      uniquex <- xchk$tab1
+      uniquex.exp <- xchk$tab2
+      
+      ## Match classes of xvar2 in x with xvar2 in uniquex2
+      xchk <- check.matchclass(uniquex2, uniquex.exp, xvar2)
+      uniquex2 <- xchk$tab1
+      uniquex.exp <- xchk$tab2
+      
+      ## Merge uniquex to uniquex.exp if greater than 1 column
       if (ncol(uniquex) > 1) {
-        xchk <- check.matchclass(uniquex.exp, uniquex, xvar)
-        uniquex.exp <- xchk$tab1
-        uniquex <- xchk$tab2
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar)
         ordvars <- c(names(uniquex), xvar2)
       }
 
+      ## Merge uniquex2 to uniquex.exp if greater than 1 column
       if (ncol(uniquex2) > 1) {
-        xchk <- check.matchclass(uniquex.exp, uniquex2, xvar2)
-        uniquex.exp <- xchk$tab1
-        uniquex2 <- xchk$tab2
         uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2)
         ordvars <- c(names(uniquex), names(uniquex2))
       }
 
+      ## Match classes of chkvars in x with checkvars in uniquex.exp
       xchk <- check.matchclass(uniquex.exp, x, chkvars)
       uniquex.exp <- xchk$tab1
       x <- xchk$tab2
 
+      ## Merge uniquex.exp to x
       x <- merge(uniquex.exp, x, by=chkvars, all.x=TRUE)
       x[is.na(x)] <- 0
 
     } else if (xvar.add0) {
 
+      ## Expand uniquex to all combinations
       if (!is.null(unitvar)) {
         uniquex.exp <- unique(x[, expand.grid(uniquex[[xvar]], get(xvar2)), by=unitvar])
-        #uniquex.exp2 <- unique(x[, expand.grid(as.character(uniquex[[xvar]]), get(xvar2)), by=unitvar])
         setnames(uniquex.exp, c(unitvar, xvar, xvar2))
         chkvars <- c(unitvar, xvar, xvar2)
-
       } else {
         uniquex.exp <- unique(x[, expand.grid(uniquex[[xvar]], get(xvar2))])
         setnames(uniquex.exp, c(xvar, xvar2))
         chkvars <- c(xvar, xvar2)
       }
-
+      
+      ## Match classes of xvar in x with xvar in uniquex
+      xchk <- check.matchclass(uniquex, uniquex.exp, xvar)
+      uniquex <- xchk$tab1
+      uniquex.exp <- xchk$tab2
+      
+      ## Match classes of xvar2 in x with xvar2 in uniquex2
+      xchk <- check.matchclass(uniquex2, uniquex.exp, xvar2)
+      uniquex2 <- xchk$tab1
+      uniquex.exp <- xchk$tab2
+      
+      ## Merge uniquex to uniquex.exp if greater than 1 column
       if (ncol(uniquex) > 1) {
-        xchk <- check.matchclass(uniquex.exp, uniquex, xvar)
-        uniquex.exp <- xchk$tab1
-        uniquex <- xchk$tab2
-		
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar, all.x=TRUE, all.y=TRUE)
       }
+      
+      ## Merge uniquex2 to uniquex.exp if greater than 1 column
       if (ncol(uniquex2) > 1) {
-	    ## Merge uniquex
-        xchk <- check.matchclass(uniquex.exp, uniquex2, xvar2)
-        uniquex.exp <- xchk$tab1
-        uniquex2 <- xchk$tab2
-
         uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2, all.x=TRUE)
       }
 
-      ## Merge uniquex
+      ## Match classes of chkvars in x with checkvars in uniquex.exp
       xchk <- check.matchclass(uniquex.exp, x, chkvars)
       uniquex.exp <- xchk$tab1
       x <- xchk$tab2
-
-      ## Merge uniquex.exp
+      
+      ## Merge uniquex.exp to x
       x <- unique(merge(x, uniquex.exp, by=chkvars, all.y=TRUE))
       setcolorder(x, c(chkvars, names(x)[!names(x) %in% chkvars]))
-
-      #setnames(x, unitvar, "uvar")
-      #x <- x[uniquex[rep(1:nrow(uniquex.exp), uniqueN(x$uvar)),
-	 #	c(.SD, list(uvar=rep(unique(x$uvar), each=nrow(uniquex.exp))))],
-	 #	on=c("uvar", xvar)]
 
       ## Set NA values to 0
       x[is.na(x)] <- 0
 
     } else if (xvar2.add0) {
 	
+      ## Expand uniquex to all combinations
       if (!is.null(unitvar)) {
         uniquex.exp <- unique(x[, expand.grid(uniquex2[[xvar2]], get(xvar)), by=unitvar])
         setnames(uniquex.exp, c(unitvar, xvar2, xvar))
@@ -243,53 +252,58 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         setnames(uniquex.exp, c(xvar2, xvar))
         chkvars <- c(xvar, xvar2)
       }
-
+      
+      ## Match classes of xvar in x with xvar in uniquex
+      xchk <- check.matchclass(uniquex, uniquex.exp, xvar)
+      uniquex <- xchk$tab1
+      uniquex.exp <- xchk$tab2
+      
+      ## Match classes of xvar2 in x with xvar2 in uniquex2
+      xchk <- check.matchclass(uniquex2, uniquex.exp, xvar2)
+      uniquex2 <- xchk$tab1
+      uniquex.exp <- xchk$tab2
+      
+      
+      ## Merge uniquex to uniquex.exp if greater than 1 column
       if (ncol(uniquex) > 1) {
-        ## Merge uniquex.exp
-        xchk <- check.matchclass(uniquex.exp, uniquex, xvar)
-        uniquex.exp <- xchk$tab1
-        uniquex <- xchk$tab2
-	  
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar)
       }
+      
+      ## Merge uniquex2 to uniquex.exp if greater than 1 column
       if (ncol(uniquex2) > 1) {
-        xchk <- check.matchclass(uniquex.exp, uniquex2, xvar2)
-        uniquex.exp <- xchk$tab1
-        uniquex2 <- xchk$tab2
-
         uniquex.exp <- merge(uniquex.exp, uniquex2, by=xvar2, all.y=TRUE)
       }
 
-      ## Merge uniquex.exp
+      ## Match classes of x with uniquex.exp
       xchk <- check.matchclass(uniquex.exp, x, chkvars)
       uniquex.exp <- xchk$tab1
       x <- xchk$tab2
-
-      ## Merge uniquex.exp
+      
+      ## Merge uniquex.exp to x
       x <- merge(uniquex.exp, x, by=chkvars, all.x=TRUE, all.y=TRUE)
-
-      #setnames(x, unitvar, "uvar")
-      #x <- x[uniquex[rep(1:nrow(uniquex.exp), uniqueN(x$uvar)),
-	 #	c(.SD, list(uvar=rep(unique(x$uvar), each=nrow(uniquex.exp))))],
-	 #	on=c("uvar", xvar)]
 
       ## Set NA values to 0
       x[is.na(x)] <- 0
 
     } else {
 	
+      ## Match classes of xvar in x with xvar in uniquex
       xchk <- check.matchclass(uniquex, x, xvar)
-      uniquex <- data.table::setDF(xchk$tab1)
-      x <- data.table::setDF(xchk$tab2)
+      uniquex <- xchk$tab1
+      x <- xchk$tab2
       
+      ## Merge uniquex to x
       x <- merge(uniquex, x, by=xvar, all.y=TRUE)
-
-      xchk <- check.matchclass(uniquex2, x, xvar2)
-      uniquex2 <- data.table::setDF(xchk$tab1)
-      x <- data.table::setDF(xchk$tab2)
       
-      x <- setDT(merge(uniquex2, x, by=xvar2, all.y=TRUE))
+      ## Match classes of xvar2 in x with xvar2 in uniquex2
+      xchk <- check.matchclass(uniquex2, x, xvar2)
+      uniquex2 <- xchk$tab1
+      x <- xchk$tab2
+      
+      ## Merge uniquex2 to x
+      x <- merge(uniquex2, x, by=xvar2, all.y=TRUE)
     }
+    
   } else {  ## is.null(xvar2)
     
     if (xvar.add0) {
@@ -308,40 +322,43 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         x <- merge(uniquex, x, by=byvars, all.y=TRUE)
       }
     } else {
+     
+      ## Match classes of byvars in x with byvars in uniquex
       xchk <- check.matchclass(uniquex, x, byvars)
-      uniquex <- data.table::setDF(xchk$tab1)
-      x <- data.table::setDF(xchk$tab2)
-
-      x <- setDT(merge(setDF(uniquex), setDF(x), by=byvars, all.y=TRUE))
+      uniquex <- xchk$tab1
+      x <- xchk$tab2
+      
+      ## Merge uniquex to x
+      x <- merge(uniquex, x, by=byvars, all.y=TRUE)
     }
   }
 
-  ## Set factor levels 
-  if (is.factor(uniquex[[xvar]])) {
-    xlevels <- levels(uniquex[[xvar]])
-    if (is.factor(x[[xvar]])) {
-      setattr(x[[xvar]], "levels", xlevels)
-    } else {
-      x[[xvar]] <- factor(x[[xvar]])
-      setattr(x[[xvar]], "levels", xlevels)
-    }
-  } else {
-    x[[xvar]] <- factor(x[[xvar]], levels=uniquex[[xvar]])
-  }
-
-  if (!is.null(xvar2)) {
-    if (is.factor(uniquex2[[xvar2]])) {
-      xlevels2 <- levels(uniquex2[[xvar2]])
-      if (is.factor(x[[xvar2]])) {
-        setattr(x[[xvar2]], "levels", xlevels2)
-      } else {
-        x[[xvar2]] <- factor(x[[xvar2]])
-        setattr(x[[xvar2]], "levels", xlevels2)
-      }
-    } else {
-      x[[xvar2]] <- factor(x[[xvar2]], levels=uniquex2[[xvar2]])
-    }
-  }
+  # ## Set factor levels 
+  # if (is.factor(uniquex[[xvar]])) {
+  #   xlevels <- levels(uniquex[[xvar]])
+  #   if (is.factor(x[[xvar]])) {
+  #     setattr(x[[xvar]], "levels", xlevels)
+  #   } else {
+  #     x[[xvar]] <- factor(x[[xvar]])
+  #     setattr(x[[xvar]], "levels", xlevels)
+  #   }
+  # } else {
+  #   x[[xvar]] <- factor(x[[xvar]], levels=uniquex[[xvar]])
+  # }
+  # 
+  # if (!is.null(xvar2)) {
+  #   if (is.factor(uniquex2[[xvar2]])) {
+  #     xlevels2 <- levels(uniquex2[[xvar2]])
+  #     if (is.factor(x[[xvar2]])) {
+  #       setattr(x[[xvar2]], "levels", xlevels2)
+  #     } else {
+  #       x[[xvar2]] <- factor(x[[xvar2]])
+  #       setattr(x[[xvar2]], "levels", xlevels2)
+  #     }
+  #   } else {
+  #     x[[xvar2]] <- factor(x[[xvar2]], levels=uniquex2[[xvar2]])
+  #   }
+  # }
 
   if (is.null(unitvar)) {
     ordervars <- byvars

@@ -45,6 +45,8 @@ classqry <- function(classcol,
   ## Define default classnm
   if (is.null(classnm)) {
     classnm <- paste0(classcol, "CL")
+  } else if (!is.character(classnm) || length(classnm) > 1) {
+    stop("invalid classnm: ", toString(classnm))
   }
   
   ## Check if fromval and toval have same length
@@ -71,7 +73,7 @@ classqry <- function(classcol,
             "\n   WHEN ", class., classcol, " = ", fromval[i], " THEN '", toval[i], "'")
     }
   }
-  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", prefixnm, classnm)
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS '", prefixnm, classnm, "'")
   return(classify.qry)
 }
 
@@ -98,6 +100,8 @@ classifyqry <- function(classcol,
   ## Define default classnm
   if (is.null(classnm)) {
     classnm <- paste0(classcol, "CL")
+  } else if (!is.character(classnm) || length(classnm) > 1) {
+    stop("invalid classnm: ", toString(classnm))
   }
   
   ## Check cutlabels 
@@ -140,7 +144,7 @@ classifyqry <- function(classcol,
           class., classcol, " < ", cutbreaks[i+1], " THEN '", cutlabels[i], "'")
     }
   }
-  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", prefixnm, classnm)  
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS '", prefixnm, classnm, "'")  
   return(classify.qry)
 }
 

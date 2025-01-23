@@ -50,7 +50,7 @@ check.matchval(
   subsetrows = FALSE
 )
 
-check.unique(x, xvar, uniquex, NA.name = "Other")
+check.unique(x, xvar, uniquex, NAname = "Other", addfactors = TRUE)
 
 checkfilenm(fn, outfolder = NULL, ext = NULL, stopifnull = FALSE)
 
