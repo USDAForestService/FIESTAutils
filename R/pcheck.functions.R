@@ -896,8 +896,7 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
               overwrite_layer = overwrite_layer,
 	            add_layer = add_layer, append_layer = append_layer, 
               outfn.date = outfn.date,
-              outconn = outconn,
-              out_conn = outconn))
+              outconn = outconn))
 }
 
 

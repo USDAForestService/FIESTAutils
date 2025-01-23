@@ -106,13 +106,13 @@ datExportData <- function(dfobj,
 	                  out_dsn=out_dsn, overwrite_dsn = overwrite_dsn, 
 	                  overwrite_layer = overwrite_layer, outfn.date = outfn.date, 
 	                  add_layer = add_layer, append_layer = append_layer,
-	                  outfn.pre = outfn.pre, out_conn = dbconn, dbconnopen = TRUE)
+	                  outfn.pre = outfn.pre, outconn = dbconn, dbconnopen = TRUE)
   out_fmt <- outlst$out_fmt
   out_dsn <- outlst$out_dsn
   outfolder <- outlst$outfolder
   overwrite_layer <- outlst$overwrite_layer
   append_layer <- outlst$append_layer
-  out_conn <- outlst$out_conn
+  outconn <- outlst$outconn
   
 
   ## Check out_layer
@@ -141,7 +141,7 @@ datExportData <- function(dfobj,
                            append_layer = append_layer,
                            index.unique = index.unique, 
                            index = index, createnew = create_dsn, 
-                           dbconn = out_conn, dbconnopen = TRUE)
+                           dbconn = outconn, dbconnopen = TRUE)
 
   } else if (out_fmt == "gdb") {
      stop("cannot write to a geodatabase")
