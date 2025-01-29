@@ -221,13 +221,16 @@ getPixelValue <- function(pt, ds, ri=NULL, band=1, interpolate=FALSE,
         x <- getOffset(ptX, xmin, cellsizeX) - (offX + 0.5)
         y <- (offY + 1.5) - getOffset(ptY, ymax, cellsizeY)
 
+        dim(a) <- c(2, 2)
         #pixel values in the square
         #0,0: a[1,2]
         #1,0: a[2,2]
         #0,1: a[1,1]
         #1,1: a[2,1]
-        pixelValue <- (a[1,2]*(1-x)*(1-y) + a[2,2]*x*(1-y) +
-                           a[1,1]*(1-x)*y + a[2,1]*x*y)
+        pixelValue <- (a[1, 2] * (1 - x) * (1 - y) +
+                       a[2, 2] * x * (1 - y) +
+                       a[1, 1] * (1 - x) * y +
+                       a[2, 1] * x * y)
     }
     else if (windowsize==1) {
         #return value of the single pixel containing pt
