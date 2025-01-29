@@ -1,8 +1,8 @@
 Package: FIESTAutils
 Type: Package
 Title: Utility Functions for Forest Inventory Estimation and Analysis
-Version: 1.2.3.9001
-Date: 2025-01-23
+Version: 1.3.0
+Date: 2025-01-28
 Authors@R:
     c(person(given = "Tracey",
              family = "Frescino",
