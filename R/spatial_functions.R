@@ -223,14 +223,14 @@ trunc10shp <- function(x) {
     newnms <- data.frame(NAMES_gt10, NEWNAME="0", stringsAsFactors = FALSE)
     for (nm in NAMES_gt10) {
       allnms <- c(newnms[["NAMES_gt10"]][newnms[["NAMES_gt10"]] != nm],
-			othernms, newnms[newnms$NEWNAME != 0, "NEWNAME"])
+			            othernms, newnms[newnms$NEWNAME != 0, "NEWNAME"])
       newnm <- unique(getlt10char(dbname=nm))
       cnt <- 0
-      while (newnm %in% allnms) {
+      while (newnm %in% c(allnms, newnms$NEWNAME)) {
         cnt <- cnt + 1
         substr(newnm, 10, 10) <- as.character(cnt)
         allnms <- c(newnms[["NAMES_gt10"]][!newnms[["NAMES_gt10"]] %in% newnm],
-			othernms)
+			             othernms)
       }
       newnms[newnms[["NAMES_gt10"]] == nm, "NEWNAME"] <- newnm
     }
