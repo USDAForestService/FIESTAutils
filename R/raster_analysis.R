@@ -378,7 +378,7 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
         if (windowsize > 1 && is.null(statistic)) {
             # raw pixel values from a window, values as an array
             for (p in 1:(windowsize*windowsize)) {
-                df.out[paste0(this.name,"_",p)] <- values[p,]
+                df.out[paste0(this.name,"_",p)] <- values[p]
             }
         }
         else {
