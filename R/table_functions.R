@@ -490,7 +490,8 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
   #################################################################################
   dcastdrop <- TRUE
   if (is.factor(rowvar.est[[rowvar]])) {
-    if (any(is.na(levels(rowvar.est[[rowvar]])))) {
+    #if (any(as.character(levels(rowvar.est[[rowvar]])) == "NA")) {
+    if (length(levels(rowvar.est[[rowvar]])) > length(rowvar.est[[rowvar]])) {
       dcastdrop <- FALSE
     }
   } else {
@@ -499,7 +500,8 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
     }
   }
   if (is.factor(colvar.est[[colvar]])) {
-    if (any(is.na(levels(colvar.est[[colvar]])))) {
+    #if (any(as.character(levels(colvar.est[[colvar]])) == "NA")) {
+    if (length(levels(colvar.est[[colvar]])) > length(colvar.est[[colvar]])) {
       dcastdrop <- FALSE
     }
   } else {

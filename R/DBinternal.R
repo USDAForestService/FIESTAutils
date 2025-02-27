@@ -1636,7 +1636,7 @@ createidx <- function(dbconn, schema=NULL,
     ## get list of tables from database
     dbtablesdf <- as.data.frame(do.call(rbind, 
                       lapply(DBI::dbListObjects(dbconn, DBI::Id(schema = 'wo_fiesta'))$table, 
-                             function(x) slot(x, 'name'))))
+                             function(x) methods::slot(x, 'name'))))
     dbtables <- dbtablesdf$table
   } else {
     
