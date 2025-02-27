@@ -1463,7 +1463,7 @@ customEvalchk <- function(states, measCur = TRUE, measEndyr = NULL,
 #' @export
 checkidx <- function(dbconn, tbl = NULL, index_cols = NULL, 
                      datsource = "sqlite", schema = "FS_FIADB",
-					 dbconnopen = TRUE) {
+					           dbconnopen = TRUE) {
   ## DESCRIPTION: checks table in database
   ## dbconn - open database connection
   ## tbl - one or more tables to check
@@ -1525,7 +1525,11 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
 	      index.qry,
 	      "\n   AND tbl_name in(", addcommas(tblnm, quotes=TRUE), ")",
 			  "\nORDER BY tbl_name")
-	  }
+    }
+  } else if (datsource == "postgres") {
+    index.qry <- paste0("SELECT tablename, indexname",
+                        "\nFROM pg_indexes")
+  
   } else {  ## datsource != 'sqlite'
     index.qry <- paste0("SELECT table_name, index_name", 
 	              "\nFROM all_indexes")
@@ -1609,7 +1613,11 @@ checkidx <- function(dbconn, tbl = NULL, index_cols = NULL,
 
 #' @rdname internal_desc
 #' @export
-createidx <- function(dbconn, schema=NULL, tbl, index_cols, unique=FALSE, dbconnopen=TRUE) {
+createidx <- function(dbconn, schema=NULL, 
+                      tbl, 
+                      index_cols, 
+                      unique=FALSE, 
+                      dbconnopen=TRUE) {
   ## DESCRIPTION: create index
 
   SCHEMA. <- ""
@@ -1624,18 +1632,26 @@ createidx <- function(dbconn, schema=NULL, tbl, index_cols, unique=FALSE, dbconn
   }
   if (!is.null(schema)) {
     SCHEMA. <- paste0(schema, ".")
+    
+    ## get list of tables from database
+    dbtablesdf <- as.data.frame(do.call(rbind, 
+                      lapply(DBI::dbListObjects(dbconn, DBI::Id(schema = 'wo_fiesta'))$table, 
+                             function(x) slot(x, 'name'))))
+    dbtables <- dbtablesdf$table
+  } else {
+    
+    ## get list of tables from database
+    dbtables <- DBI::dbListTables(dbconn)
   }
-  
-  flds <- DBI::dbListTables(dbconn)
 
-  tblnm <- findnm(tbl, flds, returnNULL=TRUE)
+  tblnm <- findnm(tbl, dbtables, returnNULL=TRUE)
   indxnm <- paste0(tblnm, "_", paste(tolower(index_cols), collapse="_"), "_idx")
  
   if (unique) {
-    idxsql <- paste0("create unique index ", indxnm, " ON ", tbl,
+    idxsql <- paste0("create unique index ", indxnm, " ON ", SCHEMA., tbl,
 				"(", paste(index_cols, collapse=","), ")")
   } else {
-    idxsql <- paste0("create index ", indxnm, " ON ", tbl,
+    idxsql <- paste0("create index ", indxnm, " ON ", SCHEMA., tbl,
 				"(", paste(index_cols, collapse=","), ")")
   }
 
