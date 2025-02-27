@@ -488,21 +488,40 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
 
   ## Generate tables
   #################################################################################
+  dcastdrop <- TRUE
+  if (is.factor(rowvar.est[[rowvar]])) {
+    if (any(is.na(levels(rowvar.est[[rowvar]])))) {
+      dcastdrop <- FALSE
+    }
+  } else {
+    if (any(is.na(rowvar.est[[rowvar]]))) {
+      dcastdrop <- FALSE
+    }
+  }
+  if (is.factor(colvar.est[[colvar]])) {
+    if (any(is.na(levels(colvar.est[[colvar]])))) {
+      dcastdrop <- FALSE
+    }
+  } else {
+    if (any(is.na(colvar.est[[colvar]]))) {
+      dcastdrop <- FALSE
+    }
+  }
   if (rowgrp) {
     est <- dcast(group.est, get(rowgrpnm) + get(rowvar) ~ get(colvar),
-                 value.var = estnm, fill = estnull, drop = FALSE)
+                 value.var = estnm, fill = estnull, drop = dcastdrop)
     pse <- dcast(group.est, get(rowgrpnm) + get(rowvar) ~ get(colvar),
-                 value.var = psenm, fill = psenull, drop = FALSE)
+                 value.var = psenm, fill = psenull, drop = dcastdrop)
     crnames <- c("rowgrpnm", "rowvar")
   } else {
     est <- dcast(group.est, get(rowvar) ~ get(colvar),
-                 value.var = estnm, fill = estnull, drop = FALSE)
+                 value.var = estnm, fill = estnull, drop = dcastdrop)
     pse <- dcast(group.est, get(rowvar) ~ get(colvar),
-                 value.var = psenm, fill = psenull, drop = FALSE)
+                 value.var = psenm, fill = psenull, drop = dcastdrop)
     
     crnames <- "rowvar"
   }
-
+  
   est <- est[, lapply(.SD, unAsIs)]
   pse <- pse[, lapply(.SD, unAsIs)]
 
@@ -751,9 +770,9 @@ crossxbyunit <- function(unit=NULL, unit_grpest=NULL, unit_rowest=NULL,
           ## SAVE TABLE
           suppressWarnings(
           save1tab(tab=estpsetab, tab.title=title.estpse.unit,
- 		outfolder=outfolder, allin1=TRUE, coltitlerow=FALSE,
- 		rnames=rnames, outfn=outfn.estpse.unit, addtitle=addtitle,
-		outfn.date=outfn.date, overwrite=overwrite))
+ 		               outfolder=outfolder, allin1=TRUE, coltitlerow=FALSE,
+ 		               rnames=rnames, outfn=outfn.estpse.unit, addtitle=addtitle,
+		               outfn.date=outfn.date, overwrite=overwrite))
         }
       }
     }
@@ -792,17 +811,17 @@ crossxbyunit <- function(unit=NULL, unit_grpest=NULL, unit_rowest=NULL,
         if (esttype == "PHOTO" && phototype == "PCT") {
           suppressWarnings(
           save2tabs(tab1=esttab, tab2=psetab, tab1.title=title.est.unit,
-		tab2.title=title.pse.unit, outfolder=outfolder, coltitlerow=TRUE,
- 		coltitle=title.colvar, rnames=rnames, outfn.estpse=outfn.estpse.unit,
-		addtitle=addtitle, rowtotal=FALSE, outfn.date=outfn.date,
- 		overwrite=overwrite))
+		                tab2.title=title.pse.unit, outfolder=outfolder, 
+		                coltitlerow=TRUE, coltitle=title.colvar, rnames=rnames, 
+		                outfn.estpse=outfn.estpse.unit, addtitle=addtitle, 
+		                rowtotal=FALSE, outfn.date=outfn.date, overwrite=overwrite))
         } else {
           suppressWarnings(
           save2tabs(tab1=esttab, tab2=psetab, tab1.title=title.est.unit,
-		tab2.title=title.pse.unit, outfolder=outfolder, coltitlerow=TRUE,
- 		coltitle=title.colvar, rnames=rnames, outfn.estpse=outfn.estpse.unit,
-		addtitle=addtitle, rowtotal=FALSE, outfn.date=outfn.date,
- 		overwrite=overwrite))
+		                tab2.title=title.pse.unit, outfolder=outfolder, 
+		                coltitlerow=TRUE, coltitle=title.colvar, rnames=rnames, 
+		                outfn.estpse=outfn.estpse.unit, addtitle=addtitle, 
+		                rowtotal=FALSE, outfn.date=outfn.date, overwrite=overwrite))
         }
       }
     }
