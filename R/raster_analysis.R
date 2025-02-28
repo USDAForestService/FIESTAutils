@@ -172,11 +172,11 @@ getPixelValue <- function(pt, ds, ri=NULL, band=1, interpolate=FALSE,
     #check that point is inside extent rectangle
     if (ptX > xmax || ptX < xmin) {
         warning("point X value is outside raster extent", call.=FALSE)
-        return(NA)
+        return(rep(NA, windowsize * windowsize))
     }
     if (ptY > ymax || ptY < ymin) {
         warning("point Y value is outside raster extent", call.=FALSE)
-        return(NA)
+        return(rep(NA, windowsize * windowsize))
     }
 
     #get pixel offsets
@@ -200,7 +200,11 @@ getPixelValue <- function(pt, ds, ri=NULL, band=1, interpolate=FALSE,
                 offY < 0 || (offY+windowsize-1) > nrows) {
             warning("window is not completely within raster extent",
                     call.=FALSE)
-            return(NA)
+            if (is.null(statistic) && windowsize > 1) {
+                return(rep(NA, windowsize * windowsize))
+            } else {
+                return(NA)
+            }
         }
     }
 
@@ -378,7 +382,7 @@ extractPtsFromRaster <- function(ptdata, rasterfile, band=NULL, var.name=NULL,
         if (windowsize > 1 && is.null(statistic)) {
             # raw pixel values from a window, values as an array
             for (p in 1:(windowsize*windowsize)) {
-                df.out[paste0(this.name,"_",p)] <- values[p]
+                df.out[paste0(this.name,"_",p)] <- values[p,]
             }
         }
         else {
