@@ -172,7 +172,7 @@ getPixelValue <- function(pt, ds, ri=NULL, band=1, interpolate=FALSE,
     #check that point is inside extent rectangle
     if (ptX > xmax || ptX < xmin) {
         warning("point X value is outside raster extent", call.=FALSE)
-        if (statistic == "value") {
+        if (windowsize > 1 && is.null(statistic)) {
           return(rep(NA, windowsize * windowsize))
         } else {
           return(NA)
@@ -180,7 +180,7 @@ getPixelValue <- function(pt, ds, ri=NULL, band=1, interpolate=FALSE,
     }
     if (ptY > ymax || ptY < ymin) {
         warning("point Y value is outside raster extent", call.=FALSE)
-        if (statistic == "value") {
+        if (windowsize > 1 && is.null(statistic)) {
           return(rep(NA, windowsize * windowsize))
         } else {
           return(NA)
