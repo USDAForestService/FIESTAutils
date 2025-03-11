@@ -13,6 +13,7 @@ datSum_options(
   ACI = FALSE,
   adjtree = FALSE,
   adjvar = "tadjfac",
+  keepall = FALSE,
   NAto0 = TRUE,
   ...
 )
@@ -47,6 +48,9 @@ adjvar).}
 
 \item{adjvar}{String. If adjtree=TRUE, the name of the variable to use for
 multiplying by adjustment (e.g., tadjfac).}
+
+\item{keepall}{Logical. If TRUE, keeps all plots in dataset with NA values. 
+If FALSE, keeps only summed data when not NA.}
 
 \item{NAto0}{Logical. If TRUE, change NA values to 0}
 
