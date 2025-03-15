@@ -9,7 +9,7 @@ getRefobject <- function(xvar){
 
 
   vardiff <- c("FORTYPCD", "FLDTYPCD", "FORTYPGRP", "FORTYPCDCALC", "TYPGRPCD",
-	paste0("DSTRBCD", seq(1:3)), paste0("TRTCD", seq(1:3)))
+	             "ALP_ADFORCD", paste0("DSTRBCD", seq(1:3)), paste0("TRTCD", seq(1:3)))
 
   if (!xvar %in% vardiff) {
     if (grepl("PREV_", xvar)) {
@@ -23,6 +23,7 @@ getRefobject <- function(xvar){
   } else {
 
     switch(xvar,
+      ALP_ADFORCD = 'ADFORCD',
       FORTYPCD = 'FORTYPCD',
       FLDTYPCD = 'FORTYPCD',
       FORTYPGRP = 'FORTYPCD',
