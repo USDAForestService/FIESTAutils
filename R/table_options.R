@@ -65,10 +65,12 @@
 #' 'not sampled' for estimate.
 #' @param psenull Number or character. The number or symbol to use to indicate
 #' 'not sampled' for percent standard error.
-#' @param divideby String. Conversion number for output ('hundred', 'thousand',
-#' 'million').
 #' @param row.NAname String. The name to use for NA values for rows.
 #' @param col.NAname String. String. The name to use for NA values for columns.
+#' @param divideby String. Conversion number for output ('hundred', 'thousand',
+#' 'million').
+#' @param spcdname String. Type of name to use for species in tables ('COMMON', 
+#' 'SCIENTIFIC', SYMBOL', 'COMMON_SCIENTIFIC', 'NONE').
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for outputting
 #' tables with custom aesthetics.
@@ -92,7 +94,7 @@ table_options <-
 					 estround = 1, pseround = 2,
            estnull="--", psenull="--", 
 					 row.NAname = "Other", col.NAname = row.NAname,
-					 divideby=NULL, ...) {
+					 divideby = NULL, spcdname = "COMMON_SCIENTIFIC", ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(table_options)))
