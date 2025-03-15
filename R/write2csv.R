@@ -44,7 +44,8 @@ write2csv <- function(layer,
     ## Check outfilenm
 
     outfilenm <- getoutfn(outfilenm, outfolder=outfolder, outfn.pre=outfn.pre,
-		outfn.date=outfn.date, overwrite=overwrite, outfn.default = "outfile",
+		                      outfn.date=outfn.date, overwrite=overwrite, 
+		                      outfn.default = "outfile",
 		ext="csv", append=appendfile)
     ## open file
     if (appendfile) {

@@ -30,6 +30,7 @@ table_options(
   row.NAname = "Other",
   col.NAname = row.NAname,
   divideby = NULL,
+  spcdname = "COMMON_SCIENTIFIC",
   ...
 )
 }
@@ -120,6 +121,9 @@ error.}
 
 \item{divideby}{String. Conversion number for output ('hundred', 'thousand',
 'million').}
+
+\item{spcdname}{String. Type of name to use for species in tables ('COMMON', 
+'SCIENTIFIC', SYMBOL', 'COMMON_SCIENTIFIC', 'NONE').}
 
 \item{...}{For extendibility.}
 }

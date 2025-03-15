@@ -730,7 +730,7 @@ check.unique <- function(x, xvar,
           if (length(notxvar) != 1) {
             stop("only 2 columns allowed")
           }
-          NAname <- checknm(NAname, uniquex[[notxvar]])
+          NAname <- checknm(NAname, as.character(uniquex[[notxvar]]))
           
           uniquex <- rbind(uniquex, list(NA, NAname))
           uniquex[[xvar]] <- addNA(uniquex[[xvar]])

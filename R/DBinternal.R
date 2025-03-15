@@ -1203,7 +1203,7 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
     SQLitefn <- paste0(SQLitefn, dbext)
   }
   if (!dir.exists(dirname(SQLitefn))) {
-    stop("invalid directory path") 
+    message("invalid directory path: ", SQLitePath) 
   }
   SQLitepath <- getoutfn(SQLitefn, outfn.date=outfn.date, 
 		outfolder=outfolder, overwrite=overwrite, ext="sqlite")
@@ -1211,17 +1211,17 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
   ## Overwrite file
   if (file.exists(SQLitepath)) {
     if (overwrite) {
+      message("overwriting database... ", normalizePath(SQLitefn, winslash="/"))
       file.remove(SQLitepath) 
-      message("overwriting database... ", SQLitepath)
     } else {
       sqlconn <- DBtestSQLite(SQLitefn=SQLitefn, gpkg=gpkg, dbconnopen=dbconnopen,
-		showlist=FALSE)
+		                          showlist=FALSE)
       if (dbconnopen) return(sqlconn)    
     }
   } else {
     ## Connect to database
     message("creating new SQLite database... ")
-    message(SQLitepath)
+    message(normalizePath(SQLitefn, winslash="/"))
     sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
 
     if (dbconnopen) {

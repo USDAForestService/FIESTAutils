@@ -53,7 +53,7 @@ DBtestSQLite <- function(SQLitefn = NULL,
   if (is.null(SQLitepath)) {
     if (createnew) {
       SQLitepath <- DBcreateSQLite(SQLitefn=SQLitefn, outfolder=outfolder, 
-		returnpath=TRUE)
+		                               returnpath=TRUE)
     } else if (stopifnull) {
       stop(SQLitefn, " does not exist")
     } else if (returnpath) {
@@ -73,14 +73,14 @@ DBtestSQLite <- function(SQLitefn = NULL,
       SQLitefn <- paste0(SQLitefn, dbext)
     }
     if (DBI::dbCanConnect(RSQLite::SQLite(), SQLitepath)) {
-      message("SQLite connection successful: ", SQLitefn)
+      message("SQLite connection successful: ", normalizePath(SQLitepath, winslash="/"))
       sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
       tablst <- DBI::dbListTables(sqlconn)
 
       if (length(tablst) != 0 && "SpatialIndex" %in% tablst) {
         message(paste(SQLitepath, "is a Spatialite database... "))
-		tabs <- DBI::dbListTables(sqlconn)
-		tabs[which(startsWith(tabs, "_geometry"))]
+		    tabs <- DBI::dbListTables(sqlconn)
+		    tabs[which(startsWith(tabs, "_geometry"))]
         tablst <- DBI::dbListTables(sqlconn)
       } 
 

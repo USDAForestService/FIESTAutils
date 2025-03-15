@@ -65,7 +65,11 @@ write2sqlite <- function(layer,
 
   ## Write table to database
   DBI::dbWriteTable(dbconn, out_name, layer, append=append_layer, overwrite=overwrite)
-  message(paste(appendtext, out_name, "to", SQLitefn))
+  if (!is.null(outfolder)) {
+    message(paste(appendtext, out_name, "to", normalizePath(file.path(outfolder, SQLitefn), winslash = "/")))
+  } else {
+    message(paste(appendtext, out_name, "to", SQLitefn))
+  }
 
   if (!is.null(index.unique)) {
     if (!is.list(index.unique)) {
