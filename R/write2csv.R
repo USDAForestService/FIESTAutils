@@ -46,19 +46,23 @@ write2csv <- function(layer,
     outfilenm <- getoutfn(outfilenm, outfolder=outfolder, outfn.pre=outfn.pre,
 		                      outfn.date=outfn.date, overwrite=overwrite, 
 		                      outfn.default = "outfile",
-		ext="csv", append=appendfile)
-    ## open file
-    if (appendfile) {
-      outfile <- file(outfilenm, "a")
-      cnames <- FALSE
-    } else {
-      outfile <- file(outfilenm, "w")
-      cnames <- TRUE
-    }
+		                      ext="csv", append=appendfile)
+    
+    ## outfilenm
+    if (!is.null(outfilenm)) {
+      ## open file
+      if (appendfile) {
+        outfile <- file(outfilenm, "a")
+        cnames <- FALSE
+      } else {
+        outfile <- file(outfilenm, "w")
+        cnames <- TRUE
+      }
 
-    msg <- ifelse (!is.null(outtxt) && is.character(outtxt),
-		paste(outtxt, appendtext, outfilenm),
-		paste("data frame", appendtext, outfilenm))
+      msg <- ifelse (!is.null(outtxt) && is.character(outtxt),
+		            paste(outtxt, appendtext, outfilenm),
+		            paste("data frame", appendtext, outfilenm))
+    }
 
   } else if (!isOpen(outfile)) {
     stop("outfile is not an open file")
@@ -74,7 +78,6 @@ write2csv <- function(layer,
     }
   }
 
-
   ## If tabtitle is not null, add to file.
   if (!is.null(tabtitle))
     cat(tabtitle, file=outfile, sep="\n")
@@ -88,7 +91,7 @@ write2csv <- function(layer,
     close(outfile)
 
     message("################################### \n",
-            msg, "\n###################################")
+            msg, "\n###################################\n")
 
   } else {
 

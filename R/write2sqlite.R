@@ -31,7 +31,7 @@ write2sqlite <- function(layer,
   ##  Writes data frame to SQLite database.
   ####################################################################################
   appendtext <- ifelse(append_layer, "appending", "writing")
- 
+
   if (is.null(dbconn) || !DBI::dbIsValid(dbconn)) {
     ## Check SQLite connection
     ###########################################################
@@ -53,7 +53,6 @@ write2sqlite <- function(layer,
   if (lowernames) {
     names(layer) <- tolower(names(layer))
   }
-  
 
   ## Change columns of type POSIX* to character before writing to database
   if (any(grepl("POSIX", lapply(layer, class)))) {

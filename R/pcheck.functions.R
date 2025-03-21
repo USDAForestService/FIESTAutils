@@ -514,14 +514,16 @@ pcheck.outfolder <- function(outfolder, default=getwd(), gui=FALSE) {
       #return(NULL)
     }
   } else {
+
     if (!is.character(outfolder)) {
       stop("outfolder must be character string")
     } else if (!dir.exists(outfolder)) {
       stop("invalid outfolder")
     }
   }
-  return(normalizePath(outfolder))
+  return(normalizePath(outfolder, winslash="/"))
 }
+
 
 #' @rdname pcheck_desc
 #' @export

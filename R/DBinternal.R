@@ -1194,7 +1194,6 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
   if (is.null(SQLitePath) && is.null(SQLitefn)) {
     SQLitefn <- "data"
   }
-
   if (!is.null(outfn.pre)) {
     SQLitefn <- paste(outfn.pre, SQLitefn, sep="_")
   }
@@ -1221,9 +1220,9 @@ DBcreateSQLite <- function(SQLitefn=NULL, gpkg=FALSE, dbconnopen=FALSE,
   } else {
     ## Connect to database
     message("creating new SQLite database... ")
-    message(normalizePath(SQLitefn, winslash="/"))
     sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
-
+    message(normalizePath(SQLitepath, winslash="/"))
+    
     if (dbconnopen) {
       return(sqlconn)
     } else {

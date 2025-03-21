@@ -54,6 +54,12 @@ DBtestSQLite <- function(SQLitefn = NULL,
     if (createnew) {
       SQLitepath <- DBcreateSQLite(SQLitefn=SQLitefn, outfolder=outfolder, 
 		                               returnpath=TRUE)
+      if (dbconnopen) {
+        ## Connect to database   
+        sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
+        return(sqlconn)    
+      }
+
     } else if (stopifnull) {
       stop(SQLitefn, " does not exist")
     } else if (returnpath) {
