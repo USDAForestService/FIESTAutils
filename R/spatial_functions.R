@@ -285,15 +285,12 @@ check.extents <- function(bbox1, bbox2, showext=FALSE, layer1nm=NULL,
 
   bbox1sf$fld <- 1
   bbox2sf$fld <- 1
+  
 
-  ## bbox2 within bbox1
-  intpct1 <- suppressWarnings(tabulateIntersections(layer1=bbox2sf,
-			layer1fld="fld", layer2=bbox1sf))$int.pct
-
-  ## bbox1 within bbox2
-#  intpct2 <- suppressWarnings(tabulateIntersections(layer1=bbox1sf,
-#			layer1fld="fld", layer2=bbox2sf))$int.pct
-
+  ## percent of bbox2 within bbox1
+  intpct1 <- tabulateIntersections(layer1 = bbox1sf,
+                                   layer1fld = "fld", 
+                                   layer2 = bbox2sf)$int.pct
 
   if (showext) {
     bbox12sfc <- append(bbox1sfc, bbox2sfc)

@@ -25,7 +25,7 @@ getrhat <- function(x){
 
   if (!"rhat" %in% names(x)) {
     x[, rhat := estn / estd][,
-	rhat.var := (estn.var + rhat^2 * estd.var - 2*rhat * est.covar) / estd^2]
+        rhat.var := (estn.var + rhat^2 * estd.var - 2*rhat * est.covar) / estd^2]
   }
 
   ## SET NEW VARIABLE TO FOR RECORDING NOTES
@@ -40,8 +40,8 @@ getrhat <- function(x){
   x[(estn > 0 & estd > 0 & rhat.var < 0), rhat.var := 0]
 
   x[,	rhat.se := sqrt(rhat.var)][,
-	rhat.cv := rhat.se / rhat][,
-  	pse := rhat.cv * 100]
+	    rhat.cv := rhat.se / rhat][,
+  	  pse := rhat.cv * 100]
 
 
   ## CHANGE NA VALUES

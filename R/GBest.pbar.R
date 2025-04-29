@@ -49,14 +49,18 @@ GBest.pbar <- function(sumyn="CONDPROP_ADJ", ysum, sumyd=NULL, esttype="AREA",
 
     ## STRATA/PLOT/DOMAIN LEVEL: Change name and square sum and multiply sum for denominator
     ysum[, ':=' (sumyn.pltdom = get(sumyn), sumyd.pltdom = get(sumyd))][,
-		':=' (sumynsq.pltdom = sumyn.pltdom^2, sumydsq.pltdom = sumyd.pltdom^2,
-			sumnd.pltdom = sumyn.pltdom * sumyd.pltdom)]
+		       ':=' (sumynsq.pltdom = sumyn.pltdom^2, 
+		             sumydsq.pltdom = sumyd.pltdom^2,
+			           sumnd.pltdom = sumyn.pltdom * sumyd.pltdom)]
 
     ## STRATA/DOMAIN LEVEL: Aggregate plot-level sums and squared sums by unit/strata/domain
-    ysum.strata <- ysum[, list(sumyn.dom=sum(sumyn.pltdom, na.rm=TRUE),
- 		sumynsq.dom=sum(sumynsq.pltdom, na.rm=TRUE),
-		sumyd.dom=sum(sumyd.pltdom, na.rm=TRUE), sumydsq.dom=sum(sumydsq.pltdom, na.rm=TRUE),
-		sumnd.dom=sum(sumnd.pltdom, na.rm=TRUE)), by=c(strunitvars, domain)]
+    ysum.strata <- ysum[, list(
+      sumyn.dom = sum(sumyn.pltdom, na.rm = TRUE),
+ 		  sumynsq.dom = sum(sumynsq.pltdom, na.rm = TRUE),
+		  sumyd.dom = sum(sumyd.pltdom, na.rm = TRUE), 
+		  sumydsq.dom = sum(sumydsq.pltdom, na.rm = TRUE),
+		  sumnd.dom = sum(sumnd.pltdom, na.rm = TRUE)), 
+		  by = c(strunitvars, domain)]
     setkeyv(ysum.strata, strunitvars)
 
   } else {
@@ -64,9 +68,10 @@ GBest.pbar <- function(sumyn="CONDPROP_ADJ", ysum, sumyd=NULL, esttype="AREA",
     ysum[, sumyn.pltdom := get(sumyn)][, sumynsq.pltdom := sumyn.pltdom^2]
 
     ## STRATA/DOMAIN LEVEL: Aggregate plot-level sums and squared sums by unit/strata/domain
-    ysum.strata <- ysum[, list(sumyn.dom=sum(sumyn.pltdom, na.rm=TRUE),
- 		sumynsq.dom=sum(sumynsq.pltdom, na.rm=TRUE)),
-		by=c(strunitvars, domain)]
+    ysum.strata <- ysum[, list(
+      sumyn.dom = sum(sumyn.pltdom, na.rm = TRUE),
+ 		  sumynsq.dom = sum(sumynsq.pltdom, na.rm = TRUE)),
+		  by = c(strunitvars, domain)]
     setkeyv(ysum.strata, strunitvars)
   }
 
@@ -102,10 +107,7 @@ GBest.pbar <- function(sumyn="CONDPROP_ADJ", ysum, sumyd=NULL, esttype="AREA",
 
     unit.agvars <- unique(c(unit.agvars, "dhat.strwt", "dhat.var.strwt", "covar.strwt"))
   }
-
-#print("CHECK")
-#save(ybardat, file="E:/workspace/ToddShingo/ybardat.rda")
-
+  
   ## Aggregate strata-level weights to estimation unit
   est.unit <- ybardat[, lapply(.SD, sum, na.rm=TRUE), by=c(unitvar, domain),
 		.SDcols=unit.agvars]
