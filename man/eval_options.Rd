@@ -7,7 +7,6 @@
 eval_options(
   Cur = FALSE,
   Endyr = NULL,
-  Endyr.filter = NULL,
   All = FALSE,
   Type = "VOL",
   evalid = NULL,
@@ -15,6 +14,8 @@ eval_options(
   measyrs = NULL,
   varCur = "INVYR",
   evalType = NULL,
+  Endyr.filter = NULL,
+  Endyr.bnd = NULL,
   ...
 )
 }
@@ -26,11 +27,6 @@ in the database.}
 \item{Endyr}{Integer (YYYY). If eval='FIA', defines end year for
 extracting one or more FIA evaluation. If eval='custom', defines 
 end year for extracting the most current sampled plots until.}
-
-\item{Endyr.filter}{Filter. If endyr != NULL, a filter to identify
-when to use measEndyr, such as areas or plots identified as being 
-disturbed in a particular year. In this example, plots sampled after
-the disturbance will be excluded.}
 
 \item{All}{Logical. If eval='FIA': includes all evaluations in 
 database (annual inventory only). If eval='custom': includes all years 
@@ -61,6 +57,14 @@ measurement years of data (e.g., 2010:2015).}
 ('MEASYEAR', 'INVYR').}
 
 \item{evalType}{Deprecated. Use Type instead.}
+
+\item{Endyr.filter}{Filter. If endyr != NULL, a filter to identify
+when to use Endyr, such as areas or plots identified as being 
+disturbed in a particular year. In this example, plots sampled after
+the disturbance will be excluded.}
+
+\item{Endyr.bnd}{sf object. A boundary to use for filter to idnentify
+when to use Endyr. The Endyr.bnd is unioned with bnd, then filtered.}
 
 \item{...}{For extendibility.}
 }

@@ -11,10 +11,6 @@
 #' @param Endyr Integer (YYYY). If eval='FIA', defines end year for  
 #' extracting one or more FIA evaluation. If eval='custom', defines 
 #' end year for extracting the most current sampled plots until. 
-#' @param Endyr.filter Filter. If endyr != NULL, a filter to identify
-#' when to use measEndyr, such as areas or plots identified as being 
-#' disturbed in a particular year. In this example, plots sampled after
-#' the disturbance will be excluded.
 #' @param All Logical. If eval='FIA': includes all evaluations in 
 #' database (annual inventory only). If eval='custom': includes all years 
 #' in database (annual inventory only).
@@ -38,6 +34,12 @@
 #' @param varCur String. Name of variable to use for most current plot
 #'            ('MEASYEAR', 'INVYR').
 #' @param evalType Deprecated. Use Type instead.
+#' @param Endyr.filter Filter. If endyr != NULL, a filter to identify
+#' when to use Endyr, such as areas or plots identified as being 
+#' disturbed in a particular year. In this example, plots sampled after
+#' the disturbance will be excluded.
+#' @param Endyr.bnd sf object. A boundary to use for filter to idnentify
+#' when to use Endyr. The Endyr.bnd is unioned with bnd, then filtered.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for strata.
 #' @author Tracey S. Frescino
@@ -48,7 +50,6 @@
 
 eval_options <- function(Cur = FALSE, 
                          Endyr = NULL,
-                         Endyr.filter = NULL,
                          All = FALSE,
                          Type = "VOL",
                          evalid = NULL, 
@@ -56,6 +57,8 @@ eval_options <- function(Cur = FALSE,
                          measyrs = NULL, 
                          varCur = "INVYR",                        
                          evalType = NULL,
+                         Endyr.filter = NULL,
+                         Endyr.bnd = NULL,
                          ...) {
 
   # Check input parameters
