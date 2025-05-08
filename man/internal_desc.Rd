@@ -59,6 +59,8 @@
 \alias{addFORTYPGRPCD}
 \alias{date2char}
 \alias{checklevels}
+\alias{transpose2row}
+\alias{transpose2col}
 \alias{strat.pivot}
 \alias{makedummy}
 \alias{preds.standardize}
@@ -440,6 +442,18 @@ date2char(df, col, formatstr = "\%Y-\%m-\%d")
 
 checklevels(x, uniquex, xvar, keepNA = TRUE)
 
+transpose2row(
+  x,
+  uniqueid,
+  tvars = NULL,
+  na.rm = TRUE,
+  tnewname = NULL,
+  tvalue = NULL,
+  returnfactor = FALSE
+)
+
+transpose2col(x, uniqueid, tvar, value.var, fill = 0, fun.aggregate = sum)
+
 getext(x)
 
 filter2qry(filt, layernm)
@@ -586,7 +600,7 @@ getpse(
   dhatcol.var = "dhat.var"
 )
 
-getrhat(x)
+getrhat(x, percent = FALSE)
 
 groupClasses(x, minplotnum, nvar, xvar, sumvar = "n.strata", xvarlevels = NULL)
 
@@ -616,6 +630,7 @@ groupUnits(
   areavar = NULL,
   phototype = "PCT",
   photoratio = FALSE,
+  percent = FALSE,
   keepvars = NULL
 )
 

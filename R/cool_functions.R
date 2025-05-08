@@ -28,6 +28,9 @@
 # date2char - convert date columns (POSIXct) to formatted character
 # getfilter - create filter string from an attribute (att) and values (val)
 # checklevels - check for matching levels in x and xunique
+## transpose2row		Transpose data.table columns to rows
+## transpose2col		Transpose data.table rows to columns
+
 
 #' @rdname internal_desc
 #' @export
@@ -175,34 +178,35 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   outfolder <- pcheck.outfolder(outfolder, gui=gui)
   outfilenm <- file.path(outfolder, outfn.base)
 
-  if (overwrite) {
-    nm <- paste0(outfilenm, ".", ext)
-
-    if (file.exists(nm)) {
-      message("overwriting ", normalizePath(nm, winslash="/"), "...")
-      test <- tryCatch(
-        file.remove(nm),
-			warning=function(war) {
-             			#stop(war,"\n")
-             			stop("cannot overwrite file... permission denied\n")
-			}, error=function(err) {
-					message(err)
-			} )
-      if (is.null(test)) {
-        test <- tryCatch(
-          unlink(nm),
-			warning=function(war) {
-             			#stop(war,"\n")
-             			stop("cannot overwrite file... permission denied\n")
-			}, error=function(err) {
-					message(err)
-			} )
-        if (is.null(test)) {
-          stop("permission denied")
-        }
-      }
-    }
-  } else if (!append && !add) {
+#   if (overwrite) {
+#     nm <- paste0(outfilenm, ".", ext)
+# 
+#     if (file.exists(nm)) {
+#       message("overwriting ", normalizePath(nm, winslash="/"), "...")
+#       test <- tryCatch(
+#         file.remove(nm),
+# 			warning=function(war) {
+#              			#stop(war,"\n")
+#              			stop("cannot overwrite file... permission denied\n")
+# 			}, error=function(err) {
+# 					message(err)
+# 			} )
+#       if (is.null(test)) {
+#         test <- tryCatch(
+#           unlink(nm),
+# 			warning=function(war) {
+#              			#stop(war,"\n")
+#              			stop("cannot overwrite file... permission denied\n")
+# 			}, error=function(err) {
+# 					message(err)
+# 			} )
+#         if (is.null(test)) {
+#           stop("permission denied")
+#         }
+#       }
+#     }
+#   }  
+  if (!overwrite && !append && !add) {
     outfn.base <- fileexistsnm(outfolder, outfn.base, ext)
   }
   if (!baseonly) {
@@ -763,5 +767,50 @@ checklevels <- function(x, uniquex, xvar, keepNA=TRUE) {
   }
   
   return(list(x=x, uniquex=uniquex))
+}
+
+
+#' @rdname internal_desc
+#' @export
+transpose2row <- function(x, uniqueid, tvars=NULL, na.rm=TRUE, tnewname=NULL,
+                          tvalue=NULL, returnfactor=FALSE) {
+  ## DESCRIPTION: transpose data.table variables from columns to row
+  ## ARGUMENTS:
+  ## x 		DT. Data.table to transpose
+  ## uniqueid	String vector. Name(s) of unique identifer for table
+  ## tvars		String vector. Names of data.table columns to transpose
+  ## na.rm		Logical. If TRUE, removes NA values after transpose
+  
+  xt <- melt(x, id.vars=uniqueid, measure.vars=tvars, na.rm=na.rm)
+  if (is.data.table(xt)) setkeyv(xt, uniqueid)
+  
+  if (!is.null(tnewname))
+    setnames(xt, "variable", tnewname)
+  if (!is.null(tvalue))
+    setnames(xt, "value", tvalue)
+  
+  if (!returnfactor) {
+    xt[["variable"]] <- as.character(xt[["variable"]])
+  }
+  
+  return(xt)
+}
+
+#' @rdname internal_desc
+#' @export
+transpose2col <- function(x, uniqueid, tvar, value.var, fill=0, fun.aggregate=sum) {
+  ## DESCRIPTION: transpose data.table variables from columns to row
+  ## ARGUMENTS:
+  ## x 		DT. Data.table to transpose
+  ## uniqueid	String vector. Name(s) of unique identifer for table
+  ## tvar		String vector. Names of data.table columns to transpose
+  ## na.rm		Logical. If TRUE, removes NA values after transpose
+  
+  dcast.formula <- sprintf("%s ~ %s", uniqueid, tvar)
+  xt <- dcast(x, formula=dcast.formula, value.var=value.var, fill=fill,
+              fun.aggregate=fun.aggregate)
+  if (is.data.table(xt)) setkeyv(xt, uniqueid)
+  
+  return(xt)
 }
 
