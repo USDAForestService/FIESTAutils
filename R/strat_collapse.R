@@ -61,7 +61,7 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     
     ## Group estimation units (by UNITCD) if less than minplotnum
     unitgrp <- stratacnt[, groupClasses(.SD, minplotnum = minplotnum.unit, 
-                                        nvar="n.total", xvar = unitvar,
+                                        nvar = "n.total", xvar = unitvar,
                                         sumvar = "n.strata",
                                         xvarlevels = NULL), by=UNITCD]
     setnames(unitgrp, "classnew", "unitnew")
