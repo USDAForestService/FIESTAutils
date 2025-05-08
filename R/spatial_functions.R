@@ -24,21 +24,38 @@ polyfix.sf <- function(x, nolonglat=TRUE) {
   xvalid <- tryCatch(sf::st_is_valid(x),
                      error=function(e) {
                        return(NULL) })
+
   if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
-    sf_use_s2(FALSE)
+    
+    ## Use sf function to make valid
+    x <- sf::st_make_valid(x)
+  
+    ## If valid, return
+    if (all(sf::st_is_valid(x))) {
+      ## Check longlat
+      if (nolonglat) {
+        x <- checksf.longlat(x)
+      } 
+      x <- sf::st_cast(x, "MULTIPOLYGON")
+      return(x)
+    }
+    
+    
+    sf::sf_use_s2(FALSE)
     
     ## Check for bad geometries
     badgeomtypes <- c("LINESTRING", "MULTIPOINT", "MULTILINESTRING",
                       "CIRCULARSTRING", "COMPOUNDCURVE", "CURVEPOLYGON",
                       "MULTICURVE", "MULTISURFACE", "CURVE", "SURFACE")
-    if (any(unique(sf::st_geometry_type(x)) %in% badgeomtypes)) {
-      x <- sf::st_cast(x, "MULTIPOLYGON")
-    }
+
+    # if (any(unique(sf::st_geometry_type(x)) %in% badgeomtypes)) {
+    #   x <- sf::st_cast(x, "MULTIPOLYGON")
+    # }
     
     xvalid <- tryCatch(sf::st_is_valid(x),
                        error=function(e) {
                          return(NULL) })
-    
+
     if (is.null(xvalid) || any(is.na(xvalid)) || any(!xvalid)) {
       x <- sf::st_make_valid(x, 
                            geos_method = 'valid_structure', 
@@ -76,6 +93,7 @@ polyfix.sf <- function(x, nolonglat=TRUE) {
         }  
       }  
     }
+    x <- sf::st_cast(x, "MULTIPOLYGON")
   }
   ## Remove empty geometries
 #  if (sum(sf::st_is_empty(x)) > 0) {
