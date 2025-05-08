@@ -1,6 +1,6 @@
 #' @rdname internal_desc
 #' @export
-getrhat <- function(x){
+getrhat <- function(x, percent=FALSE){
   ## DESCRIPTION: Internal function to calculate rhat and variance or rhat.
 
   ########################################################################################
@@ -27,6 +27,7 @@ getrhat <- function(x){
     x[, rhat := estn / estd][,
         rhat.var := (estn.var + rhat^2 * estd.var - 2*rhat * est.covar) / estd^2]
   }
+  
 
   ## SET NEW VARIABLE TO FOR RECORDING NOTES
 #  x[, note := "ok"]
@@ -43,7 +44,13 @@ getrhat <- function(x){
 	    rhat.cv := rhat.se / rhat][,
   	  pse := rhat.cv * 100]
 
-
+  ## if percent, calculate the ratio proportion (rhat) * 100 
+  if (percent) {
+    x[,	rhat_pct := rhat * 100][,
+        rhat_pct.se := rhat.se * 100]
+  }
+  
+  
   ## CHANGE NA VALUES
 #  if (sum(is.na(x$pse)) > 0 | any(x$note == "Undefined")) {
 #    x[, pse := as.character(pse)]

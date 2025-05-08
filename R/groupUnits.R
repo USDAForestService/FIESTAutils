@@ -3,7 +3,8 @@
 groupUnits <- function(tabest, domain, esttype="AREA", estncol="estn",
 	estncol.var="estn.var", estdcol="estd", estdcol.var="estd.var",
 	covarcol="covar", grpfun=sum, domvar2=NULL, rowgrpnm=NULL, unitvar=NULL,
-	areavar=NULL, phototype="PCT", photoratio=FALSE, keepvars=NULL){
+	areavar=NULL, phototype="PCT", photoratio=FALSE, percent=FALSE, 
+	keepvars=NULL){
 
   ## DESCRIPTION: Internal function to group estimation unit estimates together
   ## (FOR FIA ESTIMATION)
@@ -33,11 +34,11 @@ groupUnits <- function(tabest, domain, esttype="AREA", estncol="estn",
   }
   keepvars <- keepvars[keepvars %in% names(tabest)]
   tabgrp <- tabest[, lapply(.SD, sum, na.rm=TRUE), by=c(domvargrp, keepvars),
-		.SDcols=agvars]
+		               .SDcols = agvars]
   setorderv(tabgrp, domvargrp)
 
   if (esttype == "RATIO" || (esttype == "PHOTO" && photoratio)) {
-    tabgrp <- getrhat(tabgrp)
+    tabgrp <- getrhat(tabgrp, percent = TRUE)
 
 #      ## Round estimate
 #      tabgrp[, rhat := round(rhat, estround)]
@@ -50,10 +51,10 @@ groupUnits <- function(tabest, domain, esttype="AREA", estncol="estn",
       ## the coefficient of variation - percent sampling error of the estimate
       sevar <- paste0(estncol, ".se")
       cvvar <- paste0(estncol, ".cv")
-      suppressWarnings(tabgrp[,
-		(sevar) := sqrt(get(estncol.var))][,
-		(cvvar) := get(sevar) / get(estncol)][,
-  		pse := get(cvvar) * 100])
+      suppressWarnings(
+        tabgrp[,(sevar) := sqrt(get(estncol.var))][,
+		            (cvvar) := get(sevar) / get(estncol)][,
+  		           pse := get(cvvar) * 100])
 
     }
   }
