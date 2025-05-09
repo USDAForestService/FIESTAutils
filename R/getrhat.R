@@ -14,7 +14,8 @@ getrhat <- function(x, percent=FALSE){
 
 
   ## Set global variables
-  rhat=rhat.var=rhat.se=rhat.cv=rhat.pse=estn=estn.var=estd=estd.var=est.covar=pse=note <- NULL
+  rhat=rhat.var=rhat.se=rhat.cv=rhat.pse=estn=estn.var=estd=estd.var=est.covar=pse=note=
+    rhat_pct=rhat_pct.se <- NULL
 
   if (!"data.table" %in% class(x)) {
     x <- data.table(x)
