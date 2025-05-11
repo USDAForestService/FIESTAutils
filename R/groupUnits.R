@@ -38,7 +38,7 @@ groupUnits <- function(tabest, domain, esttype="AREA", estncol="estn",
   setorderv(tabgrp, domvargrp)
 
   if (esttype == "RATIO" || (esttype == "PHOTO" && photoratio)) {
-    tabgrp <- getrhat(tabgrp, percent = TRUE)
+    tabgrp <- getrhat(tabgrp, percent = percent)
 
 #      ## Round estimate
 #      tabgrp[, rhat := round(rhat, estround)]
