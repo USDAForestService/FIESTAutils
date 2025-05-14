@@ -781,6 +781,10 @@ transpose2row <- function(x, uniqueid, tvars=NULL, na.rm=TRUE, tnewname=NULL,
   ## tvars		String vector. Names of data.table columns to transpose
   ## na.rm		Logical. If TRUE, removes NA values after transpose
   
+  ## make sure tvars is a character string
+  if (is.numeric(tvars)) {
+    tvars <- as.character(tvars)
+  }
   xt <- melt(x, id.vars=uniqueid, measure.vars=tvars, na.rm=na.rm)
   if (is.data.table(xt)) setkeyv(xt, uniqueid)
   
