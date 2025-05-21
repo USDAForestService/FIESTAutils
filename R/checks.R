@@ -651,10 +651,10 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
     } else if (nbr.missval > 0) {
       if (nbr.missval <= 25) {
         message(paste0(nbr.missval, " values in ", tab1txt, " not in ", tab2txt, ": ",
-	 	paste(missval, collapse=", ")))
+	 	            toString(missval)))
       } else {
         message(paste("there are", nbr.missval, "values in", tab1txt,
-		"not in", tab2txt))
+		            "not in", tab2txt))
       }
       if (stopifmiss) {
         message("ERROR"); stopQ()  }
@@ -676,10 +676,10 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
     } else if (nbr.missval > 0) {
       if (nbr.missval < 20) {
         message(paste0(nbr.missval, " values in ", tab1txt, " not in ",
-			tab2txt, ": ", paste(missval, collapse=", ")))
+			          tab2txt, ": ", paste(missval, collapse=", ")))
       } else {
         message(paste("there are", nbr.missval, "missing values in",
-			tab1txt))
+			          tab1txt))
       }
       if (stopifmiss) {
         message("ERROR"); stopQ()  }

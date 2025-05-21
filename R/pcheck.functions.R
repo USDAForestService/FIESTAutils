@@ -613,7 +613,7 @@ pcheck.states <- function (states, statereturn="MEANING", gui=FALSE, RS=NULL,
 #' @rdname pcheck_desc
 #' @export
 pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
-	stopifnull=FALSE, gui=FALSE, list.items=NULL){
+	                        stopifnull=FALSE, gui=FALSE, list.items=NULL){
   ## DESCRIPTION: checks object name
 
   ## Adds to file filters to Cran R Filters table.
@@ -642,7 +642,7 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
         objx <- NULL
       } else if (objresp == "R Object") {
         objlst <- c(ls(pos=1, all.names=TRUE),
-		ls(envir=as.environment("package:FIESTA"), pattern="WY"))
+		         ls(envir=as.environment("package:FIESTA"), pattern="WY"))
         objlst <- objlst[sapply(objlst, function(x) is.data.frame(get(x)))]
         obj <- select.list(objlst, title=caption, multiple=FALSE)
         if (obj == "") stop("")
@@ -650,13 +650,13 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
         #if (!is.list(objx)) stop("must be list object")
       } else if (objresp == "rda") {
         objfn <- choose.files(default=getwd(), caption=caption,
-			filters=Filters[c("rda", "All"),], multi=FALSE)
+			                        filters=Filters[c("rda", "All"),], multi=FALSE)
         if (objfn == "") stop("")
         objx <- get(load(objfn))
         #if (!is.list(objx)) stop("must be list object")
       } else if (objresp == "rds") {
         objfn <- choose.files(default=getwd(), caption=caption,
-			filters=Filters[c("rds", "All"),], multi=FALSE)
+			                        filters=Filters[c("rds", "All"),], multi=FALSE)
         if (objfn == "") stop("")
         objx <- readRDS(file = objfn)
         #if (!is.list(objx)) stop("must be list object")
@@ -701,9 +701,9 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
     } else {
       if (any(unlist(lapply(objx[list.items], is.null)))) {
         listnames <- (names(which(unlist(lapply(objx[list.items], is.null)))))
-		if (stopifnull) {
+		    if (stopifnull) {
           stop("tables are null: ", toString(listnames))
-		}
+		    }
       }
     }
   }
