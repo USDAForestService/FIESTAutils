@@ -416,8 +416,9 @@ checknm <- function(nm, nmlst, ignore.case=TRUE) {
   i <- 0
   
   nmlst <- gsub(" ", "", nmlst)
-  while (any(grepl(paste0("^",nm,"&"), nmlst, ignore.case=ignore.case)) || 
-                    any(grepl(paste0("^",nm,"^"), nmlst, ignore.case=ignore.case))) {
+  # while (any(grepl(paste0("^",nm,"&"), nmlst, ignore.case=ignore.case)) || 
+  #                   any(grepl(paste0("^",nm,"^"), nmlst, ignore.case=ignore.case))) {
+  while (!is.na(match(nm, nmlst))) {
   #while (nm %in% nmlst) {
     i <- i + 1
     nm <- paste(nm, 1, sep="_")
