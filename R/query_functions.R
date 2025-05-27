@@ -109,14 +109,14 @@ classifyqry <- function(classcol,
     ## Check if cutbreaks and cutlabels have same length
     if (length(cutbreaks) != length(cutlabels)) {
       message("cutbreaks and cutlabels must be same length")
-	}
+	  }
   } else {
     cutlabels <- {}
-	for (i in 1:length(cutbreaks)) {
-	  brk <- cutbreaks[i]
-	  if (i == length(cutbreaks)) {
-	    cutlabels <- c(cutlabels, paste0(brk, "+"))
-	  } else {
+	  for (i in 1:length(cutbreaks)) {
+	    brk <- cutbreaks[i]
+	    if (i == length(cutbreaks)) {
+	      cutlabels <- c(cutlabels, paste0(brk, "+"))
+	    } else {
         cutlabels <- c(cutlabels, paste0(brk, "-", cutbreaks[i+1]))
       }
     }
