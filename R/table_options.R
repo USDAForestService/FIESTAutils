@@ -36,13 +36,17 @@
 #' to include as columns of output table (See notes for more information and
 #' format).
 #' @param row.classify Data frame (if categorical) or Vector (if continuous). 
-#' If clasifying categories, input a dataframe with two columns ('FROM' and 'TO').
-#' If classifying continuous values, input a vector of class breaks for row
-#. values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50), >=50 (50+)).
+#' If clasifying categories, input a dataframe with two columns. The columns
+#' must be named 'FROM' and 'TO', or include the rowvar and the classified 
+#' column name. If classifying continuous values, input a vector of class breaks 
+#' for row values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50), 
+#' >=50 (50+)).
 #' @param col.classify Data frame (if categorical) or Vector (if continuous). 
-#' If clasifying categories, input a dataframe with two columns ('FROM' and 'TO').
-#' If classifying continuous values, input a vector of class breaks for column
-#. values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50), >=50 (50+)).
+#' If clasifying categories, input a dataframe with two columns. The columns
+#' must be named 'FROM' and 'TO', or include the colvar and the classified 
+#' column name. If classifying continuous values, input a vector of class breaks 
+#' for row values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50), 
+#' >=50 (50+)).
 #' @param rawonly Logical. If TRUE, only rawdata are output. If dataset
 #' includes many estimation units, and only raw data tables are desired, it is
 #' more efficient to output raw data only.
