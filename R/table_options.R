@@ -97,7 +97,7 @@ table_options <-
            totals = TRUE, allin1 = FALSE, metric = FALSE, 
 					 estround = 1, pseround = 2,
            estnull="--", psenull="--", 
-					 row.NAname = "Other", col.NAname = row.NAname,
+					 row.NAname = "Other", col.NAname = "Other",
 					 divideby = NULL, spcdname = "COMMON_SCIENTIFIC", ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]

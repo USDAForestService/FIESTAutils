@@ -28,7 +28,7 @@ table_options(
   estnull = "--",
   psenull = "--",
   row.NAname = "Other",
-  col.NAname = row.NAname,
+  col.NAname = "Other",
   divideby = NULL,
   spcdname = "COMMON_SCIENTIFIC",
   ...
