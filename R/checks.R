@@ -179,6 +179,9 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   ignore.case <- TRUE
   syntax <- toupper(syntax)
 
+  #sapply(parts, chkpartnm, x, logic.chars, returnvar)
+  
+  
   ## Define function to check names
   chkpartnm <- function(part, x, logic.chars, returnvar = FALSE) {
     part <- as.vector(part)
@@ -228,8 +231,12 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	    } else {
 	      partsplit <- unlist(strsplit(gsub(" ", "", part), chklogicchar))
 	    }
+      partmatch <- sum(partsplit %in% x)
+      if (partmatch == 0 && any(grepl("\\.", partsplit))) { 
+        partsplit <- unlist(strsplit(partsplit, "\\."))
         partmatch <- sum(partsplit %in% x)
-	    if (partmatch != 1) {
+      }
+ 	    if (partmatch != 1) {
 	      return(NULL)
 		  } else {
 		    if (returnvar) {
@@ -405,7 +412,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	  
       ## Remove odd parentheses		  
       parts <- sapply(parts, remove.paren)
-	  
+      
       ## Check if there are any variables in x that match filter
       chkparts <- sapply(parts, chkpartnm, x, logic.chars, returnvar)
 
