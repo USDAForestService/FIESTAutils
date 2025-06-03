@@ -4,6 +4,7 @@
 ## check.logic
 ## check.matchclass
 ## check.matchval
+## check.unique - adds factor values to uniquex
 
 #' @rdname checks_desc
 #' @export
@@ -51,7 +52,7 @@ RtoSQL <- function(filter, x=NULL) {
         part <- gsub("==", "<>", part)
       } else {
         part <- gsub("==", "=", part)
-      } 
+      }
     }
     part <- gsub("!=", "<>", part)
 
@@ -76,8 +77,8 @@ RtoSQL <- function(filter, x=NULL) {
 		  p1 <- strsplit(p1, "\\(")[[1]][2]
 		  p2 <- strsplit(part, ":")[[1]][2]
 		  p2 <- strsplit(p2, "\\)")[[1]][1]
-		  part <- gsub(paste0(p1, ":", p2), toString(seq(p1,p2)), part)	
-        }		  
+		  part <- gsub(paste0(p1, ":", p2), toString(seq(p1,p2)), part)
+        }
       }
     }
 
@@ -98,7 +99,7 @@ RtoSQL <- function(filter, x=NULL) {
 
     return(part)
   }
- 
+
   if (grepl("&", filter)) {
     sql <- paste(sapply(unlist(strsplit(filter, "&")), checkpart), collapse = " AND ")
   } else if (grepl("\\|", filter)) {
@@ -127,16 +128,16 @@ RtoSQL <- function(filter, x=NULL) {
 #' @rdname checks_desc
 #' @export
 check.logic.vars <- function(varlst, statement, ignore.case = FALSE, returnVars = FALSE) {
-  
+
   ## Description: checks if variables in varlst are in statement.
   if (all(is.null(varlst))) {
     return(FALSE)
   }
-  
+
   chk <- sapply(varlst, function(x, statement, ignore.case) {
     grepl(paste0("(?<!\\w)", x, "(?!\\w)"), statement, perl = TRUE, ignore.case = ignore.case)},
     statement, ignore.case)
-  
+
 
   if (any(chk)) {
     if (returnVars) {
@@ -180,8 +181,8 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   syntax <- toupper(syntax)
 
   #sapply(parts, chkpartnm, x, logic.chars, returnvar)
-  
-  
+
+
   ## Define function to check names
   chkpartnm <- function(part, x, logic.chars, returnvar = FALSE) {
     part <- as.vector(part)
@@ -201,10 +202,10 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	    if (grepl("!", part) && !grepl("!=", part)) {
 	      part <- gsub("!", "", part)
 	    }
-	    chklogicchar <- logic.chars[sapply(logic.chars, 
+	    chklogicchar <- logic.chars[sapply(logic.chars,
 	               function(x, part){ grepl(x, part, ignore.case=TRUE) }, part)]
- 
-	    if (length(chklogicchar) > 1) { 
+
+	    if (length(chklogicchar) > 1) {
 	      if (length(chklogicchar) == 2 && all(c("notin", "in") %in% chklogicchar)) {
 	        chklogicchar <- "notin"
 	      } else if (length(chklogicchar) == 2 && all(c("NOTIN", "IN") %in% chklogicchar)) {
@@ -224,7 +225,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	      } else {
 		    stop("more than one logic char: ", toString(chklogicchar))
 		  }
-	
+
 	    if (chklogicchar %in% c("is.na", "is.null", "IS.NA", "IS.NULL")) {
 	      partsplit <- unlist(strsplit(gsub(" ", "", part), paste0(chklogicchar, "\\(")))[[2]]
 	      partsplit <- unlist(strsplit(partsplit, "\\)"))
@@ -232,7 +233,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	      partsplit <- unlist(strsplit(gsub(" ", "", part), chklogicchar))
 	    }
       partmatch <- sum(partsplit %in% x)
-      if (partmatch == 0 && any(grepl("\\.", partsplit))) { 
+      if (partmatch == 0 && any(grepl("\\.", partsplit))) {
         partsplit <- unlist(strsplit(partsplit, "\\."))
         partmatch <- sum(partsplit %in% x)
       }
@@ -251,7 +252,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   ## Define function to remove odd parentheses
   remove.paren <- function(x) {
     x <- gsub(" ", "", x)
-	  leftp <- sum(as.vector(gregexpr("\\(", x)[[1]]) > 0) 
+	  leftp <- sum(as.vector(gregexpr("\\(", x)[[1]]) > 0)
 	  rightp <- sum(as.vector(gregexpr("\\)", x)[[1]])> 0)
 	  if (leftp > rightp) {
 	    x <- sub("\\(", "", x)
@@ -275,7 +276,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   SQLlogic.chars <- c("=", "<=", ">=", "notin", "in", "<>", "<", ">", "is.na", "is.null")
   Rlogic.chars.diff <- c("==", "%in%", "!=")
   SQLlogic.chars.diff <- c("=", "notin", "in", "<>")
-  
+
   ## Define potential characters in logical statement
   if (syntax == "R") {
     logic.chars.diff <- SQLlogic.chars.diff
@@ -284,7 +285,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
     logic.chars.diff <- Rlogic.chars.diff
     logic.chars <- SQLlogic.chars
   }
-  
+
   ## Set warning response
   filternm <- ifelse(!is.null(filternm), filternm, statement)
   fwarning <- paste(filternm, "is invalid")
@@ -306,23 +307,23 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 #      }
 #    }
 
-    ## Check if R 
+    ## Check if R
     grept <- Rlogic.chars.diff[unlist(sapply(Rlogic.chars.diff,
 		          function(x, statement){grepl(x, statement, ignore.case=TRUE)}, statement))]
-				  
+
 	  if (length(grept) > 0) {
 	    if (syntax == "SQL") {
 	      #message("syntax is R")
 		    statement <- RtoSQL(statement)
 	    }
 	    syntax <- "R"
-	  } 
+	  }
     if (grepl("&", statement, ignore.case=TRUE) || grepl("\\|", statement, ignore.case=TRUE)) {
       syntax <- "R"
     } else if (grepl(" and ", statement, ignore.case=TRUE) || grepl(" or ", statement, ignore.case=TRUE)) {
       syntax <- "SQL"
-    }	  
-	
+    }
+
     ## Define potential characters in logical statement
     if (syntax == "R") {
       logic.chars <- Rlogic.chars
@@ -333,7 +334,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 #      if (grepl("==", statement) && sum(gregexpr(equalsign, statement)>0) == 0) {
 #        message("must be R syntax.. changing = to ==")
 #        statement <- gsub("=", "==", statement)
-#      }	  
+#      }
       if (grepl("&&", statement)) {
         statement <- gsub("&&", "&", statement)
       }
@@ -359,7 +360,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	    } else {
 	      return(NULL)
 	    }
-    } 
+    }
 
 	  #statement <- gsub(" ", "", statement)
 	  if (syntax == "R") {
@@ -369,61 +370,61 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       andnm <- "^and$"
 	    ornm <- "^or$"
       andnm <- ifelse(grepl(" and ", statement), " and ", " AND ")
-      ornm <- ifelse(grepl(" or ", statement), " or ", " OR ")	  
+      ornm <- ifelse(grepl(" or ", statement), " or ", " OR ")
 	  }
 
     if (grepl(andnm, statement) && grepl(ornm, statement)) {
       partsAND <- trimws(unlist(strsplit(statement, andnm)[[1]]))
       partsOR <- trimws(unlist(strsplit(statement, ornm)[[1]]))
 
-      if (sum(attr(gregexpr("\\(", partsAND)[[1]], "match.length")) == 
+      if (sum(attr(gregexpr("\\(", partsAND)[[1]], "match.length")) ==
 		    sum(attr(gregexpr("\\)", partsAND)[[1]], "match.length"))) {
 
         ## Split AND parts
 		    parts <- unlist(sapply(partsAND, function(x) strsplit(x, ornm)))
-		  
+
 		    ## Remove odd parentheses
 		    parts <- sapply(as.vector(parts), remove.paren)
 
         ## Check if there are any variables in x that match filter
         chkparts <- sapply(parts, chkpartnm, x, logic.chars)
-			
-      } else if (sum(attr(gregexpr("\\(", partsOR)[[1]], "match.length")) == 
+
+      } else if (sum(attr(gregexpr("\\(", partsOR)[[1]], "match.length")) ==
 		    sum(attr(gregexpr("\\)", partsOR)[[1]], "match.length"))) {
-			
-        ## Split OR parts 
+
+        ## Split OR parts
 		    parts <- unlist(sapply(partsOR, function(x) strsplit(x, andnm)))
-		  
+
 		    ## Remove odd parentheses
 		    parts <- sapply(as.vector(parts), remove.paren)
 
         ## Check if there are any variables in x that match filter
         chkparts <- sapply(parts, chkpartnm, x, logic.chars, returnvar)
-      }	  
-	  
+      }
+
     } else if (grepl(andnm, statement) || grepl(ornm, statement)) {
-	
-      ## Split AND/OR parts 
+
+      ## Split AND/OR parts
       if (grepl(andnm, statement)) {
         parts <- trimws(unlist(strsplit(statement, andnm)[[1]]))
       } else if (grepl(ornm, statement)) {
         parts <- trimws(unlist(strsplit(statement, ornm)[[1]]))
       }
-	  
-      ## Remove odd parentheses		  
+
+      ## Remove odd parentheses
       parts <- sapply(parts, remove.paren)
-      
+
       ## Check if there are any variables in x that match filter
       chkparts <- sapply(parts, chkpartnm, x, logic.chars, returnvar)
 
 	  } else {
-	
+
 	    chkparts <- chkpartnm(statement, x, logic.chars, returnvar)
 	  }
 
     if (is.null(chkparts) || any(sapply(chkparts, is.null))) {
 	    message(fwarning)
-	    if (returnpart) { 
+	    if (returnpart) {
 	      if (all(sapply(chkparts, is.null))) {
 		      if (stopifinvalid) {
             stop()
@@ -444,7 +445,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
   }
 
   if (returnvar) {
-    return(unlist(names(chkparts))) 
+    return(unlist(names(chkparts)))
   } else {
     #message(statement)
     return(statement)
@@ -454,7 +455,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 
 #' @rdname checks_desc
 #' @export
-check.matchclass <- function(tab1, tab2, matchcol, var2=NULL, 
+check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
                              tab1txt=NULL, tab2txt=NULL) {
   ## Description: check that the class of matchcol in tab2 matches class in tab1
   ## 	  If different, changes class2 to class1
@@ -467,8 +468,8 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
   ## var2 - if the matching variable is named different
   ## tab1txt - text for table 1
   ## tab2txt - text for table 2
-  
-  
+
+
   ## Define function
   unAsIs <- function(X) {
     ## Description: removes AsIs from class
@@ -477,15 +478,15 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
     }
     X
   }
-  
+
   tab1 <- pcheck.table(tab1)
   tab2 <- pcheck.table(tab2)
-  
+
   if (is.null(tab1txt)) tab1txt <- "tab1"
   if (is.null(tab2txt)) tab2txt <- "tab2"
-  
+
   if (is.null(tab1) || is.null(tab2)) stop("invalid tables")
-  
+
   if (length(matchcol) > 1 && !all(matchcol %in% names(tab1))) {
     nomatch <- matchcol[which(!matchcol %in% names(tab1))]
     stop(paste(toString(nomatch), "not in", tab1txt))
@@ -494,7 +495,7 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
     stop(paste(toString(matchcol), "not in", tab2txt))
   if (!is.null(var2) && any(!var2 %in% names(tab2)))
     stop(paste(var2, "not in", tab2txt))
-  
+
   if (is.data.table(tab1)) {
     tab1key <- key(tab1)
     setkey(tab1, NULL)
@@ -503,12 +504,12 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
     tab2key <- key(tab2)
     setkey(tab2, NULL)
   }
-  
+
   if (!is.null(var2)) {
     #if (length(matchcol) > 1) stop("only 1 matchcol allowed if different names")
     if (length(matchcol) > length(var2)) stop("number of vars in matchcol different than vars2")
   }
-  
+
   for (i in 1:length(matchcol)) {
     v <- matchcol[i]
     if (!is.null(var2)) {
@@ -532,12 +533,12 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
 
       if (!all(unique(tab2[[v2]]) %in% v1levels)) {
         misslevel <- unique(tab2[[v2]])[!unique(tab2[[v2]]) %in% v1levels]
-        
+
         #if (any(is.na(misslevel)) && factor.addNA) {
         #  tab2[[v2]] <- addNA(tab2[[v2]])
         #  v1levels <- levels(tab2[[v2]])
         #}
-      
+
         if (any(!is.na(misslevel))) {
           message("missing level values: ", toString(misslevel), "... returning NA factor values")
         }
@@ -551,19 +552,19 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
     } else if (inherits(tab2[[v2]], what = "factor")) {
       tab2[[v2]] <- as.character(tab2[[v2]])
     }
-    
+
     #tab1 <- tab1[, lapply(.SD, unAsIs)]
     #tab2 <- tab2[, lapply(.SD, unAsIs)]
     tab1[,] <- lapply(tab1[,], unAsIs)
     tab2[,] <- lapply(tab2[,], unAsIs)
-    
+
     tab1.class <- class(tab1[[v1]])
     tab2.class <- class(tab2[[v2]])
-    
+
     ## coercion order: logical-integer-numeric-complex-character
     coerce.order <- c("logical", "integer", "integer64", "numeric", "complex", "character")
     tab.order <- na.omit(match(c(tab1.class, tab2.class), coerce.order))
-  
+
     if (length(tab.order) == 2) {
       if (tab.order[1] < tab.order[2]) {
         if (coerce.order[tab.order[2]] == "integer64") {
@@ -591,12 +592,12 @@ check.matchclass <- function(tab1, tab2, matchcol, var2=NULL,
       class(tab2[[v2]]) <- tab1.class
     }
   }
-  
+
   if (is.data.table(tab1))
     setkeyv(tab1, tab1key)
   if (is.data.table(tab2))
     setkeyv(tab2, tab2key)
-  
+
   return(list(tab1=tab1, tab2=tab2))
 }
 
@@ -645,7 +646,7 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
   } else {
     var2 <- var1
   }
- 
+
   ## Get unique values of matchcol in tab1
   if (length(var1) > 1) {
     tab1.vals <- unique(na.omit(tab1[, do.call(paste, .SD), .SDcols=var1]))
@@ -705,14 +706,13 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
 
 #' @rdname checks_desc
 #' @export
-check.unique <- function(x, xvar, 
-                         uniquex, 
+check.unique <- function(x, xvar,
+                         uniquex,
                          NAname = "Other",
                          addfactors = TRUE) {
-  
+
   ## DESCRIPTION: add factor levels to uniquex if missing
-  
-  
+
   ## add NA factors if NA values are in dataset
   if (any(is.na(as.character(x[[xvar]])))) {
     if (ncol(uniquex) == 1) {
@@ -724,21 +724,21 @@ check.unique <- function(x, xvar,
       }
     } else {
       if (!is.null(NAname)) {
-        
-        
+
         if (any(is.na(as.character(uniquex[[xvar]])))) {
           ## check if name exists... if exists, change name to 'NAname'_1
           NAname <- checknm(NAname, uniquex[[xvar]])
-          
+
           uniquex[is.na(as.character(uniquex[[xvar]]))][[xvar]] <- NAname
         } else {
           ## check if name exists... if exists, change name to 'NAname'_1
           notxvar <- names(uniquex)[names(uniquex) != xvar]
+
           if (length(notxvar) != 1) {
-            stop("only 2 columns allowed")
+            stop("must have 2 columns only")
           }
           NAname <- checknm(NAname, as.character(uniquex[[notxvar]]))
-          
+
           uniquex <- rbind(uniquex, list(NA, NAname))
           uniquex[[xvar]] <- addNA(uniquex[[xvar]])
         }
@@ -748,7 +748,7 @@ check.unique <- function(x, xvar,
   ## check other missing factor values and add if necessary
   #xvalues <- sort(unique(x[[xvar]]))
   #uniquexlevels <- sort(levels(uniquex[[xvar]]))
-  
+
 
   return(uniquex)
 }

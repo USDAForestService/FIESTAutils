@@ -277,7 +277,7 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
         tabx <- NULL
       } else if (tabresp == "R Object") {
         objlst <- c(ls(pos=1, all.names=TRUE),
-		ls(envir=as.environment("package:FIESTA"), pattern="WY"))
+		          ls(envir=as.environment("package:FIESTA"), pattern="WY"))
         objlst <- objlst[sapply(objlst, function(x) is.data.frame(get(x)))]
         tabobj <- select.list(objlst, title=caption, multiple=FALSE)
         if (tabobj == "") stop("")
@@ -286,7 +286,7 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
           if (!returnsf) tabx <- tabx$data
       } else if (tabresp == "csv") {
         tabfn <- choose.files(default=getwd(), caption=caption,
-			filters=Filters[c("csv", "All"),], multi=FALSE)
+			             filters=Filters[c("csv", "All"),], multi=FALSE)
         if (tabfn == "") stop("")
       } else if (tabresp == "shp") {
         shpfn <- choose.files(default=getwd(), caption="Select point shapefile",
@@ -391,7 +391,7 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
         return(NULL)
       } else {
         stop(tabnm, " is invalid")       
-	  }
+	    }
     }
   }
 
@@ -857,7 +857,7 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
   } else {
     ext <- getext(chkfn)
   }
- 
+
   if (is.null(chkfn) || overwrite_dsn || !overwrite_dsn) {
     out_dsn <- getoutfn(out_dsn, outfn.pre = outfn.pre, 
                         outfolder = outfolder,
@@ -881,6 +881,12 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
 
   outfolder <- normalizePath(dirname(out_dsn))
   out_dsn <- basename(out_dsn)
+  
+  ## Check out_dsn
+  if (!is.null(out_dsn) && out_fmt == "csv") {
+    message("out_fmt in savedata_opts = 'csv' and out_dsn is not null...")
+    out_fmt <- 'sqlite'
+  }
 
   ## check append_layer
   if (append_layer) {
