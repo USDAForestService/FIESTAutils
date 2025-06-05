@@ -155,7 +155,8 @@ MAest.unit(
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,
-  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
+  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS"),
+  quiet = FALSE
 )
 
 PBest.pbar(

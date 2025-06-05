@@ -531,7 +531,6 @@ MAest <- function(yn = "CONDPROP_ADJ",
     x_pop <- setDF(unitlut)[, prednames, drop=FALSE]
 
     if (MAmethod == "greg") {
-      
       estlst <- MAest.greg(yn.vect,
                            N,
                            x_sample,
@@ -664,7 +663,8 @@ MAest.dom <- function(dom,
                                     dt <- data.table(dom, x)
                                     setnames(dt, "dom", domain)
                                  }, dom, domain)
-    return(domestlst)
+
+  return(domestlst)
   
 }
 
@@ -692,14 +692,27 @@ MAest.unit <- function(unit,
                        FIA = TRUE, 
                        modelselect = FALSE,
                        getweights = FALSE,
-                       var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
+                       var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS"),
+                       quiet = FALSE) {
 
+  
   # if gregRatio, aggregate by both response variables
   if (MAmethod == "gregRatio") {
     dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response, response_d), with=FALSE]
   } else {
     dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE] 
   }
+  
+ 
+  ## get prednames if modelselect_bydomain = FALSE
+  if (!modelselect && is.data.frame(prednames)) {
+    prednames.unit <- prednames[prednames[[unitvar]] == unit, ]
+    prednames.unit <- names(prednames.unit)[!is.na(prednames.unit) & names(prednames.unit) != unitvar]
+    prednames <- names(prednames)
+  } else {
+    prednames.unit <- prednames
+  }
+
   
   if (nrow(dat.unit) == 0 || sum(!is.na(dat.unit[[domain]])) == 0) {
     
@@ -711,7 +724,7 @@ MAest.unit <- function(unit,
     
     setnames(unitest, c("unit", "domain"), c(unitvar, domain))
 
-    predselect <- data.table(unit=unit, domain=1, unitlut[FALSE, c(prednames,strvar), with=FALSE])
+    predselect <- data.table(unit=unit, domain=1, unitlut[FALSE, c(prednames.unit,strvar), with=FALSE])
     setnames(predselect, c("unit", "domain"), c(unitvar, domain))
     returnlst <- list(unitest = unitest, predselect = predselect)
 
@@ -724,9 +737,10 @@ MAest.unit <- function(unit,
     return(returnlst)
     
   }
-  
+
+#print(c(cuniqueid, strvar, prednames.unit))
   setkeyv(dat.unit, cuniqueid)
-  pltassgn.unit <- unique(dat[dat[[unitvar]] == unit, c(cuniqueid, strvar, prednames), with=FALSE])
+  pltassgn.unit <- unique(dat[dat[[unitvar]] == unit, c(cuniqueid, strvar, prednames.unit), with=FALSE])
   setkeyv(pltassgn.unit, cuniqueid)
 
   unitlut.unit <- unitlut[unitlut[[unitvar]] == unit, ]
@@ -740,24 +754,46 @@ MAest.unit <- function(unit,
   
   doms <- unique(dat.unit[!is.na(get(domain)) & get(domain) != "NA NA"][[domain]])
 
-  unitestlst <- lapply(doms, MAest.dom,
-                             dat = dat.unit,
-                             cuniqueid = cuniqueid,
-                             unitlut = unitlut.unit,
-                             pltassgn = pltassgn.unit,
-                             esttype = esttype,
-                             MAmethod = MAmethod,
-                             strvar = strvar, 
-                             prednames = prednames,
-                             domain = domain,
-                             N = N.unit,
-                             area = area.unit,
-                             response = response,
-                             response_d = response_d,
-                             FIA = FIA,
-                             modelselect = modelselect,
-                             getweights = getweights,
-                             var_method = var_method)
+  if (quiet) {
+    unitestlst <- suppressMessages(
+      lapply(doms, MAest.dom,
+             dat = dat.unit,
+             cuniqueid = cuniqueid,
+             unitlut = unitlut.unit,
+             pltassgn = pltassgn.unit,
+             esttype = esttype,
+             MAmethod = MAmethod,
+             strvar = strvar, 
+             prednames = prednames.unit,
+             domain = domain,
+             N = N.unit,
+             area = area.unit,
+             response = response,
+             response_d = response_d,
+             FIA = FIA,
+             modelselect = modelselect,
+             getweights = getweights,
+             var_method = var_method))
+  } else {
+    unitestlst <- lapply(doms, MAest.dom,
+                         dat = dat.unit,
+                         cuniqueid = cuniqueid,
+                         unitlut = unitlut.unit,
+                         pltassgn = pltassgn.unit,
+                         esttype = esttype,
+                         MAmethod = MAmethod,
+                         strvar = strvar, 
+                         prednames = prednames.unit,
+                         domain = domain,
+                         N = N.unit,
+                         area = area.unit,
+                         response = response,
+                         response_d = response_d,
+                         FIA = FIA,
+                         modelselect = modelselect,
+                         getweights = getweights,
+                         var_method = var_method)
+  }
 
   unitest <- data.table(unit=unit, do.call(rbind, sapply(unitestlst, '[', "est")))
   setnames(unitest, "unit", unitvar)
