@@ -33,9 +33,9 @@ MAest.ht <- function(y,
     }
     returnlst$weights <- estht$weights / N
   }
-  
+
   return(returnlst)
-  
+
 }
 
 #' @rdname estimation_desc
@@ -58,7 +58,7 @@ MAest.ps <- function(y,
   estps <- tryCatch(mase::postStrat(y = y,
                                     xsample = x_sample,
                                     xpop = x_pop,
-                                    pi = NULL, 
+                                    pi = NULL,
                                     N = N,
                                     pi2 = NULL,
                                     var_est = TRUE,
@@ -103,9 +103,9 @@ MAest.ps <- function(y,
     }
     returnlst$weights <- estps$weights / N
   }
-  
+
   return(returnlst)
-  
+
 }
 
 #' @rdname estimation_desc
@@ -188,11 +188,11 @@ MAest.greg <- function(y,
     }
     return(returnlst)
   }
- 
+
   selected <- data.frame(t(estgreg$coefficients))[,-1]
   if (!is(selected, "data.frame")) {
     predselect <- rbindlist(list(predselect, as.list(selected)), fill=TRUE)
-  } else {  
+  } else {
     predselect <- rbindlist(list(predselect, selected), fill=TRUE)
   }
   estgregdt <- data.table(estgreg$pop_mean, estgreg$pop_mean_var, NBRPLT, NBRPLT.gt0)
@@ -207,9 +207,9 @@ MAest.greg <- function(y,
     }
     returnlst$weights <- estgreg$weights / N
   }
-  
+
   return(returnlst)
-  
+
 }
 
 #' @rdname estimation_desc
@@ -232,19 +232,19 @@ MAest.ratio <- function(y,
                                             xsample = x_sample,
                                             xpop = x_pop,
                                             pi = NULL,
-                                            N = N, 
+                                            N = N,
                                             pi2 = NULL,
                                             var_est = TRUE,
                                             var_method = var_method,
                                             datatype = "means",
-                                            messages = FALSE, 
+                                            messages = FALSE,
                                             fpc = !FIA,
                                             B = 1000),
                        error=function(err) {
                          message(err, "\n")
                          return(NULL)
                        })
-  
+
   if (is.null(estratio)) {
     if (save4testing) {
       message("saving objects to working directory for testing: y, x_sample, x_pop, N")
@@ -329,7 +329,7 @@ MAest.gregEN <- function(y,
       save(x_pop, file=file.path(getwd(), "x_pop.rda"))
       save(N, file=file.path(getwd(), "N.rda"))
     }
-    
+
     message("error in mase::gregElasticNet function... returning NA")
 
     estgregEN <- data.table(matrix(c(NA, NA, NBRPLT, NBRPLT.gt0), 1,4))
@@ -359,7 +359,7 @@ MAest.gregEN <- function(y,
     }
     returnlst$weights <- estgregEN$weights / N
   }
-  
+
   return(returnlst)
 
 }
@@ -377,21 +377,21 @@ MAest.gregRatio <- function(yn,
                             modelselect = FALSE,
                             getweights = FALSE,
                             var_method = "LinHTSRS") {
-  
+
   nhat.var <- NULL
-  
+
   NBRPLT <- length(yn)
   NBRPLT.gt0 <- sum(yn > 0)
   gt0.ratio <- (NBRPLT - NBRPLT.gt0)/NBRPLT
-  
+
   # don't trust these estimates
   if (NBRPLT < 5 || NBRPLT.gt0 < 2 || gt0.ratio > 0.9){
     estgregRatio <- data.table(matrix(c(NA, NA, NA, NA), 1, 4))
     setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
     returnlst <- list(est = estgregRatio)
     return(returnlst)
-  } 
-  
+  }
+
   estgregRatio <- tryCatch(
     {
       mase::ratio(y_num = yn,
@@ -412,27 +412,27 @@ MAest.gregRatio <- function(yn,
       return(NULL)
     }
   )
-  
+
   if (is.null(estgregRatio)) {
     if (save4testing) {
       message("saving objects to working directory for testing: yn, yd, x_sample, x_pop, N")
-      
+
       save(yn, file=file.path(getwd(), "yn.rda"))
       save(yd, file=file.path(getwd(), "yd.rda"))
       save(x_sample, file=file.path(getwd(), "x_sample.rda"))
       save(x_pop, file=file.path(getwd(), "x_pop.rda"))
       save(N, file=file.path(getwd(), "N.rda"))
     }
-    
+
     message("error in mase::ratio function... returning NA")
-    
+
     estgregRatio <- data.table(matrix(c(NA, NA, NBRPLT, NBRPLT.gt0), 1, 4))
     setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
     returnlst <- list(est = estgregRatio)
-    
+
     return(returnlst)
   }
-  
+
   # don't trust estimates in this case
   if (estgregRatio$ratio_est <= 0 || estgregRatio$ratio_var_est <= 0) {
     estgregRatio <- data.table(matrix(c(NA, NA, NA,NA), 1, 4))
@@ -440,15 +440,15 @@ MAest.gregRatio <- function(yn,
     returnlst <- list(est = estgregRatio)
     return(returnlst)
   }
-  
+
   estgregRatiodt <- data.table(estgregRatio$ratio_est, estgregRatio$ratio_var_est/(area^2), NBRPLT, NBRPLT.gt0)
   setnames(estgregRatiodt, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
-  
-  
+
+
   returnlst <- list(est = estgregRatiodt)
-  
+
   return(returnlst)
-  
+
 }
 
 
@@ -462,9 +462,9 @@ MAest <- function(yn = "CONDPROP_ADJ",
                   dat.dom,
                   cuniqueid,
                   unitlut = NULL,
-                  pltassgn, 
+                  pltassgn,
                   esttype = "ACRES",
-                  MAmethod, 
+                  MAmethod,
                   strvar = NULL,
                   prednames = NULL,
                   yd = NULL,
@@ -473,7 +473,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
                   area,
                   FIA = TRUE,
                   modelselect = FALSE,
-                  getweights = FALSE, 
+                  getweights = FALSE,
                   var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
 
   ########################################################################################
@@ -496,9 +496,9 @@ MAest <- function(yn = "CONDPROP_ADJ",
   ## Merge dat.dom to pltassgn
   pltdat.dom <- as.data.frame(dat.dom[pltassgn])
   pltdat.dom[is.na(pltdat.dom[[yn]]), yn] <- 0
-  
+
   if (MAmethod == "gregRatio") {
-    pltdat.dom[is.na(pltdat.dom[[yd]]), yd] <- 0 
+    pltdat.dom[is.na(pltdat.dom[[yd]]), yd] <- 0
     yd.vect <- pltdat.dom[[yd]]
   }
 
@@ -513,12 +513,12 @@ MAest <- function(yn = "CONDPROP_ADJ",
                        var_method = var_method)
 
   } else if (MAmethod == "PS") {
-    
+
     x_sample <- pltdat.dom[, strvar][[1]]
     x_pop <- unitlut[, c(strvar, "Prop"), with=FALSE]
 
     estlst <- MAest.ps(yn.vect,
-                       N, 
+                       N,
                        x_sample,
                        x_pop,
                        FIA = FIA,
@@ -529,8 +529,9 @@ MAest <- function(yn = "CONDPROP_ADJ",
 
     x_sample <- setDF(pltdat.dom)[, prednames, drop=FALSE]
     x_pop <- setDF(unitlut)[, prednames, drop=FALSE]
-
+    
     if (MAmethod == "greg") {
+     
       estlst <- MAest.greg(yn.vect,
                            N,
                            x_sample,
@@ -541,7 +542,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
                            var_method = var_method)
 
     } else if (MAmethod == "gregEN") {
-      
+
       estlst <- MAest.gregEN(yn.vect,
                              N,
                              x_sample,
@@ -551,7 +552,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
                              var_method = var_method)
 
     } else if (MAmethod == "ratio") {
-      
+
       if (length(prednames) > 1) {
         stop("only one continuous predictor is allowed")
       } else {
@@ -562,11 +563,11 @@ MAest <- function(yn = "CONDPROP_ADJ",
                          N,
                          x_sample,
                          x_pop,
-                         FIA = FIA, 
+                         FIA = FIA,
                          var_method = var_method)
 
     } else if (MAmethod == "gregRatio") {
-      
+
       estlst <- MAest.gregRatio(yn.vect,
                                 yd.vect,
                                 N = N,
@@ -576,12 +577,12 @@ MAest <- function(yn = "CONDPROP_ADJ",
                                 FIA = FIA,
                                 getweights = getweights,
                                 var_method = var_method)
-      
+
     } else {
       stop("invalid MAmethod")
     }
   }
-  
+
 
   if (getweights) {
     estlst$weights <- data.frame(pltdat.dom[[cuniqueid]], estlst$weights)
@@ -589,7 +590,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
   }
 
   return(estlst)
-  
+
 }
 
 
@@ -598,14 +599,14 @@ MAest <- function(yn = "CONDPROP_ADJ",
 ########################################################################
 #' @rdname estimation_desc
 #' @export
-MAest.dom <- function(dom, 
+MAest.dom <- function(dom,
                       dat,
-                      cuniqueid, 
+                      cuniqueid,
                       unitlut,
                       pltassgn,
                       esttype,
                       MAmethod,
-                      strvar = NULL, 
+                      strvar = NULL,
                       prednames = NULL,
                       domain,
                       N,
@@ -613,51 +614,73 @@ MAest.dom <- function(dom,
                       response = NULL,
                       response_d = NULL,
                       FIA = TRUE,
-                      modelselect = FALSE, 
+                      modelselect = FALSE,
                       getweights = FALSE,
-                      var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
+                      var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS"),
+                      quiet = FALSE) {
 
   ## Subset tomdat to domain=dom
   dat.dom <- dat[dat[[domain]] == dom,]
 
   if (nrow(dat.dom) == 0 || sum(!is.na(dat.dom[[domain]])) == 0) {
-    
+
     domest <- data.table(dom, matrix(c(NA, NA, 0, 0), 1,4))
     setnames(domest, c(domain, "nhat", "nhat.var", "NBRPLT", "NBRPLT.gt0"))
 
     predselect <- data.table(dom, unitlut[FALSE, unique(c(prednames, strvar), with=FALSE)])
     setnames(predselect, "dom", domain)
     returnlst <- list(est = domest, predselect = predselect)
-    
+
     if (getweights) {
       weights <- data.frame(dom, id=cuniqueid, weights=NA)
       setnames(weights, "id", cuniqueid)
       setnames(weights, "dom", domain)
       returnlst$weights <- weights
     }
-    
+
     return(returnlst)
-    
+
   }
 
+  if (quiet) {
+    ## Apply function to each dom
+    domestlst <- suppressMessages(
+      MAest(yn = response,
+            yd = response_d,
+            dat.dom = dat.dom,
+            pltassgn = pltassgn,
+            cuniqueid = cuniqueid,
+            esttype = esttype,
+            unitlut = unitlut,
+            strvar = strvar,
+            prednames = prednames,
+            MAmethod = MAmethod,
+            N = N,
+            area = area,
+            FIA = FIA,
+            modelselect = modelselect,
+            getweights = getweights,
+            var_method = var_method))
 
-  ## Apply function to each dom
-  domestlst <- MAest(yn = response,
-                     yd = response_d,
-                     dat.dom = dat.dom,
-                     pltassgn = pltassgn,
-                     cuniqueid = cuniqueid,
-                     esttype = esttype,
-                     unitlut = unitlut,
-                     strvar = strvar,
-                     prednames = prednames,
-                     MAmethod = MAmethod,
-                     N = N,
-                     area = area,
-                     FIA = FIA,
-                     modelselect = modelselect,
-                     getweights = getweights, 
-                     var_method = var_method)
+  } else {
+    ## Apply function to each dom
+    domestlst <- MAest(yn = response,
+                       yd = response_d,
+                       dat.dom = dat.dom,
+                       pltassgn = pltassgn,
+                       cuniqueid = cuniqueid,
+                       esttype = esttype,
+                       unitlut = unitlut,
+                       strvar = strvar,
+                       prednames = prednames,
+                       MAmethod = MAmethod,
+                       N = N,
+                       area = area,
+                       FIA = FIA,
+                       modelselect = modelselect,
+                       getweights = getweights,
+                       var_method = var_method)
+  }
 
   domestlst <- lapply(domestlst, function(x, dom, domain) {
                                     dt <- data.table(dom, x)
@@ -665,7 +688,7 @@ MAest.dom <- function(dom,
                                  }, dom, domain)
 
   return(domestlst)
-  
+
 }
 
 
@@ -689,21 +712,21 @@ MAest.unit <- function(unit,
                        response_d = NULL,
                        npixels,
                        unitarea = NULL,
-                       FIA = TRUE, 
+                       FIA = TRUE,
                        modelselect = FALSE,
                        getweights = FALSE,
                        var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS"),
                        quiet = FALSE) {
 
-  
+
   # if gregRatio, aggregate by both response variables
   if (MAmethod == "gregRatio") {
     dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response, response_d), with=FALSE]
   } else {
-    dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE] 
+    dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE]
   }
-  
- 
+
+
   ## get prednames if modelselect_bydomain = FALSE
   if (!modelselect && is.data.frame(prednames)) {
     prednames.unit <- prednames[prednames[[unitvar]] == unit, ]
@@ -713,15 +736,15 @@ MAest.unit <- function(unit,
     prednames.unit <- prednames
   }
 
-  
+
   if (nrow(dat.unit) == 0 || sum(!is.na(dat.unit[[domain]])) == 0) {
-    
+
     if (domain == "TOTAL") {
       unitest <- data.table(unit=unit, domain=1, nhat=0, nhat.var=0, NBRPLT=0, NBRPLT.gt0=0)
     } else {
       unitest <- data.table(unit=unit, domain="TOTAL", nhat=0, nhat.var=0, NBRPLT=0, NBRPLT.gt0=0)
     }
-    
+
     setnames(unitest, c("unit", "domain"), c(unitvar, domain))
 
     predselect <- data.table(unit=unit, domain=1, unitlut[FALSE, c(prednames.unit,strvar), with=FALSE])
@@ -733,9 +756,9 @@ MAest.unit <- function(unit,
       setnames(weights, "id", cuniqueid)
       returnlst$weights <- weights
     }
-    
+
     return(returnlst)
-    
+
   }
 
 #print(c(cuniqueid, strvar, prednames.unit))
@@ -751,49 +774,29 @@ MAest.unit <- function(unit,
   } else {
     area.unit <- NULL
   }
-  
+
   doms <- unique(dat.unit[!is.na(get(domain)) & get(domain) != "NA NA"][[domain]])
 
-  if (quiet) {
-    unitestlst <- suppressMessages(
-      lapply(doms, MAest.dom,
-             dat = dat.unit,
-             cuniqueid = cuniqueid,
-             unitlut = unitlut.unit,
-             pltassgn = pltassgn.unit,
-             esttype = esttype,
-             MAmethod = MAmethod,
-             strvar = strvar, 
-             prednames = prednames.unit,
-             domain = domain,
-             N = N.unit,
-             area = area.unit,
-             response = response,
-             response_d = response_d,
-             FIA = FIA,
-             modelselect = modelselect,
-             getweights = getweights,
-             var_method = var_method))
-  } else {
-    unitestlst <- lapply(doms, MAest.dom,
-                         dat = dat.unit,
-                         cuniqueid = cuniqueid,
-                         unitlut = unitlut.unit,
-                         pltassgn = pltassgn.unit,
-                         esttype = esttype,
-                         MAmethod = MAmethod,
-                         strvar = strvar, 
-                         prednames = prednames.unit,
-                         domain = domain,
-                         N = N.unit,
-                         area = area.unit,
-                         response = response,
-                         response_d = response_d,
-                         FIA = FIA,
-                         modelselect = modelselect,
-                         getweights = getweights,
-                         var_method = var_method)
-  }
+  unitestlst <- lapply(doms, MAest.dom,
+                       dat = dat.unit,
+                       cuniqueid = cuniqueid,
+                       unitlut = unitlut.unit,
+                       pltassgn = pltassgn.unit,
+                       esttype = esttype,
+                       MAmethod = MAmethod,
+                       strvar = strvar,
+                       prednames = prednames.unit,
+                       domain = domain,
+                       N = N.unit,
+                       area = area.unit,
+                       response = response,
+                       response_d = response_d,
+                       FIA = FIA,
+                       modelselect = modelselect,
+                       getweights = getweights,
+                       var_method = var_method,
+                       quiet = quiet)
+
 
   unitest <- data.table(unit=unit, do.call(rbind, sapply(unitestlst, '[', "est")))
   setnames(unitest, "unit", unitvar)
@@ -813,7 +816,7 @@ MAest.unit <- function(unit,
   }
 
   return(returnlst)
-  
+
 }
 
 

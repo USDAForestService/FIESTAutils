@@ -134,7 +134,8 @@ MAest.dom(
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,
-  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
+  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS"),
+  quiet = FALSE
 )
 
 MAest.unit(
@@ -253,7 +254,8 @@ SAest.dom(
   multest_estimators = NULL,
   bayes = FALSE,
   bayes_opts = NULL,
-  save4testing = FALSE
+  save4testing = FALSE,
+  quiet = FALSE
 )
 
 SAest.large(
@@ -278,7 +280,8 @@ SAest.large(
   bayes = FALSE,
   bayes_opts = NULL,
   vars2keep = NULL,
-  save4testing = FALSE
+  save4testing = FALSE,
+  quiet = FALSE
 )
 }
 \value{

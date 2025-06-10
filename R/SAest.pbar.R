@@ -833,6 +833,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
     ## note: the variables selected can change depending on the order in original formula (fmla)
     fmla.dom.area <- stats::as.formula(paste(yn, paste(predselect.area, collapse= "+"), sep="~"))
 
+    ## remove unit-level summaries where variance of response is NA or < 0.0001
     dunitlut.dom <- data.frame(dunitlut.dom)
     nm.var <- paste0(yn, ".var")
     dunitlut.NA <- dunitlut.dom[is.na(dunitlut.dom[[nm.var]]) | dunitlut.dom[[nm.var]] < 0.001, ]
@@ -1103,10 +1104,10 @@ SAest.dom <- function(dom, dat, cuniqueid,
                       prior = NULL, modelselect = TRUE,
                       multest = TRUE, multest_estimators = NULL,
                       bayes = FALSE, bayes_opts = NULL,
-                      save4testing = FALSE) {
+                      save4testing = FALSE, quiet = FALSE) {
 
   if (!domain %in% c("TOTAL", "total")) {
-    message("getting estimates for ", dom, "...")
+    message("generating estimates for ", dom, "...")
   }
 
   ## Subset tomdat to domain=dom
@@ -1127,16 +1128,32 @@ SAest.dom <- function(dom, dat, cuniqueid,
 
   #yn=response
   ## Apply function to each dom
-  domest <- SAest(yn = response,
-                  dat.dom = dat.dom, cuniqueid = cuniqueid, pltassgn = pltassgn,
-                  dunitlut = dunitlut, dunitvar = dunitvar, prednames = prednames,
-                  SApackage = SApackage, SAmethod = SAmethod,
-                  largebnd.val = largebnd.val,
-                  showsteps = showsteps, savesteps = savesteps, stepfolder = stepfolder,
-                  prior = prior, modelselect = modelselect,
-                  multest = multest, multest_estimators = multest_estimators,
-                  save4testing = save4testing)
-  #print(dim(domest$est))
+  if (quiet) {
+    domest <- suppressWarnings(suppressMessages(
+      SAest(yn = response,
+            dat.dom = dat.dom, cuniqueid = cuniqueid, pltassgn = pltassgn,
+            dunitlut = dunitlut, dunitvar = dunitvar, prednames = prednames,
+            SApackage = SApackage, SAmethod = SAmethod,
+            largebnd.val = largebnd.val,
+            showsteps = showsteps, savesteps = savesteps, stepfolder = stepfolder,
+            prior = prior, modelselect = modelselect,
+            multest = multest, multest_estimators = multest_estimators,
+            save4testing = save4testing)))
+                    
+  } else {    
+    
+    domest <- SAest(yn = response,
+                    dat.dom = dat.dom, cuniqueid = cuniqueid, pltassgn = pltassgn,
+                    dunitlut = dunitlut, dunitvar = dunitvar, prednames = prednames,
+                    SApackage = SApackage, SAmethod = SAmethod,
+                    largebnd.val = largebnd.val,
+                    showsteps = showsteps, savesteps = savesteps, stepfolder = stepfolder,
+                    prior = prior, modelselect = modelselect,
+                    multest = multest, multest_estimators = multest_estimators,
+                    save4testing = save4testing)
+    #print(dim(domest$est))
+  }
+    
 
   domest$est <- data.table(dom, domest$est)
   setnames(domest$est, "dom", domain)
@@ -1165,10 +1182,15 @@ SAest.large <- function(largebnd.val, dat,
                         prior = NULL, modelselect = TRUE,
                         multest = TRUE, multest_estimators = 'all',
                         bayes = FALSE, bayes_opts = NULL,
-                        vars2keep = NULL, save4testing = FALSE) {
+                        vars2keep = NULL, save4testing = FALSE,
+                        quiet = FALSE) {
 
   if (largebnd.val != 1) {
-    message("getting estimates for ", largebnd.val, "...\n")
+    if (domain == "TOTAL") {
+      message("generating total estimates for largebnd: ", largebnd.val, "...")
+    } else {
+      message("\ngenerating estimates for largebnd: ", largebnd.val, "...")
+    }
   }
 
   if (bayes && all(c("X","Y") %in% names(dat))) {
@@ -1201,20 +1223,20 @@ SAest.large <- function(largebnd.val, dat,
 # dat=dat.large
 # dunitlut=dunitlut.large
 # pltassgn=pltassgn.large
-# doms=doms[i]
-#
+
   estlst <- lapply(doms, SAest.dom,
-                   dat = dat.large, cuniqueid = cuniqueid,
-                   pltassgn = pltassgn.large,
-                   dunitlut = dunitlut.large, dunitvar = dunitvar,
-                   SApackage = SApackage, SAmethod = SAmethod,
-                   prednames = prednames,
-                   domain = domain, response = response,
-                   largebnd.val = largebnd.val,
-                   showsteps = showsteps, savesteps = savesteps, stepfolder = stepfolder,
-                   prior = prior, modelselect = modelselect,
-                   multest = multest, multest_estimators = multest_estimators,
-                   save4testing = save4testing)
+             dat = dat.large, cuniqueid = cuniqueid,
+             pltassgn = pltassgn.large,
+             dunitlut = dunitlut.large, dunitvar = dunitvar,
+             SApackage = SApackage, SAmethod = SAmethod,
+             prednames = prednames,
+             domain = domain, response = response,
+             largebnd.val = largebnd.val,
+             showsteps = showsteps, savesteps = savesteps, stepfolder = stepfolder,
+             prior = prior, modelselect = modelselect,
+             multest = multest, multest_estimators = multest_estimators,
+             save4testing = save4testing, quiet = quiet)
+  
 
   SAEunit_estimators <- c("all", "saeU", "JU.EBLUP", "JU.EBLUP.se.1", "JU.GREG", "JU.GREG.se",
                           "JU.Synth", "hbsaeU", "hbsaeU.se")
