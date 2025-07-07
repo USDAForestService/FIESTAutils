@@ -595,8 +595,18 @@ pcheck.states <- function (states, statereturn="MEANING", gui=FALSE, RS=NULL,
 
   ## Set column where state name is from
   col <- ifelse(all(states %in% ref_state$VALUE), "VALUE",
-		ifelse(all(states %in% ref_state$ABBR), "ABBR",
-			ifelse(all(states %in% ref_state$MEANING), "MEANING")))
+		        ifelse(all(states %in% ref_state$ABBR), "ABBR",
+			         ifelse(all(states %in% ref_state$MEANING), "MEANING", "NONE")))
+  if (col == 'NONE') {
+    statestest <- ref_state[ref_state$VALUE %in% states | ref_state$ABBR %in% states | 
+                              ref_state$MEANING %in% states, statereturn]
+    if (length(statestest) < length(states)) {
+      stop("invalid states")
+    } else {
+      states <- statestest
+      col <- "MEANING"
+    }
+  }
   if (col == "VALUE") states <- as.numeric(states)
 
   ## Get states to return

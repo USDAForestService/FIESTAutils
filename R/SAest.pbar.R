@@ -449,14 +449,14 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       ## Check number of predictors using correlation with response
       ## (n-1 less than number of plots)
       if (length(prednames) > maxpreds.unit.modselect) {
-        warning("number of predictors is greater than number of domains... ",
+        warning("number of predictors is greater than number of plots... ",
                 "subsetting based on correlation coefficients")
         prednames.cor <- names(sort(abs(cor(pltdat.dom[[yn]],
                                             pltdat.dom[, prednames, with=FALSE]))[1,], decreasing=TRUE))
         prednames <- prednames.cor[1:maxpreds.unit.modselect]
       }
 
-      ## Define number cvfolds for area-level model selection
+      ## Define number cvfolds for unit-level model selection
       #cvfolds <- ifelse(nrow(pltdat.dom) <= 40, round(nrow(pltdat.dom)/4), 10)
       cvfolds <- ifelse(nrow(dunitlut.dom) >= 50, 20, 10)
 
@@ -510,7 +510,7 @@ SAest <- function(yn = "CONDPROP_ADJ", dat.dom, cuniqueid,
       maxpreds.area.modselect <- length(unique(dunitlut.dom[[dunitvar]])) - 1
 
       ## Check number of predictors using correlation with response
-      ## (n-1 less than number of plots)
+      ## (n-1 less than number of domains)
       if (length(prednames) > maxpreds.area.modselect) {
         warning("number of predictors is greater than number of domains... ",
                 "subsetting based on correlation coefficients")
