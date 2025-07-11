@@ -7,6 +7,7 @@
 \alias{check.matchclass}
 \alias{check.matchval}
 \alias{check.unique}
+\alias{check.pcfilter}
 \alias{checks_desc}
 \alias{checkfilenm}
 \alias{checknm}
@@ -51,6 +52,15 @@ check.matchval(
 )
 
 check.unique(x, xvar, uniquex, NAname = "Other", addfactors = TRUE)
+
+check.pcfilter(
+  pcfilter,
+  pltflds = NULL,
+  condflds = NULL,
+  pltfldsa. = "p.",
+  condfldsa. = "c.",
+  syntax = "SQL"
+)
 
 checkfilenm(fn, outfolder = NULL, ext = NULL, stopifnull = FALSE)
 

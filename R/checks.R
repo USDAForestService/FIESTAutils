@@ -423,11 +423,10 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	  }
 
     if (is.null(chkparts) || any(sapply(chkparts, is.null))) {
-	    message(fwarning)
 	    if (returnpart) {
 	      if (all(sapply(chkparts, is.null))) {
 		      if (stopifinvalid) {
-            stop()
+            stop(fwarning)
           } else {
             return(NULL)
           }
@@ -437,7 +436,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 		    }
 	    }
       if (stopifinvalid) {
-        stop()
+        stop(fwarning)
       } else {
         return(NULL)
       }
@@ -752,4 +751,48 @@ check.unique <- function(x, xvar,
 
   return(uniquex)
 }
+
+
+#' @rdname checks_desc
+#' @export
+check.pcfilter <- function(pcfilter, pltflds = NULL, condflds = NULL,
+                           pltfldsa. = "p.", condfldsa. = "c.", 
+                           syntax = "SQL"){
+  ## DESCRIPTION: checks variables in filter, adds alias, and checks logic
+  
+  if (is.null(pltflds) && is.null(condflds)) {
+    stop("pltflds and condflds are NULL")
+  }
+  
+  ## checks if variable in pcfilter in pltflds
+  ## if so, adds and alias
+  if (!is.null(pcfilter)) {
+    if (!is.null(pltflds)) {
+      ptmp <- pltflds[check.logic.vars(pltflds, pcfilter, ignore.case=TRUE)]
+      if (length(ptmp) > 0) {
+        for (pt in ptmp) {
+          pcfilter <- gsub(pt, paste0(pltfldsa., pt), pcfilter, ignore.case = TRUE)
+        }
+      }
+    } 
+  
+    ## checks if variable in pcfilter in condflds
+    if (!is.null(condflds)) {
+      ctmp <- condflds[check.logic.vars(condflds, pcfilter, ignore.case = TRUE)]
+      if (length(ctmp) > 0) {
+        for (ct in ctmp) {
+          pcfilter <- gsub(ct, paste0(condfldsa., ct), pcfilter, ignore.case = TRUE)
+        }
+      }
+    }
+  }
+
+  ## checks logic in pcfilter
+  pcfilter <- check.logic(c(pltflds, condflds), pcfilter, 
+                              syntax = syntax, stopifinvalid = TRUE,
+                              filternm = "pcfilter")
+ 
+  return(pcfilter)
+}
+
 
