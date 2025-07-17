@@ -238,7 +238,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       setcolorder(x, c(chkvars, names(x)[!names(x) %in% chkvars]))
 
       ## Set NA values to 0
-      x[is.na(x)] <- 0
+      #x[is.na(x)] <- 0
 
     } else if (xvar2.add0) {
 	
@@ -283,7 +283,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       x <- merge(uniquex.exp, x, by=chkvars, all.x=TRUE, all.y=TRUE)
 
       ## Set NA values to 0
-      x[is.na(x)] <- 0
+      #x[is.na(x)] <- 0
 
     } else {
 	
@@ -317,7 +317,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 		            c(.SD, list(uvar=rep(unique(x$uvar), each=nrow(uniquex))))],
 		            on=c("uvar", xvar)]
         setnames(x, "uvar", unitvar)
-        x[is.na(x)] <- 0
+        #x[is.na(x)] <- 0
       } else {
         x <- merge(uniquex, x, by=byvars, all.y=TRUE)
       }
