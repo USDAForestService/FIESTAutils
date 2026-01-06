@@ -11,7 +11,6 @@ database_options(
   user = NULL,
   password = NULL,
   schema = NULL,
-  dbconnopen = TRUE,
   ...
 )
 }
@@ -27,8 +26,6 @@ database_options(
 \item{password}{String. Password for database access.}
 
 \item{schema}{String. Name of schema in database.}
-
-\item{dbconnopen}{Logical. If TRUE, keep database connection open.}
 
 \item{...}{For extendibility.}
 }
