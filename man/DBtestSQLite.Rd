@@ -6,6 +6,7 @@
 \usage{
 DBtestSQLite(
   SQLitefn = NULL,
+  issp = FALSE,
   gpkg = FALSE,
   dbconnopen = FALSE,
   outfolder = NULL,
@@ -18,6 +19,8 @@ DBtestSQLite(
 }
 \arguments{
 \item{SQLitefn}{String. Name of SQLite database (*.sqlite).}
+
+\item{issp}{Logical. If TRUE, the SQLite database is spatial (SpatiaLite)}
 
 \item{gpkg}{Logical. If TRUE, Sqlite geopackage database.}
 
