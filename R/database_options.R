@@ -10,7 +10,6 @@
 #' @param user String. User name for database access.
 #' @param password String. Password for database access.
 #' @param schema String. Name of schema in database.
-#' @param dbconnopen Logical. If TRUE, keep database connection open.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for saving data.
 #' @author Tracey S. Frescino
@@ -26,7 +25,6 @@ database_options <- function(dbname = NULL,
                              user = NULL,
                              password = NULL,
                              schema = NULL,
-                             dbconnopen = TRUE,
                              ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
