@@ -178,34 +178,30 @@ getoutfn <- function(outfn, outfolder=NULL, outfn.pre=NULL, outfn.date=FALSE,
   outfolder <- pcheck.outfolder(outfolder, gui=gui)
   outfilenm <- file.path(outfolder, outfn.base)
 
-#   if (overwrite) {
-#     nm <- paste0(outfilenm, ".", ext)
-# 
-#     if (file.exists(nm)) {
-#       message("overwriting ", normalizePath(nm, winslash="/"), "...")
-#       test <- tryCatch(
-#         file.remove(nm),
-# 			warning=function(war) {
-#              			#stop(war,"\n")
-#              			stop("cannot overwrite file... permission denied\n")
-# 			}, error=function(err) {
-# 					message(err)
-# 			} )
-#       if (is.null(test)) {
-#         test <- tryCatch(
-#           unlink(nm),
-# 			warning=function(war) {
-#              			#stop(war,"\n")
-#              			stop("cannot overwrite file... permission denied\n")
-# 			}, error=function(err) {
-# 					message(err)
-# 			} )
-#         if (is.null(test)) {
-#           stop("permission denied")
-#         }
-#       }
-#     }
-#   }  
+  if (overwrite) {
+    nm <- paste0(outfilenm, ".", ext)
+
+    if (file.exists(nm)) {
+      message("removing ", normalizePath(nm, winslash="/"), "...")
+      
+      test <- tryCatch({
+        old <- options(warn = 2)      # 2 = turn warnings into errors
+        on.exit(options(old), add = TRUE)
+        file.remove(nm)
+      }, error = function(e) {
+        message(conditionMessage(e))
+        NULL
+      })
+
+      if (!test) {
+        unlink(nm, force = TRUE)
+        if (file.exists(nm)) {
+          return(0)
+        }
+      }
+    }
+  }
+
   if (!overwrite && !append && !add) {
     outfn.base <- fileexistsnm(outfolder, outfn.base, ext)
   }
@@ -587,6 +583,7 @@ recodelut <- function(lut, minvar="min", maxvar="max", classvar="class") {
 #' @rdname internal_desc
 #' @export
 findnm <- function(x, xvect, returnNULL=FALSE) {
+  xvect <- as.vector(xvect)
   if (is.null(x)) {
     if (returnNULL) {
       return(NULL)
@@ -620,12 +617,28 @@ findnm <- function(x, xvect, returnNULL=FALSE) {
         stop("no matching names found")
       }	  
     } else {
-	  message("more than 1 name found: ", toString(test))
+	    message("more than 1 name found: ", toString(test))
       return(test)
     }
   } 
 }
 
+
+#' @rdname internal_desc
+#' @export
+findmiss <- function(x, xvect) {
+  xfind <- sapply(x, findnm, xvect, returnNULL = TRUE)
+  names(xfind)[sapply(xfind, is.null)]
+}
+
+#' @rdname internal_desc
+#' @export
+findnms <- function(x, xvect) {
+  xfind <- sapply(x, findnm, xvect, returnNULL = TRUE)
+  unique(unlist(xfind))
+}
+
+  
 #' @rdname internal_desc
 #' @export
 chkdbtab <- function(dbtablst, tab, stopifnull=FALSE) {
