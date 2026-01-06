@@ -31,6 +31,7 @@
 #' (if out_fmt != c('csv','shp')).
 #' @param layer.pre Layer prefix. 
 #' @param outconn Open database connection to save to.
+#' @param outconnopen Logical. If TRUE, keep output database connection open.
 #' @param ... For extendibility.
 #' @return A list of user-supplied parameters and parameter values for saving data.
 #' @author Grayson W. White
@@ -57,6 +58,7 @@ savedata_options <- function(outfolder = NULL,
                              add_layer = TRUE, 
                              layer.pre = NULL,
                              outconn = NULL,
+                             outconnopen = FALSE,
                              ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
