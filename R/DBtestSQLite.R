@@ -4,6 +4,7 @@
 #' 
 #' 
 #' @param SQLitefn String. Name of SQLite database (*.sqlite).
+#' @param issp Logical. If TRUE, the SQLite database is spatial (SpatiaLite)
 #' @param gpkg Logical. If TRUE, Sqlite geopackage database.
 #' @param dbconnopen Logical. If TRUE, the dbconn connection is not closed.
 #' @param outfolder String. Optional. Name of output folder. If NULL, export to
@@ -19,7 +20,8 @@
 #' @author Tracey S. Frescino
 #' @keywords data
 #' @export DBtestSQLite
-DBtestSQLite <- function(SQLitefn = NULL, 
+DBtestSQLite <- function(SQLitefn = NULL,
+                         issp = FALSE,
                          gpkg = FALSE, 
                          dbconnopen = FALSE, 
                          outfolder = NULL, 
@@ -75,6 +77,7 @@ DBtestSQLite <- function(SQLitefn = NULL,
       return(NULL)
     }
   } else {
+
     if (any(is.na(getext(SQLitefn))) || any(getext(SQLitefn) == "NA")) {
       SQLitefn <- paste0(SQLitefn, dbext)
     }
@@ -83,12 +86,16 @@ DBtestSQLite <- function(SQLitefn = NULL,
       sqlconn <- DBI::dbConnect(RSQLite::SQLite(), SQLitepath, loadable.extensions = TRUE)
       tablst <- DBI::dbListTables(sqlconn)
 
-      if (length(tablst) != 0 && "SpatialIndex" %in% tablst) {
+      if (length(tablst) > 0 && "SpatialIndex" %in% tablst) {
         message(paste(SQLitepath, "is a Spatialite database... "))
 		    tabs <- DBI::dbListTables(sqlconn)
 		    tabs[which(startsWith(tabs, "_geometry"))]
         tablst <- DBI::dbListTables(sqlconn)
-      } 
+      } else if (issp) {
+        
+        message(paste(SQLitepath, "is not a Spatialite database... "))
+        stop()
+      }
 
       if (showlist) message(paste0(capture.output(tablst), collapse = "\n"))
     } else {
