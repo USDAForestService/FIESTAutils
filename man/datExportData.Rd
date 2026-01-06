@@ -10,9 +10,7 @@ datExportData(
   index.unique = NULL,
   index = NULL,
   lowernames = FALSE,
-  savedata_opts = savedata_options(),
-  dbconn = NULL,
-  dbconnopen = TRUE
+  savedata_opts = savedata_options()
 )
 }
 \arguments{
@@ -27,15 +25,10 @@ index.}
 index.}
 
 \item{lowernames}{Logical. If TRUE, convert column names to lowercase 
-before writing to output.
-dbconnopen Logical. If TRUE, keep database connection open.}
+before writing to output.}
 
 \item{savedata_opts}{List. See help(savedata_options()) for a list
 of options.}
-
-\item{dbconn}{Open database connection.}
-
-\item{dbconnopen}{Logical. If TRUE, keep database connection open.}
 }
 \value{
 An sf spatial object is written to the out_dsn.
