@@ -12,11 +12,8 @@
 #' index.
 #' @param lowernames Logical. If TRUE, convert column names to lowercase 
 #' before writing to output.
-#' dbconnopen Logical. If TRUE, keep database connection open.
 #' @param savedata_opts List. See help(savedata_options()) for a list
 #' of options.
-#' @param dbconn Open database connection.
-#' @param dbconnopen Logical. If TRUE, keep database connection open.
 #' @return An sf spatial object is written to the out_dsn.
 #' @note If out_fmt='shp':\cr The ESRI shapefile driver truncates variable
 #' names to 10 characters or less.  Variable names are changed before export
@@ -32,9 +29,7 @@ datExportData <- function(dfobj,
                           index.unique = NULL, 
                           index = NULL, 
                           lowernames = FALSE,
-                          savedata_opts = savedata_options(),
-                          dbconn = NULL,
-                          dbconnopen = TRUE
+                          savedata_opts = savedata_options()
                           ) {
   ###########################################################################
   ## DESCRIPTION: Exports a data.frame to file or database.
@@ -56,7 +51,8 @@ datExportData <- function(dfobj,
   ##################################################################
 
   ## IF NO ARGUMENTS SPECIFIED, ASSUME GUI=TRUE
-  gui <- ifelse(nargs() == 0, TRUE, FALSE)
+  gui <- FALSE
+  #gui <- ifelse(nargs() == 0, TRUE, FALSE)
 
 
   ## Check dfobj
@@ -81,52 +77,25 @@ datExportData <- function(dfobj,
   }
 
   ## Check parameter lists
-  pcheck.params(input.params, savedata_opts=savedata_opts)
+  pcheck.params(input.params, 
+                savedata_opts = savedata_opts)
 
-  ## Set savedata defaults
-  savedata_defaults_list <- formals(savedata_options)[-length(formals(savedata_options))]
-
-  for (i in 1:length(savedata_defaults_list)) {
-    assign(names(savedata_defaults_list)[[i]], savedata_defaults_list[[i]])
-  }
-
-  ## Set user-supplied savedata values
-  if (length(savedata_opts) > 0) {
-    for (i in 1:length(savedata_opts)) {
-      assign(names(savedata_opts)[[i]], savedata_opts[[i]])
-    }
-  }
-
-  if (is.null(dbconn) && !is.null(outconn)) {
-    dbconn <- outconn
-  }
-  
-  ## Check output data
-  outlst <- pcheck.output(out_fmt = out_fmt, outfolder = outfolder,
-	                  out_dsn=out_dsn, overwrite_dsn = overwrite_dsn, 
-	                  overwrite_layer = overwrite_layer, outfn.date = outfn.date, 
-	                  add_layer = add_layer, append_layer = append_layer,
-	                  outfn.pre = outfn.pre, outconn = dbconn, dbconnopen = TRUE)
-  out_fmt <- outlst$out_fmt
-  out_dsn <- outlst$out_dsn
-  outfolder <- outlst$outfolder
-  overwrite_layer <- outlst$overwrite_layer
-  append_layer <- outlst$append_layer
-  outconn <- outlst$outconn
+  ## Check parameter option lists
+  optslst <- pcheck.opts(optionlst = list(
+                         savedata_opts = savedata_opts))
+  savedata_opts <- optslst$savedata_opts  
   
 
-  ## Check out_layer
-  ####################################################
-  if (is.null(out_dsn) && is.null(out_layer)) {
-    stop("out_layer and out_dsn are NULL")
-  }
-  if (is.null(out_layer)) {
-    out_layer <- basename.NoExt(out_dsn)
-  }
-  if (!is.null(layer.pre)) {
-    out_layer <- paste0(layer.pre, "_", out_layer)
+  ## Check output data and assign to objects
+  outlst <- pcheck.output(savedata_opts = savedata_opts)
+  for (i in 1:length(outlst)) {
+    assign(names(outlst)[[i]], outlst[[i]])
   }
 
+
+  if (!overwrite_layer && !append_layer) {
+    append_layer <- TRUE
+  }
 
   ## Write data frame
   ########################################################
@@ -141,8 +110,10 @@ datExportData <- function(dfobj,
                            overwrite = overwrite_layer, 
                            append_layer = append_layer,
                            index.unique = index.unique, 
-                           index = index, createnew = create_dsn, 
-                           dbconn = outconn, dbconnopen = TRUE)
+                           index = index, 
+                           createnew = create_dsn, 
+                           dbconn = outconn, 
+                           dbconnopen = outconnopen)
 
   } else if (out_fmt == "gdb") {
      stop("cannot write to a geodatabase")
@@ -155,39 +126,48 @@ datExportData <- function(dfobj,
   } else if (out_fmt == "csv") {
     write2csv(dfobj, 
               lowernames = lowernames,
-              outfolder = outfolder, outfilenm = out_layer, 
-              outfn.pre = outfn.pre, outfn.date = outfn.date, 
-              overwrite = overwrite_layer, appendfile = append_layer)
+              outfolder = outfolder, 
+              outfilenm = out_layer, 
+              outfn.pre = outfn.pre, 
+              outfn.date = outfn.date, 
+              overwrite = overwrite_layer, 
+              appendfile = append_layer)
 
   } else if (out_fmt == "rda") {
     objfn <- getoutfn(outfn = out_layer, 
                       outfolder = outfolder, 
                       outfn.pre = outfn.pre, 
                       outfn.date = outfn.date, 
-                      overwrite = overwrite_layer, ext =" rda")
+                      overwrite = overwrite_layer, 
+                      ext =" rda")
     save(dfobj, file=objfn)
   } else if (out_fmt == "rds") {
     objfn <- getoutfn(outfn=out_layer, 
                       outfolder=outfolder, 
-                      outfn.pre=outfn.pre, outfn.date = outfn.date, 
-                      overwrite = overwrite_layer, ext = "rds")
+                      outfn.pre=outfn.pre, 
+                      outfn.date = outfn.date, 
+                      overwrite = overwrite_layer, 
+                      ext = "rds")
     save(dfobj, file=objfn)
   } else if (out_fmt == "llo") {
     objfn <- getoutfn(outfn = out_layer, 
                       outfolder = outfolder, 
-                      outfn.pre = outfn.pre, outfn.date = outfn.date, 
-                      overwrite = overwrite_layer, ext = "llo")
+                      outfn.pre = outfn.pre, 
+                      outfn.date = outfn.date, 
+                      overwrite = overwrite_layer, 
+                      ext = "llo")
     save(dfobj, file=objfn)
   } else {
     stop(out_fmt, " currently not supported")
   }
  
-  if (!is.null(dbconn) && DBI::dbIsValid(dbconn)) {   
-    if (!dbconnopen) {
-      DBI::dbDisconnect(dbconn)
+
+  if (!is.null(outlst$outconn) && DBI::dbIsValid(outlst$outconn)) {   
+    if (!outconnopen) {
+      DBI::dbDisconnect(outlst$outconn)
       return(NULL)
     } else {
-      return(dbconn)
+      return(outlst$outconn)
     }
   }  
 }
