@@ -27,6 +27,8 @@
 \alias{dbclassify}
 \alias{dbclass}
 \alias{getwithqry}
+\alias{dbgetflds}
+\alias{datTabchk}
 \alias{Ratio2Size}
 \alias{addCI}
 \alias{change10char}
@@ -52,6 +54,8 @@
 \alias{xtabf}
 \alias{recodelut}
 \alias{findnm}
+\alias{findmiss}
+\alias{findnms}
 \alias{chkdbtab}
 \alias{int64tochar}
 \alias{messagedf}
@@ -260,7 +264,7 @@ checkidx(
   tbl = NULL,
   index_cols = NULL,
   datsource = "sqlite",
-  schema = "FS_FIADB",
+  schema = NULL,
   dbconnopen = TRUE
 )
 
@@ -331,6 +335,22 @@ getwithqry(
   dbconn = NULL,
   dbconnopen = TRUE,
   withqry2 = FALSE
+)
+
+dbgetflds(conn, tabnm, schema = NULL, upper = TRUE)
+
+datTabchk(
+  tab,
+  tabtext = NULL,
+  tabid = NULL,
+  dbconn = NULL,
+  schema = NULL,
+  dbtablst = NULL,
+  bycond = FALSE,
+  condid = "CONDID",
+  bysubp = FALSE,
+  subpid = "SUBP",
+  gui = FALSE
 )
 
 Ratio2Size(
@@ -427,6 +447,10 @@ xtabf(x, y, levels)
 recodelut(lut, minvar = "min", maxvar = "max", classvar = "class")
 
 findnm(x, xvect, returnNULL = FALSE)
+
+findmiss(x, xvect)
+
+findnms(x, xvect)
 
 chkdbtab(dbtablst, tab, stopifnull = FALSE)
 

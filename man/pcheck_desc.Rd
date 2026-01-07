@@ -16,6 +16,7 @@
 \alias{pcheck.spatial}
 \alias{pcheck.params}
 \alias{pcheck.opts}
+\alias{pcheck.datsource}
 \alias{pcheck_desc}
 \alias{popTabchk}
 \title{Parameter Check Functions}
@@ -43,14 +44,15 @@ pcheck.unique(
 
 pcheck.varchar(
   var2check,
-  varnm = NULL,
+  varnm,
   checklst,
-  gui = FALSE,
   caption = NULL,
   warn = NULL,
   stopifnull = FALSE,
   stopifinvalid = TRUE,
   multiple = FALSE,
+  ignore.case = TRUE,
+  gui = FALSE,
   ...
 )
 
@@ -72,7 +74,8 @@ pcheck.table(
   nullcheck = FALSE,
   obj = FALSE,
   checkonly = FALSE,
-  gui = FALSE
+  gui = FALSE,
+  schema = NULL
 )
 
 pcheck.outfolder(outfolder, default = getwd(), gui = FALSE)
@@ -97,20 +100,24 @@ pcheck.object(
 )
 
 pcheck.output(
+  outfolder = NULL,
   out_fmt = "csv",
   outsp_fmt = "shp",
+  outobj_fmt = "rds",
   out_dsn = NULL,
-  outfolder = NULL,
+  out_layer = NULL,
   outfn.pre = NULL,
   outfn.date = FALSE,
+  addtitle = TRUE,
   overwrite_dsn = FALSE,
   overwrite_layer = TRUE,
-  add_layer = TRUE,
   append_layer = FALSE,
+  add_layer = TRUE,
   createSQLite = FALSE,
-  out_conn = NULL,
+  raw_fmt = NULL,
+  raw_dsn = NULL,
   outconn = NULL,
-  dbconnopen = FALSE,
+  outconnopen = TRUE,
   gui = FALSE,
   savedata_opts = NULL
 )
@@ -151,7 +158,24 @@ pcheck.params(
 
 pcheck.opts(optionlst)
 
-popTabchk(tabnames, tabtext, tabs, tabIDs, dbtablst, dbconn, datindb = FALSE)
+pcheck.datsource(
+  dbconn,
+  datsource,
+  dsn = NULL,
+  database_opts = database_options(),
+  gui = FALSE
+)
+
+popTabchk(
+  tabnames,
+  tabtext,
+  tabs,
+  tabIDs,
+  dbtablst,
+  dbconn,
+  schema = NULL,
+  datindb = FALSE
+)
 }
 \value{
 List of parameter objects checked by the function. While the `pcheck.*()`

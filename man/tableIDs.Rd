@@ -13,6 +13,10 @@ tableIDs(
   subp_cond = "PLT_CN",
   condid = "CONDID",
   subpid = "SUBP",
+  p2veg_subp_structure = "PLT_CN",
+  p2veg_subplot_spp = "PLT_CN",
+  invasive_subplot_spp = "PLT_CN",
+  cond_dwm_calc = "PLT_CN",
   ...
 )
 }
@@ -32,6 +36,14 @@ tableIDs(
 \item{condid}{String. Unique identifier of a condition in cond.}
 
 \item{subpid}{String. Unique identifier of a subplot in subplot and subp_cond.}
+
+\item{p2veg_subp_structure}{String. Unique identifier of a plot in p2veg_subp_structure.}
+
+\item{p2veg_subplot_spp}{String. Unique identifier of a plot in p2veg_subplot_spp.}
+
+\item{invasive_subplot_spp}{String. Unique identifier of a plot in invasive_subplot_spp.}
+
+\item{cond_dwm_calc}{String. Unique identifier of a plot in cond_dwm_calc.}
 
 \item{...}{For extendibility.}
 }

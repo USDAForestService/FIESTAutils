@@ -5,6 +5,7 @@
 ## check.matchclass
 ## check.matchval
 ## check.unique - adds factor values to uniquex
+## check.pcfilter
 
 #' @rdname checks_desc
 #' @export

@@ -13,6 +13,10 @@
 #' @param subp_cond String. Unique identifier of plot in subp_cond.
 #' @param condid String. Unique identifier of a condition in cond.
 #' @param subpid String. Unique identifier of a subplot in subplot and subp_cond.
+#' @param p2veg_subp_structure String. Unique identifier of a plot in p2veg_subp_structure.
+#' @param p2veg_subplot_spp String. Unique identifier of a plot in p2veg_subplot_spp.
+#' @param invasive_subplot_spp String. Unique identifier of a plot in invasive_subplot_spp.
+#' @param cond_dwm_calc String. Unique identifier of a plot in cond_dwm_calc.
 #' @param ... For extendibility.
 #' @return A list of user-supplied unique identifier of a plot in tables.
 #' @author Tracey S. Frescino
@@ -27,6 +31,10 @@ tableIDs <- function(cond = "PLT_CN",
                      subp_cond = "PLT_CN", 
 						         condid = "CONDID",
 						         subpid = "SUBP",
+						         p2veg_subp_structure = "PLT_CN",
+						         p2veg_subplot_spp = "PLT_CN",
+						         invasive_subplot_spp = "PLT_CN",
+						         cond_dwm_calc = "PLT_CN",
                      ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]

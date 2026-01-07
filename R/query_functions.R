@@ -48,6 +48,8 @@ classqry <- function(classcol,
   } else if (!is.character(classnm) || length(classnm) > 1) {
     stop("invalid classnm: ", toString(classnm))
   }
+  ## Replace any spaces with underscores
+  classnm <- gsub(" ", "_", classnm)
   
   ## Check if fromval and toval have same length
   if (length(fromval) != length(toval)) {
@@ -73,7 +75,7 @@ classqry <- function(classcol,
             "\n   WHEN ", class., classcol, " = ", fromval[i], " THEN '", toval[i], "'")
     }
   }
-  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS '", prefixnm, classnm, "'")
+  classify.qry <- paste0(classify1.qry, classify2.qry, " END) AS ", prefixnm, classnm)
   return(classify.qry)
 }
 

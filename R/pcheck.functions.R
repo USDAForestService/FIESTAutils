@@ -8,9 +8,10 @@
 # pcheck.output
 # pcheck.colors
 # pcheck.areaunits
-# pcheck.spatial - checks or gets Vector layer from file name or spatial object
+# pcheck.spatial - checks or gets Vector layer from file name or object
 # pcheck.params - function to check input list parameters
 # pcheck.opts - function to check input parameter options
+# pcheck.datsource - function to check input database parameters
 
 #' @rdname pcheck_desc
 #' @export
@@ -61,8 +62,13 @@ pcheck.unique <- function(tab, uniqueid, gui=FALSE, tabnm=NULL,
 
 #' @rdname pcheck_desc
 #' @export
-pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=NULL,
-	warn=NULL, stopifnull=FALSE, stopifinvalid=TRUE, multiple=FALSE, ...){
+pcheck.varchar <- function(var2check, varnm, checklst, 
+                           caption = NULL,warn = NULL, 
+                           stopifnull = FALSE, 
+                           stopifinvalid = TRUE, 
+                           multiple = FALSE, 
+                           ignore.case = TRUE,
+                           gui = FALSE, ...){
   ## DESCRIPTION: Checks string variable parameter
 
   if (is.null(varnm)) {
@@ -78,11 +84,12 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
   }
   if (is.null(warn)) {
     warn <- ifelse(!is.null(checklst) && length(checklst) < 6,
-		paste(varnm, "must be in following list:", toString(checklst)),
-		paste(varnm, "is invalid\n"))
+		             paste(varnm, "must be in following list:", toString(checklst)),
+		                 paste(varnm, "is invalid\n"))
   }
 
-  if (is.null(var2check) || any(is.na(var2check)) || length(var2check) == 0 || any(gsub(" ", "", var2check) == "")) {
+  if (is.null(var2check) || any(is.na(var2check)) || 
+      length(var2check) == 0 || any(gsub(" ", "", var2check) == "")) {
     if (gui) {
       var2check <- select.list(checklst, title=caption, multiple=multiple, ...)
       if (length(var2check) == 0 || any(var2check == "")) {
@@ -101,27 +108,30 @@ pcheck.varchar <- function(var2check, varnm=NULL, checklst, gui=FALSE, caption=N
     stop(varnm, " must be a vector of length 1")
   } else if (!is.character(var2check)) {
     stop(varnm, " must be a string vector")
+    
   } else if (!all(var2check %in% checklst)) {
-    if (all(toupper(var2check) %in% checklst)) {
-      var2check <- toupper(var2check)
-    } else if (all(tolower(var2check) %in% checklst)) {
-      var2check <- tolower(var2check)
-    } else if (all(capfirst(var2check) %in% checklst)) {
-      var2check <- capfirst(var2check)
-    } else if (gui) {
-      message(warn)
-      var2check <- select.list(checklst, title=caption, multiple=multiple, ...)
-      if (length(var2check) == 0 || any(var2check == "")) stop("")
-    } else {
-      if (stopifinvalid) {
-        if (multiple) {
-          warn <- message("invalid variable: ",
-				toString(var2check[which(!var2check %in% checklst)]),
-				"\n possible values: ", toString(checklst),"\n")
-        }
-        stop(warn)
+    if (ignore.case) {
+      if (all(toupper(var2check) %in% checklst)) {
+        var2check <- toupper(var2check)
+      } else if (all(tolower(var2check) %in% checklst)) {
+        var2check <- tolower(var2check)
+      } else if (all(capfirst(var2check) %in% checklst)) {
+        var2check <- capfirst(var2check)
+      } else if (gui) {
+        message(warn)
+        var2check <- select.list(checklst, title=caption, multiple=multiple, ...)
+        if (length(var2check) == 0 || any(var2check == "")) stop("")
       } else {
-        return(NULL)
+        if (stopifinvalid) {
+          if (multiple) {
+            warn <- message("invalid variable: ",
+                            toString(var2check[which(!var2check %in% checklst)]),
+                            "\n possible values: ", toString(checklst),"\n")
+          }
+          stop(warn)
+        } else {
+          return(NULL)
+        }
       }
     }
   }
@@ -160,7 +170,7 @@ pcheck.dsn <- function(dsn, dbconnopen=TRUE) {
 pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=NULL,
 	caption=NULL, returnsf=TRUE, factors=FALSE, returnDT=TRUE, warn=NULL,
 	stopifnull=FALSE, stopifinvalid=FALSE, nullcheck=FALSE, obj=FALSE, 
-    checkonly=FALSE, gui=FALSE) {
+  checkonly=FALSE, gui=FALSE, schema=NULL) {
 
   ## DESCRIPTION: This function checks the table parameter..  if NULL, it prompts the
   ##      user with gui options to select the table of interest.
@@ -215,40 +225,42 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
   }	
 
   if (!is.null(conn)) {
-    conntest <- tryCatch(DBI::dbIsValid(conn),
-                         error=function(err) {
-                           return(NULL)
-                           } )
-    if (is.null(conntest)) {
+    dbinfo <- pcheck.datsource(dbconn = conn, 
+                               datsource = NULL, 
+                               dsn = NULL, 
+                               database_opts = database_options(schema = schema))
+    
+    if (is.null(dbinfo)) {
       if (stopifnull) {
-	    message("invalid database connection: ", conn, "\n")
         stop()
       } else {
         return(NULL)
       }
     } else {
-      tablst <- DBI::dbListTables(conn)
+      tablst <- dbinfo$dbtablst
       if (is.character(tab) && length(tab) == 1) {
         tabnm <- findnm(tab, tablst, returnNULL=TRUE)
         if (is.null(tabnm)) {
-		  if (stopifnull) {
+		      if (stopifnull) {
             stop(tab, " is not in database")
           } else {
-		    message(tab, " is not in database")
-		    return(NULL)
-		  }
-		}
-		if (checkonly) {
-		  return(tab)
-		}
+		        message(tab, " is not in database")
+		        return(NULL)
+		      }
+		    }
+		    if (checkonly) {
+		      return(tab)
+		    }
+        
         if (!is.null(tabqry)) {
-          tabx <- tryCatch(DBI::dbGetQuery(conn, tabqry),
-			      error=function(e) {
-			      #print(e)
-			      return(NULL)})
+          tabx <- tryCatch(
+            DBI::dbGetQuery(conn, tabqry),
+			             error=function(e) {
+			             #print(e)
+			             return(NULL)})
           if (is.null(tabx)) {
-            message("tabqry is invalid")
-			return(NULL)
+             message("tabqry is invalid")
+			       return(NULL)
           } else {
             tab <- tabx
           }
@@ -723,47 +735,77 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
 
 #' @rdname pcheck_desc
 #' @export
-pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp", 
-                          out_dsn = NULL, outfolder = NULL,
+pcheck.output <- function(outfolder = NULL,
+                          out_fmt = "csv", outsp_fmt = "shp", 
+                          outobj_fmt = "rds", 
+                          out_dsn = NULL, 
+                          out_layer = NULL,
                           outfn.pre = NULL, outfn.date = FALSE, 
+                          addtitle = TRUE,
                           overwrite_dsn = FALSE, overwrite_layer = TRUE, 
-                          add_layer = TRUE, append_layer = FALSE,
-                          createSQLite=FALSE, out_conn = NULL, 
+                          append_layer = FALSE, add_layer = TRUE, 
+                          createSQLite = FALSE, 
+                          raw_fmt = NULL,
+                          raw_dsn = NULL,
                           outconn = NULL,
-                          dbconnopen = FALSE, gui = FALSE, 
+                          outconnopen = TRUE, gui = FALSE, 
                           savedata_opts = NULL) {
   
   if (!is.null(savedata_opts)) {
     outfolder <- savedata_opts$outfolder
+    out_fmt <- savedata_opts$out_fmt
+    outsp_fmt <- savedata_opts$outsp_fmt
+    outobj_fmt = savedata_opts$outobj_fmt
     out_dsn <- savedata_opts$out_dsn
+    out_layer <- savedata_opts$out_layer
     outfn.pre <- savedata_opts$outfn.pre
     outfn.date <- savedata_opts$outfn.date
     overwrite_dsn <- savedata_opts$overwrite_dsn
     overwrite_layer <- savedata_opts$overwrite_layer
-    add_layer <- savedata_opts$add_layer
     append_layer <- savedata_opts$append_layer
-    out_fmt <- savedata_opts$out_fmt
-    outsp_fmt <- savedata_opts$outsp_fmt
-    outconn = savedata_opts$outconn
-  } else {
-    if (is.null(outconn) && !is.null(out_conn)) {
-      outconn <- out_conn
-    }
+    add_layer <- savedata_opts$add_layer
+    outconn <- savedata_opts$outconn
+    outconnopen <- savedata_opts$outconnopen
+    raw_fmt <- savedata_opts$raw_fmt
+    raw_dsn <- savedata_opts$raw_dsn
+  # } else {
+  #   if (is.null(outconn) && !is.null(out_conn)) {
+  #     outconn <- out_conn
+  #   }
   }
 
+
   ## check out_fmt
-  ###########################################################
   #out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'gdb', 'shp')
   out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'shp')
   out_fmt <- pcheck.varchar(out_fmt, varnm="out_fmt", checklst=out_fmtlst,
-		caption="Out format", gui=gui)
+		                        caption="Out format", gui=gui)
+
+  ## check raw_fmt
+  raw_fmt <- pcheck.varchar(raw_fmt, varnm="raw_fmt", checklst=out_fmtlst,
+                            caption="Raw out format", gui=gui)
   
-  ## check out_fmt
-  ###########################################################
+  if (is.null(out_fmt)) {
+    if (!is.null(raw_fmt)) {
+      out_fmt <- raw_fmt
+    } else {
+      stop("invalid out_fmt")
+    }
+  } 
+  if (is.null(out_dsn) & !is.null(raw_dsn)) {
+    out_dsn <- raw_dsn
+  }
+  
+  
+  ## check outsp_fmt
   outsp_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'shp')
   outsp_fmt <- pcheck.varchar(outsp_fmt, varnm="outsp_fmt", checklst=outsp_fmtlst,
                             caption="Out spatial format", gui=gui)
   
+  ## check outobj_fmt
+  outobj_fmtlst <- c('rds', 'rda')
+  outobj_fmt <- pcheck.varchar(outobj_fmt, varnm="outobj_fmt", checklst=outobj_fmtlst,
+                              caption="Out object format", gui=gui)
   
   ## check outfn.date
   outfn.date <- pcheck.logical(outfn.date, varnm="outfn.date",
@@ -777,15 +819,22 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
   overwrite_layer <- pcheck.logical(overwrite_layer, varnm="overwrite_layer",
 		title="overwrite_layer", first="NO", gui=gui)
 
+  ## check append_layer
+  append_layer <- pcheck.logical(append_layer, varnm="append_layer",
+                                 title="append data", first="NO", gui=gui)
+
   ## check add_layer
   add_layer <- pcheck.logical(add_layer, varnm="add_layer",
 		title="add data to dsn", first="NO", gui=gui)
 
-  ## check append_layer
-  append_layer <- pcheck.logical(append_layer, varnm="append_layer",
-		title="append data", first="NO", gui=gui)
-
-
+  ## check createSQLite
+  createSQLite <- pcheck.logical(createSQLite, varnm="createSQLite",
+                              title="create SQLite", first="NO", gui=gui)
+  
+  ## check outconnopen
+  outconnopen <- pcheck.logical(outconnopen, varnm="outconnopen",
+                                 title="Keep db open", first="YES", gui=gui)
+  
   ## check outfn.pre
   if (!is.null(outfn.pre) && (!is.vector(outfn.pre) || length(outfn.pre) > 1)) {
     stop("invalid outfn.pre")
@@ -822,11 +871,19 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
  
     return(list(out_dsn = out_dsn, outfolder = outfolder, 
                 out_fmt = out_fmt,
+                outobj_fmt = outobj_fmt,
 		            overwrite_layer = overwrite_layer, 
 		            append_layer = append_layer,
-		            outfn.date = outfn.date, outfn.pre = outfn.pre, 
-		            outconn = outconn))
+		            out_layer = out_layer,
+		            outfn.date = outfn.date, 
+		            outfn.pre = outfn.pre, 
+		            outconn = outconn,
+		            outconnopen = outconnopen,
+		            addtitle = addtitle,
+		            raw_fmt = raw_fmt,
+		            raw_dsn = raw_dsn))
   }
+  
   
   if (is.null(out_dsn) && any(c(out_fmt, outsp_fmt) %in% c("csv", "shp"))) {
     outfolder <- pcheck.outfolder(outfolder)
@@ -836,9 +893,18 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
     return(list(out_dsn = NULL, outfolder = outfolder, 
                 out_fmt = out_fmt,
                 outsp_fmt = outsp_fmt,
+                outobj_fmt = outobj_fmt,
+                overwrite_dsn = overwrite_dsn,
 		            overwrite_layer = overwrite_layer, 
 		            append_layer = append_layer,
-		            outfn.date = outfn.date, outfn.pre = outfn.pre))
+		            out_layer = out_layer,
+		            outfn.date = outfn.date, 
+		            outfn.pre = outfn.pre,
+		            outconn = outconn,
+		            outconnopen = outconnopen,
+		            addtitle = addtitle,
+		            raw_fmt = raw_fmt,
+		            raw_dsn = raw_dsn))
   }
 
   ## Check file name
@@ -869,18 +935,29 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
   }
 
   if (is.null(chkfn) || overwrite_dsn || !overwrite_dsn) {
-    out_dsn <- getoutfn(out_dsn, outfn.pre = outfn.pre, 
+    
+    ## Note: if permission denied when trying to overwrite a database,
+    ##  this function returns 0.
+    out_dsn <- getoutfn(out_dsn, 
+                        outfn.pre = outfn.pre, 
                         outfolder = outfolder,
 		                    outfn.date = outfn.date, 
 		                    overwrite = overwrite_dsn, 
 		                    outfn.default = "data",
-		                    ext = ext, add = add_layer, 
+		                    ext = ext, 
+		                    add = add_layer, 
 		                    append = append_layer)
+    if (out_dsn == 0) {
+      stop("")
+    }
+    overwrite_dsn <- FALSE
+    
+
     if (any(out_fmt %in% c("sqlite", "gpkg")) && createSQLite) {
       gpkg <- ifelse(out_fmt == "gpkg", TRUE, FALSE)
       out_dsn <- DBcreateSQLite(out_dsn, gpkg=gpkg)
 
-      if (dbconnopen) {
+      if (outconnopen) {
         outconn <- DBI::dbConnect(RSQLite::SQLite(), out_dsn, 
                     loadable.extensions = TRUE)
       }
@@ -908,13 +985,19 @@ pcheck.output <- function(out_fmt = "csv", outsp_fmt = "shp",
 
   return(list(out_fmt = out_fmt, 
               outsp_fmt = outsp_fmt, 
+              outobj_fmt = outobj_fmt,
               outfolder = outfolder, 
               out_dsn = out_dsn,
 	            overwrite_dsn = overwrite_dsn, 
               overwrite_layer = overwrite_layer,
 	            add_layer = add_layer, append_layer = append_layer, 
+              out_layer = out_layer,
               outfn.date = outfn.date,
-              outconn = outconn))
+              outconn = outconn,
+              outconnopen = outconnopen,
+              addtitle = addtitle,
+              raw_fmt = raw_fmt,
+              raw_dsn = raw_dsn))
 }
 
 
@@ -1897,6 +1980,35 @@ pcheck.opts <- function(optionlst) {
   }
   
   
+  ## spMakeSpatial options
+  ###################################################################
+  if ("spMakeSpatial_opts" %in% names(optionlst)) {
+    spMakeSpatial_opts <- optionlst$spMakeSpatial_opts
+    
+    ## Set spMakeSpatial defaults
+    spMakeSpatial_defaults_list <- formals(spMakeSpatial_options)[-length(formals(spMakeSpatial_options))]
+    for (i in 1:length(spMakeSpatial_defaults_list)) {
+      assign(names(spMakeSpatial_defaults_list)[[i]], spMakeSpatial_defaults_list[[i]])
+    }
+    
+    ## Set user-supplied spMakeSpatial values
+    spMakeSpatial_opts2 <- spMakeSpatial_defaults_list
+    if (length(spMakeSpatial_opts) > 0) {
+      for (i in 1:length(spMakeSpatial_opts)) {
+        if (names(spMakeSpatial_opts)[[i]] %in% names(spMakeSpatial_defaults_list)) {
+          if (!is.null(spMakeSpatial_opts[[i]])) {
+            spMakeSpatial_opts2[[names(spMakeSpatial_opts)[[i]]]] <- spMakeSpatial_opts[[i]]
+          }
+        } else {
+          stop(paste("Invalid parameter: ", names(spMakeSpatial_opts)[[i]]))
+        }
+      }
+    }
+    returnlst$spMakeSpatial_opts <- spMakeSpatial_opts2
+  }
+  
+  
+  
     # ## Set popTabIDs defaults
     # popTableIDs_defaults_list <- formals(popTableIDs)[-length(formals(popTableIDs))]
     # 
@@ -1946,4 +2058,149 @@ pcheck.opts <- function(optionlst) {
 
   return(returnlst)
 }
+
+
+
+#' @rdname pcheck_desc
+#' @export
+pcheck.datsource <- function(dbconn, 
+                             datsource,
+                             dsn = NULL,
+                             database_opts = database_options(),
+                             gui = FALSE) {
+  
+  ## set global variables
+  dbtablst=host=port=user=password=schema=outconnopen <- NULL
+  SCHEMA. <- ""
+  indb <- FALSE
+  datamartType = "CSV"
+ 
+  ## Check parameter option lists
+  optslst <- pcheck.opts(optionlst = list(
+                         database_opts = database_opts))
+  database_opts <- optslst$database_opts  
+  
+  for (i in 1:length(database_opts)) {
+    assign(names(database_opts)[[i]], database_opts[[i]])
+  }
+
+  ## Check database connection
+  ######################################################
+  if (!is.null(dbconn)) {
+    if (!DBI::dbIsValid(dbconn)) {
+      message("database connection is invalid")
+      return(NULL)
+    } else {
+      
+      ## get datsource from dbconn
+      dbInfo <- DBI::dbGetInfo(dbconn)
+      dbname <- dbInfo$dbname
+      
+      if (file.exists(dbname)) {
+        datsource <- "sqlite"
+      } else if (dbInfo$port == "5432") {
+        datsource <- "postgres"
+      } else {
+        datsource <- "postgres"
+      }
+    }
+    
+  } else {
+
+    datsourcelst <- c("sqlite", "postgres", "obj", "csv", "datamart")
+    datsource <- pcheck.varchar(var2check = datsource, varnm = "datsource", gui=gui,
+                                checklst = datsourcelst, caption = "Data source",
+                                warn = paste(datsource, "is invalid"), stopifinvalid = FALSE)
+
+    if (!is.null(dsn) && (is.null(datsource) || datsource == "obj")) {
+      datsource <- "sqlite"
+    } else if (is.null(datsource)) {
+    #if (is.null(datsource)) {
+      stop("invalid datsource... must be one of following: ", toString(datsourcelst))
+    }
+    if (datsource %in% c("sqlite", "postgres")) {
+      if (datsource == "sqlite") {
+        if (is.null(dsn)) {
+          message("invalid dsn when datsource = ", datsource)
+          return(NULL)
+        }
+        dbconn <- DBtestSQLite(dsn, dbconnopen=TRUE, showlist=FALSE)
+        
+      } else if (datsource == "postgres") {
+        dbconn <- DBtestPostgreSQL(dbname = dbname,
+                                   host = host,
+                                   port = port,
+                                   user = user,
+                                   password = password,
+                                   dbconnopen = TRUE, 
+                                   showlist = FALSE)
+        
+      }  
+    }
+   
+    # if (datsource == "datamart")
+    #   datamartTypelst <- c("CSV", "SQLITE")
+    #   datamartType <- pcheck.varchar(var2check = datamartType, varnm="datamartType",
+    #                                checklst=datamartTypelst, gui=gui, caption="Datamart Type?")
+    # 
+    #   ## If Get SQlite file for state
+    #   #################################################
+    #   if (datamartType == "SQLITE") {
+    #     dbfolder <- tempdir()
+    #     statedbfn <- DBgetSQLite(state, dbfolder)
+    #     dbconn <- DBtestSQLite(statedbfn, dbconnopen=TRUE, showlist=FALSE)
+    #     #dbtablst <- DBI::dbListTables(dbconn)
+    #     datsource <- "sqlite"
+    #   }
+    # }
+  }
+
+  if (!is.null(dbconn)) {
+    indb <- TRUE
+    
+    if (!is.null(schema)) {
+      SCHEMA. <- paste0(schema, ".")
+      
+      dbobjectsdf <- DBI::dbListObjects(dbconn, DBI::Id(schema = schema))
+
+      if (nrow(dbobjectsdf) == 0) {
+        stop("invalid schema: ", schema)
+      }
+      dbtabs <- as.character(dbobjectsdf[,"table"]) 
+      dbtabs <- sapply(strsplit(dbtabs, '", table = \"', fixed = FALSE), "[", 2)
+      dbtablst <- sapply(strsplit(dbtabs, '\"))', fixed = FALSE), "[", 1)
+
+      if (all(is.na(dbtablst))) {
+        stop("invalid schema: ", schema)
+      }
+    } else {
+      dbtablst <- DBI::dbListTables(dbconn)
+      
+      if ("spatial_ref_sys" %in% dbtablst && length(dbtablst) < 5) {
+        warning("check for a schema in database... database tables: ")
+        message(toString(dbtablst))
+      }
+    }
+    qry <- "select matviewname AS view_name from pg_matviews order by view_name"
+    dbviews <- tryCatch(
+      DBI::dbGetQuery(dbconn, qry)[[1]],
+      error = function(e) {
+        return(NULL) })
+    dbtablst <- unique(c(dbtablst, dbviews))
+    
+    if (length(dbtablst) == 0) {
+      message("no data in database")
+      return(NULL)
+    }
+  }  
+     
+  returnlst <- list(datsource = datsource, 
+                    dbtablst = dbtablst,
+                    schema = schema,
+                    SCHEMA. = SCHEMA.,
+                    indb = indb,
+                    dbconn = dbconn)
+  return(returnlst)
+}
+
 
