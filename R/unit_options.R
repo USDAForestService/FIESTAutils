@@ -16,6 +16,8 @@
 #' with less that minplotnum.unit will be removed from the output tables; and
 #' if unit.action='combine', combines estimation unit to the following estimation
 #' unit, ordered in stratalut or unitzonal.
+#' @param unitlevels Vector. Order of estimation units to use for collapsing, if
+#' unit.action = 'combine'.
 #' @param npixelvar String. Name of variable in unitlut defining number of
 #' pixels by estimation unit.
 #' @param ... For extendibility.
@@ -30,6 +32,7 @@
 
 unit_options <- function(unitvar2 = NULL, areaunits = "acres", 
                          minplotnum.unit = 10, unit.action = "keep", 
+                         unitlevels = NULL,
                          npixelvar = "npixels",  ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
