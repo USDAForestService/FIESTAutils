@@ -8,7 +8,7 @@ popTables(
   cond = "COND",
   plt = "PLOT",
   tree = "TREE",
-  seed = "SEEDLING",
+  seed = "SEED",
   seedling = "SEEDLING",
   vsubpspp = "P2VEG_SUBPLOT_SPP",
   p2veg_subplot_spp = "P2VEG_SUBPLOT_SPP",
