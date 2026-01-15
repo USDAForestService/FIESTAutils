@@ -39,9 +39,10 @@ popTabchk <- function(tabnames, tabtext,
     if (!is.null(dbconn)) {
       dbtabchk <- sapply(tablst, findnm, dbtablst, returnNULL = TRUE)
       dbtabnmchk <- names(dbtabchk)[!unlist(lapply(dbtabchk, is.null))]
+
 	    if (all(is.na(dbtabnmchk))) {
-	      message("invalid name for ", tabtext)
-	      stop()
+	      #message("invalid name for ", tabtext)
+	      return(NULL)
 	    } else if (length(dbtabnmchk) > 1) {
 	      dbtabnmchk <- dbtabnmchk[1]
 	    }

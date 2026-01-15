@@ -2366,6 +2366,7 @@ datTabchk <- function(tab,
 
     ## Check unique identifiers in table
     if (is.null(tabid)) {
+      if (tolower(tabtext) == "plot") tabtext <- "plt"
       if (!tabtext %in% names(tabIDs)) {
         stop("invalid tabid in ", tabnm)
       }
