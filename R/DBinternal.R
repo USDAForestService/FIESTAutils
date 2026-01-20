@@ -102,11 +102,12 @@ DBvars.default <- function(istree = FALSE, isseed = FALSE, isveg = FALSE, isgrm 
   if (istree) {
     
     ## Variables from FS_NIMS_FIADB_RMRS.TREE (these variables change from NIMSf to FIADB)
-    treevarlst <- c("CN", "PLT_CN", "PREV_TRE_CN", "SUBP", "TREE", "CONDID",
+    treevarlst <- c("CN", "PLT_CN", "PREV_TRE_CN", "SUBP", "TREE", "CONDID", "PREVCOND",
                     "AZIMUTH", "DIST", "STATUSCD", "SPCD", "SPGRPCD", "DIA", "HT", "ACTUALHT",
-                    "HTCD", "TREECLCD", "CR", "CCLCD", "AGENTCD", "CULL", "DECAYCD", "STOCKING",
-                    "WDLDSTEM", "MORTYR", "UNCRCD", "BHAGE", "TOTAGE", "MORTCD", "MIST_CL_CD",
-                    "STANDING_DEAD_CD", "PREV_STATUS_CD", "PREV_WDLDSTEM", "RECONCILECD", "PREVDIA")
+                    "HTCD", "TREECLCD", "CR", "CCLCD", "TREEGRCD", "AGENTCD", "CULL", "DECAYCD", 
+                    "STOCKING", "WDLDSTEM", "MORTYR", "SALVCD", "UNCRCD", "BHAGE", "TOTAGE", 
+                    "MORTCD", "MIST_CL_CD", "STANDING_DEAD_CD", "PREV_STATUS_CD", "PREV_WDLDSTEM", 
+                    "RECONCILECD", "PREVDIA")
     
     ## Tree summary variables
     tsumvarlst <- c(volvars, tpavars, biovars, carbonvars)
@@ -487,7 +488,7 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     }
     
     if (!is.null(where.qry) && any(where.qry != "")) {
-      where.qry <- paste(" \nWHERE", where.qry)
+      where.qry <- paste(" \n WHERE", where.qry)
     }
     
     ## create pfromqry
@@ -506,11 +507,11 @@ getpfromqry <- function(dsn=NULL, evalid=NULL, plotCur=TRUE, pjoinid,
     #    } else {
     
     pfromqry <- paste0(SCHEMA., plotnm, " p ",
-                       "\nINNER JOIN 
-		(SELECT statecd, unitcd, countycd, plot, MAX(", varCur, ") maxyr
-		  \nFROM ", SCHEMA., plotnm, 
+                       "\nINNER JOIN", 
+		"\n(SELECT statecd, unitcd, countycd, plot, MAX(", varCur, ") maxyr",
+		"\n FROM ", SCHEMA., plotnm, 
                        where.qry,
-                       " \n  GROUP BY statecd, unitcd, countycd, plot) pp
+                       " \n GROUP BY statecd, unitcd, countycd, plot) pp
 		       ON p.statecd = pp.statecd AND
                          p.unitcd = pp.unitcd AND
                              p.countycd = pp.countycd AND
@@ -640,15 +641,15 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
   ###################################################################################
   if (!is.null(evalid)) {
     subcycle99 <- TRUE
-    pfromqry <- paste0("\nFROM ", SCHEMA., ppsanm, " ppsa \nJOIN ",
+    pfromqry <- paste0("\n  FROM ", SCHEMA., ppsanm, " ppsa \nJOIN ",
                        SCHEMA., plotnm, " p ON (ppsa.", ppsaid, " = p.", pjoinid, ")")
   } else {
-    pfromqry <- paste0("\nFROM ", SCHEMA., plotnm, " p")
+    pfromqry <- paste0("\n  FROM ", SCHEMA., plotnm, " p")
     
     if (popSURVEY) {
       pfromqry <- paste0(pfromqry, 
-                         "\n  INNER JOIN ", SCHEMA., surveynm, " survey 
-		             ON (survey.CN = p.SRV_CN AND survey.ANN_INVENTORY = '", anntype, "')")
+                         "\n  INNER JOIN ", SCHEMA., surveynm, 
+                         " survey ON (survey.CN = p.SRV_CN AND survey.ANN_INVENTORY = '", anntype, "')")
     }
   }
   
@@ -780,18 +781,18 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
         groupvars <- as.vector(pgroupvars)
       }
     }
-    
+
     ## Create WITH query
     withqry <- paste0(
       "WITH ",
       "\nmaxyear AS",
-      "\n (SELECT distinct ", toString(paste0("p.", groupvars)), ", MAX(p.", varCur, ") maxyr  ",
+      "\n (SELECT DISTINCT ", toString(paste0("p.", groupvars)), ", MAX(p.", varCur, ") maxyr  ",
       pfromqry)
     
     if (!is.null(where.qry) || where.qry != "") {
       withqry <- paste0(withqry,  " \n  WHERE ", where.qry)
     }
-    
+
     withqry <- paste0(withqry,
                       "\n  GROUP BY ", toString(paste0("p.", groupvars)), ")")
     
@@ -801,15 +802,15 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
         "\np AS",   	
         "\n (SELECT ", selectpvars,
         "\n  FROM ", SCHEMA., plotnm, " p INNER JOIN maxyear ON(")
-      
+
       for (i in 1:length(groupvars)) {
         gvar <- groupvars[i]
         withqry2 <- paste0(withqry2, "p.", gvar, " = maxyear.", gvar)	   
         if (i < length(groupvars)) {
-          withqry2 <- paste0(withqry2, " and ")
+          withqry2 <- paste0(withqry2, " AND ")
         }
       }
-      withqry2 <- paste0(withqry2, " and p.", varCur, " = maxyear.maxyr))")
+      withqry2 <- paste0(withqry2, " AND p.", varCur, " = maxyear.maxyr))")
       
       withqry <- paste0(withqry, ",", withqry2)
     }
@@ -830,7 +831,7 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
     withqry <- paste0(
       "WITH ",
       "\np AS",
-      "\n (SELECT distinct ", selectpvars,
+      "\n (SELECT DISTINCT ", selectpvars,
       pfromqry)	   
     
     ## Add invyrs to where statement 
@@ -889,12 +890,12 @@ getpwithqry <- function(dsn = NULL, evalid = NULL, states = NULL,
     }
     
   } else {
-    
+   
     ## Create WITH query
     withqry <- paste0(
       "WITH ",
       "\np AS",
-      "\n (SELECT distinct ", selectpvars,
+      "\n (SELECT DISTINCT ", selectpvars,
       pfromqry)
     
     if (!is.null(where.qry) || where.qry != "") {
