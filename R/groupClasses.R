@@ -55,6 +55,8 @@ groupClasses <- function(x, minplotnum,
   ## define vector of aggregated classes
   agclass <- {}
   for (ltclass in ltmin) {
+    #ltclass = ltmin[i]
+    
     if (!ltclass %in% agclass) {
       agclass <- {ltclass}
       
@@ -86,11 +88,20 @@ groupClasses <- function(x, minplotnum,
           ## get highest factored class number in list... 
           classag <- max(x$classf[x$classf < min(agclass)])
           class2 <- unique(x[classf == classag][["classf"]])
-          if (!class2 %in% c(-1, classag)) {
-            agclass <- c(agclass, strsplit(class2, "-")[[1]])
+          
+          ## get the new class for class2
+          classnew <- x[x$classf %in% class2]$classnew
+          classnewchk <- strsplit(classnew, "-")[[1]]
+          
+          ###  here is where the problem is
+          if (!class2 %in% c(-1, classag) || class2 %in% classnewchk) {
+            #agclass <- c(agclass, strsplit(class2, "-")[[1]])
+            agclass <- c(agclass, classnew)
           } else {
             agclass <- c(agclass, classag)
           }
+
+          agclass <- unlist(sapply(agclass, function(ag) strsplit(ag, "-")[[1]]))
           agclassnm <- unique(x[classf %in% agclass][["classo"]])
           agnm <- paste(agclassnm, collapse="-")
         }
