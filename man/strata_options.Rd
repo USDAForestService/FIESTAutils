@@ -10,6 +10,7 @@ strata_options(
   strwtvar = "strwt",
   stratcombine = TRUE,
   minplotnum.strat = 2,
+  minplotnum.strat.forest = FALSE,
   pivot = FALSE,
   nonresp = FALSE,
   ...
@@ -31,6 +32,9 @@ See notes for more info.}
 
 \item{minplotnum.strat}{Integer. Minimum number of plots for a stratum
 within an estimation unit.}
+
+\item{minplotnum.strat.forest}{Logical. If TRUE, the minimum number of plots 
+for a stratum is determined based on forested plots only.}
 
 \item{pivot}{Logical. If TRUE, pivot stratalut.}
 

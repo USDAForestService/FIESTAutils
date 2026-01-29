@@ -388,6 +388,8 @@ check.pltcnt(
   outfn.pre = NULL,
   minplotnum.unit = 10,
   minplotnum.strat = 2,
+  minplotnum.unit.forest = FALSE,
+  minplotnum.strat.forest = FALSE,
   gui = FALSE,
   stopiferror = FALSE,
   showwarnings = TRUE

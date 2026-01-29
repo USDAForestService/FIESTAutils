@@ -3,6 +3,7 @@
 check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
 	strvars=NULL, savedata=FALSE, outfolder=NULL, outfn=NULL, overwrite=FALSE,
 	outfn.date=TRUE, outfn.pre=NULL, minplotnum.unit=10, minplotnum.strat=2,
+	minplotnum.unit.forest=FALSE, minplotnum.strat.forest=FALSE,
 	gui=FALSE, stopiferror=FALSE, showwarnings=TRUE) {
 
   ####################################################################################
@@ -19,7 +20,8 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
   ####################################################################################
 
   ## CHECK GUI - IF NO ARGUMENTS SPECIFIED, ASSUME GUI=TRUE
-  if (nargs() == 0) gui <- TRUE
+  #if (nargs() == 0) gui <- TRUE
+  gui <- FALSE
 
   ## If gui.. set variables to NULL
   if (gui) getwt=savedata <- NULL
@@ -55,43 +57,75 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
   pvars <- c("STATECD", "UNITCD")
   pvars2keep <- pvars[which(pvars %in% names(pltx))]
   pvars2keep <- pvars2keep[which(pvars2keep %in% names(unitlut))]
+  cnt.total <- "n.total"
+  cnt.strata <- "n.strata"
+  
+  
+  ## Add number of plots by unit
+  pltcnt <- pltx[, list(n.total=.N), by=unitvars]
+  setkeyv(pltcnt, unitvars)
+  
+  ## combine total counts with unitlut
+  setkeyv(unitlut, unitvars)
+  unitlut <- merge(unitlut, pltcnt, by=unitvars, all.x=TRUE)
+  ncols <- "n.total"
+  
+  ## Check number of forested plots by estimation unit
+  if (minplotnum.unit.forest) {
+    cnt.total <- "n.forest"
+    
+    plot_status_cdnm <- findnm("PLOT_STATUS_CD", names(pltx), returnNULL = TRUE)
+    if (is.null(plot_status_cdnm)) {
+      stop("need plot_status_cd to get number of forested plots")
+    }
+    #pltcnt.for <- pltx[, list(n.forest=sum(.SD)), by=unitvars, .SDcols = plot_status_cdnm]
+    pltcnt.for <- pltx[, list(n.forest = sum(ifelse(get(plot_status_cdnm) == 1, 1, 0))), by=unitvars]
+    
+    ## combine total counts with unitlut
+    setkeyv(unitlut, unitvars)
+    pltcnt <- merge(pltcnt, pltcnt.for, by=unitvars, all.x=TRUE)
+    unitlut <- merge(unitlut, pltcnt.for, by=unitvars, all.x=TRUE)
+    ncols <- c(ncols, "n.forest")
+  }
 
+  
   if (!is.null(strvars)) {
+    #setkeyv(pltcnt, strunitvars)
+    setkeyv(unitlut, strunitvars)
     joinvars <- unique(c(pvars2keep, strunitvars))
 
-    ## Add number of plots by unit
-    pltcnt <- pltx[, list(n.total=.N), by=unitvars]
-    setkeyv(pltcnt, unitvars)
-    
-    ## combine total counts and strata counts
-    setkeyv(unitlut, unitvars)
-    unitlut <- merge(unitlut, pltcnt, by=unitvars, all.x=TRUE)
-    
     ## Get strata counts
     pltstrcnt <- pltx[, list(n.strata=.N), by=strunitvars]
     setkeyv(pltstrcnt, strunitvars)
 
     ## combine total counts and strata counts
-    pltcnt <- pltcnt[pltstrcnt]
-    setkeyv(pltcnt, strunitvars)
-    
-    ## combine total counts and strata counts
-    setkeyv(unitlut, strunitvars)
     unitlut <- merge(unitlut, pltstrcnt, by=strunitvars, all.x=TRUE)
-    cols <- c("n.total", "n.strata")
-    cols <- cols[cols %in% names(unitlut)]
-    if (length(cols) > 0) {
-      unitlut <- DT_NAto0(unitlut, cols)
+    ncols <- c(ncols, "n.strata")
+    
+    
+    ## Check number of forested plots by strata
+    if (minplotnum.strat.forest) {
+      cnt.strata <- "n.stratafor"
+      
+      plot_status_cdnm <- findnm("PLOT_STATUS_CD", names(pltx), returnNULL = TRUE)
+      if (is.null(plot_status_cdnm)) {
+        stop("need plot_status_cd to get number of forested plots")
+      }
+      pltstrcnt.for <- pltx[, list(n.stratafor=sum(.SD)), by=strunitvars, .SDcols = plot_status_cdnm]
+      pltstrcnt.for <- pltx[, list(n.stratafor = sum(ifelse(get(plot_status_cdnm) == 1, 1, 0))), 
+                            by=strunitvars]
+      
+      ## combine total counts with unitlut
+      unitlut <- merge(unitlut, pltstrcnt.for, by=strunitvars, all.x=TRUE)
+      ncols <- c(ncols, "n.stratafor")
     }
-
-    ## Add number of plots by unit
-    #pltstrcnt <- pltx[, n.strata := sum(NBRSTRATA, na.rm=TRUE), by=strunitvars]
-
-    ## Get number of plots by strata variables from pltx - n.strata
-    #pltcnt <- pltx[, list(NBRPLOTS=.N), joinvars]
-    #setkeyv(pltcnt, strunitvars)
-
+    
+    ## change NA values to 0 values
+    unitlut <- DT_NAto0(unitlut, ncols)
+    
+ 
     ## Get number of potential combinations of strata from unitlut
+    pltcnt <- copy(unitlut)
     unitlutcnt <- pltcnt[, list(NBRSTRATA=.N), strunitvars]
     setkeyv(unitlutcnt, strunitvars)
 
@@ -109,10 +143,8 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
 #		      pltcnt$n.total < minplotnum.unit), "errtyp"] <- "warn"
 #    pltcnt[pltcnt$n.total < minplotnum.strat & pltcnt$NBRSTRATA > 0, "errtyp"] <- "warn"
     
-    errtab[((errtab$n.strata < minplotnum.strat & errtab$n.total > minplotnum.unit) |
-              errtab$n.total < minplotnum.unit), "errtyp"] <- "warn"
-    #errtab[errtab$n.total < minplotnum.strat & pltcnt$NBRSTRATA > 0, "errtyp"] <- "warn"
-    
+    errtab[((errtab[[cnt.strata]] < minplotnum.strat & errtab[[cnt.total]] > minplotnum.unit) |
+              errtab[[cnt.total]] < minplotnum.unit), "errtyp"] <- "warn"
 
     ## ## Remove NBRSTRATA and merge to unitlut
 #    pltcnt[, NBRSTRATA:=NULL]
@@ -122,18 +154,7 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
     setorderv(unitlut, unique(c(pvars, strunitvars)))
 
   } else {
-    joinvars <- unique(c(pvars2keep, unitvars))
 
-    ## Add number of plots by unit
-    pltcnt <- pltx[, list(n.total=.N), by=unitvars]
-    setkeyv(pltcnt, unitvars)
-
-
-    ## ## Remove NBRSTRATA and merge to unitlut
-    unitlut <- merge(unitlut, pltcnt[, c(joinvars, "n.total"), with=FALSE],
-		                    by=joinvars, all.x=TRUE)
-    unitlut <- DT_NAto0(unitlut, "n.total")
-    
     errtab <- copy(unitlut)
     errtab$errtyp <- "none"
     errtab[errtab$n.total < minplotnum.unit, "errtyp"] <- "warn"

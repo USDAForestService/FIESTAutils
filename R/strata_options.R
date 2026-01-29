@@ -15,6 +15,8 @@
 #' See notes for more info.
 #' @param minplotnum.strat Integer. Minimum number of plots for a stratum
 #' within an estimation unit.
+#' @param minplotnum.strat.forest Logical. If TRUE, the minimum number of plots 
+#' for a stratum is determined based on forested plots only.
 #' @param pivot Logical. If TRUE, pivot stratalut. 
 #' @param nonresp Deprecated. 
 #' @param ... For extendibility.
@@ -32,6 +34,7 @@ strata_options <- function(getwt = FALSE,
                            strwtvar = "strwt",
                            stratcombine = TRUE, 
                            minplotnum.strat = 2, 
+                           minplotnum.strat.forest = FALSE,
                            pivot = FALSE, 
                            nonresp = FALSE,
                            ...) {

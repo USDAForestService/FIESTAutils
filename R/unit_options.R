@@ -9,6 +9,8 @@
 #' 'STATECD').
 #' @param areaunits String. Units of areavar in unitarea ('acres', 'hectares').
 #' @param minplotnum.unit Integer. Minimum number of plots for estimation unit.
+#' @param minplotnum.unit.forest Logical. If TRUE, the minimum number of plots for
+#' an estimation unit is determined based on forested plots only.
 #' @param unit.action String. What to do if number of plots in an estimation
 #' unit is less than minplotnum.unit ('keep', 'remove' 'combine'). If
 #' unit.action='keep', estimation units with less that minplotnum.unit will
@@ -30,10 +32,14 @@
 #' 
 #' @export unit_options
 
-unit_options <- function(unitvar2 = NULL, areaunits = "acres", 
-                         minplotnum.unit = 10, unit.action = "keep", 
+unit_options <- function(unitvar2 = NULL, 
+                         areaunits = "acres", 
+                         minplotnum.unit = 10, 
+                         minplotnum.unit.forest = FALSE,
+                         unit.action = "keep", 
                          unitlevels = NULL,
-                         npixelvar = "npixels",  ...) {
+                         npixelvar = "npixels",  
+                         ...) {
   # Check input parameters
   input.params <- names(as.list(match.call()))[-1]
   formallst <- c(names(formals(unit_options)))

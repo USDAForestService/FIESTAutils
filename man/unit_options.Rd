@@ -8,6 +8,7 @@ unit_options(
   unitvar2 = NULL,
   areaunits = "acres",
   minplotnum.unit = 10,
+  minplotnum.unit.forest = FALSE,
   unit.action = "keep",
   unitlevels = NULL,
   npixelvar = "npixels",
@@ -22,6 +23,9 @@ unitarea and cond or pltassgn with assignment for each plot (e.g.,
 \item{areaunits}{String. Units of areavar in unitarea ('acres', 'hectares').}
 
 \item{minplotnum.unit}{Integer. Minimum number of plots for estimation unit.}
+
+\item{minplotnum.unit.forest}{Logical. If TRUE, the minimum number of plots for
+an estimation unit is determined based on forested plots only.}
 
 \item{unit.action}{String. What to do if number of plots in an estimation
 unit is less than minplotnum.unit ('keep', 'remove' 'combine'). If
