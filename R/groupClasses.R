@@ -20,7 +20,8 @@ groupClasses <- function(x, minplotnum,
   ## xvar - the variable to group
   ## sumvar - the variable to sum after grouping
   ## xvarlevels - factor levels to order by
-  
+ 
+
   ## set global variables
   classo=classnew=classf=byvar.val <- NULL
   
@@ -55,10 +56,10 @@ groupClasses <- function(x, minplotnum,
   ## define vector of aggregated classes
   agclass <- {}
   for (ltclass in ltmin) {
-    #ltclass = ltmin[i]
-    
+#   ltclass = ltmin[i]
+
     if (!ltclass %in% agclass) {
-      agclass <- {ltclass}
+      agclass <- {ltclass}   ## agclass is the factor values
       
       ## get sum of nvar for aggregated classes
       maxag <- sum(x[classf %in% agclass][[sumvar]])
@@ -91,17 +92,15 @@ groupClasses <- function(x, minplotnum,
           
           ## get the new class for class2
           classnew <- x[x$classf %in% class2]$classnew
-          classnewchk <- strsplit(classnew, "-")[[1]]
+          classnewchk <- unique(classnew, strsplit(classnew, "-")[[1]])
           
           ###  here is where the problem is
-          if (!class2 %in% c(-1, classag) || class2 %in% classnewchk) {
-            #agclass <- c(agclass, strsplit(class2, "-")[[1]])
-            agclass <- c(agclass, classnew)
+          if (!class2 %in% c(-1, classag) || classnew %in% classnewchk) {
+            agclass <- c(class2, agclass)
           } else {
             agclass <- c(agclass, classag)
           }
 
-          agclass <- unlist(sapply(agclass, function(ag) strsplit(ag, "-")[[1]]))
           agclassnm <- unique(x[classf %in% agclass][["classo"]])
           agnm <- paste(agclassnm, collapse="-")
         }
