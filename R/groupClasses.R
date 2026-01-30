@@ -92,11 +92,13 @@ groupClasses <- function(x, minplotnum,
           
           ## get the new class for class2
           classnew <- x[x$classf %in% class2]$classnew
-          classnewchk <- unique(classnew, strsplit(classnew, "-")[[1]])
+          classnewchk <- strsplit(classnew, "-")[[1]]
+          classfnew <- x[as.character(x$classo) %in% classnewchk]$classf
           
           ###  here is where the problem is
-          if (!class2 %in% c(-1, classag) || classnew %in% classnewchk) {
-            agclass <- c(class2, agclass)
+          if (!class2 %in% c(-1, classag) || classag %in% c(class2, classfnew)) {
+            #agclass <- c(class2, agclass)
+            agclass <- c(classfnew, agclass)
           } else {
             agclass <- c(agclass, classag)
           }
