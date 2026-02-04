@@ -1,9 +1,20 @@
 #' @rdname internal_desc
 #' @export
-strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
-	minplotnum.strat=2, unitarea, areavar, unitvar, unitvar2=NULL, strvar,
-	getwt=FALSE, stratcombine=TRUE, unitcombine=FALSE, stratalevels=NULL,
-	vars2combine=NULL, UNITCD=NULL, ...) {
+strat.collapse <- function(stratacnt, 
+                           pltstratx, 
+                           minplotnum.unit = 10,
+                           minplotnum.unit.forest = FALSE,
+                           minplotnum.strat = 2, 
+                           minplotnum.strat.forest = FALSE,
+                           unitarea, areavar, 
+                           unitvar, unitvar2 = NULL, 
+                           strvar,
+                           getwt = FALSE, 
+                           stratcombine = TRUE, 
+                           unitcombine = FALSE, 
+                           stratalevels = NULL,
+                           vars2combine = NULL,  
+                           UNITCD = NULL, ...) {
   ## unitcombine - If TRUE, combine estimation units, If FALSE, only combine strata
 
   ## Set global variables
@@ -59,10 +70,13 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
       unitcombinevar <- unitvar2
     }
     
+    ## define column to use to check number of plots
+    nplotsvar <- ifelse (minplotnum.unit.forest, "n.stratafor", "n.strata")
+      
     ## Group estimation units (by UNITCD) if less than minplotnum
     unitgrp <- stratacnt[, groupClasses(.SD, minplotnum = minplotnum.unit, 
                                         nvar = "n.total", xvar = unitvar,
-                                        sumvar = "n.strata",
+                                        sumvar = nplotsvar,
                                         xvarlevels = NULL), by=UNITCD]
     setnames(unitgrp, "classnew", "unitnew")
   
@@ -128,16 +142,19 @@ strat.collapse <- function(stratacnt, pltstratx, minplotnum.unit=10,
     
     tabprint <- TRUE
     
+    ## define column to use to check number of plots
+    nplotsvar <- ifelse (minplotnum.strat.forest, "n.stratafor", "n.strata")
+    
     ## Group strata (by unitvar) if less than minplotnum
     stratgrp <- unitgrpsum[, groupClasses(.SD, minplotnum = minplotnum.strat, 
-                                        nvar="n.strata", xvar = strvar,
-                                        sumvar = "n.strata",
+                                        nvar = nplotsvar, xvar = strvar,
+                                        sumvar = nplotsvar,
                                         xvarlevels = stratalevels), by=unitvar]
     setnames(stratgrp, "classnew", "stratnew")
     
     
     strlut <- stratgrp[, lapply(.SD, sum, na.rm=TRUE),
-		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, "n.strata")]
+		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, nplotsvar)]
     strlut[, n.total := stratgrp[match(strlut[[unitvar]], stratgrp[[unitvar]]),
 		     "n.total"]]
 
