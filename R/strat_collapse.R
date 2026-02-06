@@ -152,9 +152,8 @@ strat.collapse <- function(stratacnt,
                                         xvarlevels = stratalevels), by=unitvar]
     setnames(stratgrp, "classnew", "stratnew")
     
-    
     strlut <- stratgrp[, lapply(.SD, sum, na.rm=TRUE),
-		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, nplotsvar)]
+		      by=c(unitvar, "stratnew"), .SDcols=c(vars2combine, "n.strata")]
     strlut[, n.total := stratgrp[match(strlut[[unitvar]], stratgrp[[unitvar]]),
 		     "n.total"]]
 
