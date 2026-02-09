@@ -1,5 +1,6 @@
 # getjoinqry - creates string of for a SQL query joining multiple ids
 # classifyqry - creates a string to classify columns to use inside another query 
+# getcombineqry - create classification query for combining strata
 
 #' @rdname internal_desc
 #' @export
@@ -186,7 +187,7 @@ getcombineqry <- function(lut,
       case.qry <- paste0(case.qry, when.qry, " THEN ", tocolval)
       
     }
-    case.qry <- paste0(case.qry, " END) AS \"", tocol, "\"")
+    case.qry <- paste0(case.qry, " END) AS ", tocol)
     classify.qry <- paste0(classify.qry, case.qry)
     if (col < length(classcols)) {
       classify.qry <- paste0(classify.qry, ",")

@@ -50,7 +50,9 @@
 #' @param rawonly Logical. If TRUE, only rawdata are output. If dataset
 #' includes many estimation units, and only raw data tables are desired, it is
 #' more efficient to output raw data only.
-#' @param raw.keep0 Logical. If TRUE, keep 0 values in raw data tables.
+#' @param raw.keep0 Logical. If TRUE, keep all 0 values in raw data tables.
+#' If FALSE, remove all rows where NBRPLOT.gt0 == 0. The is not applicable 
+#' for unit_totest.
 #' @param rowgrp Logical. If TRUE, appends row groups to first column of table.
 #' Only available if group category exists in ref_codes table or defined in
 #' rowgrpnm (e.g., FORTYPGRPCD, OWNGRPCD).
