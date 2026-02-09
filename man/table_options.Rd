@@ -91,7 +91,9 @@ for row values (e.g., c(0,25,50): >=0 and < 25 (0-25); >=25 and <50 (25-50),
 includes many estimation units, and only raw data tables are desired, it is
 more efficient to output raw data only.}
 
-\item{raw.keep0}{Logical. If TRUE, keep 0 values in raw data tables.}
+\item{raw.keep0}{Logical. If TRUE, keep all 0 values in raw data tables.
+If FALSE, remove all rows where NBRPLOT.gt0 == 0. The is not applicable 
+for unit_totest.}
 
 \item{rowgrp}{Logical. If TRUE, appends row groups to first column of table.
 Only available if group category exists in ref_codes table or defined in
