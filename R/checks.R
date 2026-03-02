@@ -710,11 +710,15 @@ check.unique <- function(x, xvar,
                          uniquex,
                          NAname = "Other",
                          addfactors = TRUE) {
-
+  
   ## DESCRIPTION: add factor levels to uniquex if missing
-
+  
+  
+  x <- data.frame(x)
+  
   ## add NA factors if NA values are in dataset
   if (any(is.na(as.character(x[[xvar]])))) {
+    
     if (ncol(uniquex) == 1) {
       if (!any(is.na(as.vector(uniquex[[xvar]])))) {
         uniquex <- rbind(uniquex, list(NA))
@@ -724,21 +728,32 @@ check.unique <- function(x, xvar,
       }
     } else {
       if (!is.null(NAname)) {
-
+        
+        ## get column names that is not xvar
+        notxvar <- names(uniquex)[names(uniquex) != xvar]
+        if (length(notxvar) != 1) {
+          stop("must have 2 columns only")
+        }
+        
         if (any(is.na(as.character(uniquex[[xvar]])))) {
+          
           ## check if name exists... if exists, change name to 'NAname'_1
           NAname <- checknm(NAname, uniquex[[xvar]])
 
-          uniquex[is.na(as.character(uniquex[[xvar]]))][[xvar]] <- NAname
-        } else {
-          ## check if name exists... if exists, change name to 'NAname'_1
-          notxvar <- names(uniquex)[names(uniquex) != xvar]
+          ## check if na value already has a name
+          narowdf <- uniquex[is.na(as.character(uniquex[[xvar]])),]
+          naval <- narowdf[[notxvar]]
+          uniquex[is.na(as.character(uniquex[[xvar]])), notxvar] <- "TEST"
 
-          if (length(notxvar) != 1) {
-            stop("must have 2 columns only")
+          if (is.na(naval)) {
+            uniquex[is.na(as.character(uniquex[[xvar]])), notxvar] <- NAname
           }
+          
+        } else {
+          
           NAname <- checknm(NAname, as.character(uniquex[[notxvar]]))
-
+          ## check if name exists... if exists, change name to 'NAname'_1
+          
           uniquex <- rbind(uniquex, list(NA, NAname))
           uniquex[[xvar]] <- addNA(uniquex[[xvar]])
         }
@@ -748,8 +763,8 @@ check.unique <- function(x, xvar,
   ## check other missing factor values and add if necessary
   #xvalues <- sort(unique(x[[xvar]]))
   #uniquexlevels <- sort(levels(uniquex[[xvar]]))
-
-
+  
+  
   return(uniquex)
 }
 
