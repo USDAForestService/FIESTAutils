@@ -29,7 +29,6 @@ getrhat <- function(x, percent=FALSE){
         rhat.var := (estn.var + rhat^2 * estd.var - 2*rhat * est.covar) / estd^2]
   }
   
-
   ## SET NEW VARIABLE TO FOR RECORDING NOTES
 #  x[, note := "ok"]
 

@@ -720,11 +720,13 @@ check.unique <- function(x, xvar,
   if (any(is.na(as.character(x[[xvar]])))) {
     
     if (ncol(uniquex) == 1) {
-      if (!any(is.na(as.vector(uniquex[[xvar]])))) {
-        uniquex <- rbind(uniquex, list(NA))
-      }
-      if (!any(is.na(levels(uniquex[[xvar]])))) {
-        uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+      if (addfactors) {
+        if (!any(is.na(as.vector(uniquex[[xvar]])))) {
+          uniquex <- rbind(uniquex, list(NA))
+        }
+        if (!any(is.na(levels(uniquex[[xvar]])))) {
+          uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+        }
       }
     } else {
       if (!is.null(NAname)) {
@@ -754,8 +756,10 @@ check.unique <- function(x, xvar,
           NAname <- checknm(NAname, as.character(uniquex[[notxvar]]))
           ## check if name exists... if exists, change name to 'NAname'_1
           
-          uniquex <- rbind(uniquex, list(NA, NAname))
-          uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+          if (addfactors) {
+            uniquex <- rbind(uniquex, list(NA, NAname))
+            uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+          }
         }
       }
     }

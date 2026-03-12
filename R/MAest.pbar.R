@@ -54,7 +54,7 @@ MAest.ps <- function(y,
 
   NBRPLT <- length(y)
   NBRPLT.gt0 <- sum(y > 0)
-
+  
   estps <- tryCatch(mase::postStrat(y = y,
                                     xsample = x_sample,
                                     xpop = x_pop,
@@ -474,7 +474,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
                   FIA = TRUE,
                   modelselect = FALSE,
                   getweights = FALSE,
-                  var_method = ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")) {
+                  var_method = NULL) {
 
   ########################################################################################
   ## DESCRIPTION: Gets estimates from mase::horvitzThompson
@@ -501,6 +501,9 @@ MAest <- function(yn = "CONDPROP_ADJ",
     pltdat.dom[is.na(pltdat.dom[[yd]]), yd] <- 0
     yd.vect <- pltdat.dom[[yd]]
   }
+  
+  ## define variance calculation method
+  var_method <- ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")
 
   ## Subset response vector and change NA values of response to 0
   yn.vect <- pltdat.dom[[yn]]
@@ -514,7 +517,7 @@ MAest <- function(yn = "CONDPROP_ADJ",
 
   } else if (MAmethod == "PS") {
 
-    x_sample <- pltdat.dom[, strvar][[1]]
+    x_sample <- pltdat.dom[, strvar, drop=TRUE]
     x_pop <- unitlut[, c(strvar, "Prop"), with=FALSE]
 
     estlst <- MAest.ps(yn.vect,
@@ -639,7 +642,6 @@ MAest.dom <- function(dom,
     }
 
     return(returnlst)
-
   }
 
   if (quiet) {
@@ -712,6 +714,7 @@ MAest.unit <- function(unit,
                        response_d = NULL,
                        npixels,
                        unitarea = NULL,
+                       areavar = NULL,
                        FIA = TRUE,
                        modelselect = FALSE,
                        getweights = FALSE,
@@ -725,7 +728,6 @@ MAest.unit <- function(unit,
   } else {
     dat.unit <- dat[dat[[unitvar]] == unit, c(cuniqueid, domain, response), with=FALSE]
   }
-
 
   ## get prednames if modelselect_bydomain = FALSE
   if (!modelselect && is.data.frame(prednames)) {
@@ -770,7 +772,7 @@ MAest.unit <- function(unit,
   N.unit <-  npixels[["npixels"]][npixels[[unitvar]] == unit]
 
   if (MAmethod == "gregRatio") {
-    area.unit <- unitarea[["AREAUSED"]][unitarea[[unitvar]] == unit]
+    area.unit <- unitarea[[areavar]][unitarea[[unitvar]] == unit]
   } else {
     area.unit <- NULL
   }

@@ -113,7 +113,7 @@ MAest(
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,
-  var_method = ifelse(MAmethod \%in\% c("PS"), "SRSunconditional", "LinHTSRS")
+  var_method = NULL
 )
 
 MAest.dom(
@@ -153,6 +153,7 @@ MAest.unit(
   response_d = NULL,
   npixels,
   unitarea = NULL,
+  areavar = NULL,
   FIA = TRUE,
   modelselect = FALSE,
   getweights = FALSE,
