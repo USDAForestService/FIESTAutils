@@ -745,7 +745,6 @@ check.unique <- function(x, xvar,
           ## check if na value already has a name
           narowdf <- uniquex[is.na(as.character(uniquex[[xvar]])),]
           naval <- narowdf[[notxvar]]
-          uniquex[is.na(as.character(uniquex[[xvar]])), notxvar] <- "TEST"
 
           if (is.na(naval)) {
             uniquex[is.na(as.character(uniquex[[xvar]])), notxvar] <- NAname

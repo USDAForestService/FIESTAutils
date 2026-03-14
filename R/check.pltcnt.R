@@ -1,10 +1,23 @@
 #' @rdname internal_desc
 #' @export
-check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
-	strvars=NULL, savedata=FALSE, outfolder=NULL, outfn=NULL, overwrite=FALSE,
-	outfn.date=TRUE, outfn.pre=NULL, minplotnum.unit=10, minplotnum.strat=2,
-	minplotnum.unit.forest=FALSE, minplotnum.strat.forest=FALSE,
-	gui=FALSE, stopiferror=FALSE, showwarnings=TRUE) {
+check.pltcnt <- function(pltx, 
+                         puniqueid = NULL, 
+                         unitlut, 
+                         unitvars = NULL,
+                         strvars = NULL, 
+                         savedata = FALSE, 
+                         outfolder = NULL, 
+                         outfn = NULL, 
+                         overwrite = FALSE,
+                         outfn.date = TRUE, 
+                         outfn.pre = NULL, 
+                         minplotnum.unit = 10, 
+                         minplotnum.strat = 2,
+                         minplotnum.unit.forest = FALSE, 
+                         minplotnum.strat.forest = FALSE,
+                         gui = FALSE, 
+                         stopiferror = FALSE, 
+                         showwarnings = TRUE) {
 
   ####################################################################################
   ## CHECKS NUMBER OF PLOTS BY ESTIMATION UNIT/STRATA
@@ -64,12 +77,14 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
   ## Add number of plots by unit
   pltcnt <- pltx[, list(n.total=.N), by=unitvars]
   setkeyv(pltcnt, unitvars)
-  
+
   ## combine total counts with unitlut
   setkeyv(unitlut, unitvars)
   unitlut <- merge(unitlut, pltcnt, by=unitvars, all.x=TRUE)
+
   ncols <- "n.total"
-  
+  unitlut[is.na(unitlut$n.total), "n.total"] <- 0
+
   ## Check number of forested plots by estimation unit
   if (minplotnum.unit.forest) {
     cnt.total <- "n.forest"
@@ -88,7 +103,6 @@ check.pltcnt <- function(pltx, puniqueid=NULL, unitlut, unitvars=NULL,
     ncols <- c(ncols, "n.forest")
   }
 
-  
   if (!is.null(strvars)) {
     #setkeyv(pltcnt, strunitvars)
     setkeyv(unitlut, strunitvars)

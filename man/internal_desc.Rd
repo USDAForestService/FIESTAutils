@@ -438,7 +438,14 @@ nbrdecimals(x)
 
 nbrdigits(x)
 
-getfilter(att, val, syntax = "R", quote = FALSE, like = FALSE)
+getfilter(
+  att,
+  val,
+  syntax = "R",
+  quote = FALSE,
+  rightlike = FALSE,
+  leftlike = FALSE
+)
 
 filter2qry(filt, layernm)
 

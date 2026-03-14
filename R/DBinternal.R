@@ -2312,17 +2312,16 @@ datTabchk <- function(tab,
   tabnm <- condid <- subpid <- sptabx <- NULL
   tabIDs <- tableIDs()
   indb <- FALSE
-  
+
   ## check subplot/subp_cond table
   if (!is.null(tab) && is.data.frame(tab)) {
     tabx <- pcheck.table(tab, gui = gui, tabnm = tabtext,
                          caption = paste0(tabtext, " table?"))
 
     if (!is.null(tabx)) {
-      
       if ("sf" %in% class(tabx)) {
-        sptabx <- copy(tabx)
-
+        sptabx <- tabx
+        tabx <- copy(tabx)
         tabx <- setDT(int64tochar(tabx))
         tabflds <- names(tabx)
         tabnm <- "tabx"

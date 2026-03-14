@@ -333,6 +333,7 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
       }
     }
     if ("sf" %in% class(tab)) {
+
       if (returnsf) {
         return(tab)
       } else {
