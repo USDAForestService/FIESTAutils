@@ -499,7 +499,8 @@ nbrdigits <- function(x) {
 
 #' @rdname internal_desc
 #' @export
-getfilter <- function(att, val, syntax = "R", quote = FALSE, like = FALSE) {
+getfilter <- function(att, val, syntax = "R", quote = FALSE, 
+                      rightlike = FALSE, leftlike = FALSE) {
   ## DESCRIPTION: create filter string from att and val
   ## syntax - ('R', 'sql')
   
@@ -507,7 +508,7 @@ getfilter <- function(att, val, syntax = "R", quote = FALSE, like = FALSE) {
     stop("Invalid syntax. Must be either 'R' or 'sql'")
   }
   
-  if (like) {
+  if (rightlike && leftlike) {
     
     if (!is.character(val)) {
       stop("'like' functionality only works with vals(s) of type character")
@@ -519,6 +520,31 @@ getfilter <- function(att, val, syntax = "R", quote = FALSE, like = FALSE) {
       filt <- paste0(att, " LIKE ", "'%", val, "%'", collapse = " OR ")
     }
     
+  } else if (rightlike) {
+    
+    if (!is.character(val)) {
+      stop("'like' functionality only works with vals(s) of type character")
+    }
+    if (syntax == "R") {
+      valstr <- encodeString(paste0(val, collapse = "|"), quote = "'")
+      filt <- paste0("grepl(", valstr, ", ", att, ")")
+    } else {
+      filt <- paste0(att, " LIKE ", "'", val, "%'", collapse = " OR ")
+    }
+    
+  } else if (leftlike) {
+    
+    if (!is.character(val)) {
+      stop("'like' functionality only works with vals(s) of type character")
+    }
+    if (syntax == "R") {
+      valstr <- encodeString(paste0(val, collapse = "|"), quote = "'")
+      filt <- paste0("grepl(", valstr, ", ", att, ")")
+    } else {
+      filt <- paste0(att, " LIKE ", "'%", val, "'", collapse = " OR ")
+    }
+   
+  
   } else {
     if (is.character(val) || quote) {
       val <- encodeString(val, quote = "'")
