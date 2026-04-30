@@ -30,14 +30,13 @@ Depends:
 Imports:
     data.table,
     DBI,
-    gdalraster,
+    gdalraster (>= 2.5.0.9103),
     graphics,
     hbsae,
     JoSAE,
     mase,
     methods,
     nlme,
-    Rcpp,
     RColorBrewer,
     RPostgres,
     RSQLite,
@@ -50,11 +49,12 @@ Imports:
     utils
 Suggests:
     knitr
+Remotes:
+    firelab/gdalraster
 License: GPL-3
 Copyright: See file COPYRIGHTS for details. 
 URL: https://github.com/USDAForestService/FIESTAutils
 BugReports: https://github.com/USDAForestService/FIESTAutils/issues
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
