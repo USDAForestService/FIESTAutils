@@ -1,15 +1,12 @@
 # functions for raster data
 # Chris Toney, chris.toney at usda.gov
 
-# depends on packages Rcpp, gdalraster, sf
-
-# r_rasterize.cpp file required - implements RasterizePolygon()
+# depends on packages gdalraster (>= 2.5.0.9103), sf
 
 # for stand-alone use:
 # library(gdalraster)
 # library(sf)
 # library(parallel)
-# Rcpp::sourceCpp("r_rasterize.cpp")
 # source("raster_analysis.R")
 
 
@@ -696,8 +693,8 @@ rasterizePolygons <- function(dsn, layer, burn_value, rasterfile, src=NULL) {
                           origin = ymax,
                           gt_pixel_size = gt[6])
 
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
-                         writeRaster, burn_this)
+        gdalraster:::.rasterize_polygon(
+            ncols, nrows, part_sizes, grid_xs, grid_ys, writeRaster, burn_this)
 
         utils::setTxtProgressBar(pb, i)
     }
@@ -887,8 +884,8 @@ clipRaster <- function(dsn=NULL, layer=NULL, src=NULL,
                           origin = clip_ymax,
                           gt_pixel_size = clip_gt[6])
 
-        RasterizePolygon(clip_ncols, clip_nrows, part_sizes, grid_xs, grid_ys,
-                         writeRaster, 0)
+        gdalraster:::.rasterize_polygon(clip_ncols, clip_nrows, part_sizes,
+                                        grid_xs, grid_ys, writeRaster, 0)
 
     } else {
         message("clipping to polygon layer extent...")
@@ -1157,7 +1154,7 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
         rs_list[[z]] <- new(RunningStats, na_rm_in=na.rm)
     }
 
-    # raster I/O function for RasterizePolygon()
+    # raster I/O function for gdalraster:::.rasterize_polygon()
     readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
         a <- ds$read(band = band,
                      xoff = xoff1,
@@ -1215,8 +1212,9 @@ zonalStats <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                           origin = ymax,
                           gt_pixel_size = gt[6])
 
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
-                         readRaster, NA, this_attr)
+        gdalraster:::.rasterize_polygon(ncols, nrows, part_sizes, grid_xs,
+                                        grid_ys, readRaster, NA_real_,
+                                        this_attr)
         if (show_progress)
             utils::setTxtProgressBar(pb, i)
     }
@@ -1283,7 +1281,7 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
     # CmbTable to count the unique combinations
     tbl <- new(CmbTable, keyLen = 2, varNames = c("idx", "value"))
 
-    # raster I/O function for RasterizePolygon
+    # raster I/O function for gdalraster:::.rasterize_polygon()
     readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
         rowlength <- (xoff2-xoff1) + 1
         rowdata <- matrix(NA_integer_, nrow = 2, ncol = rowlength)
@@ -1340,8 +1338,8 @@ zonalFreq <- function(dsn=NULL, layer=NULL, src=NULL, attribute,
                           origin = ymax,
                           gt_pixel_size = gt[6])
 
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
-                         readRaster, this_attr_idx)
+        gdalraster:::.rasterize_polygon(ncols, nrows, part_sizes, grid_xs,
+                                        grid_ys, readRaster, this_attr_idx)
 
         if (show_progress)
             utils::setTxtProgressBar(pb, i)
@@ -1486,7 +1484,7 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
         }
     }
 
-    # raster I/O function for RasterizePolygon()
+    # raster I/O function for gdalraster:::.rasterize_polygon()
     readRaster <- function(yoff, xoff1, xoff2, burn_value, attrib_value) {
         x_len <- (xoff2 - xoff1) + 1
         m <- matrix(NA_integer_,
@@ -1577,8 +1575,9 @@ zonalBayes <- function(dsn=NULL, layer=NULL, src=NULL, zoneidfld,
                           origin = ymax,
                           gt_pixel_size = gt[6])
 
-        RasterizePolygon(ncols, nrows, part_sizes, grid_xs, grid_ys,
-                         readRaster, this_helperid, this_zoneid)
+        gdalraster:::.rasterize_polygon(ncols, nrows, part_sizes, grid_xs,
+                                        grid_ys, readRaster, this_helperid,
+                                        this_zoneid)
 
         utils::setTxtProgressBar(pb, i)
     }
