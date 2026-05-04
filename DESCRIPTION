@@ -30,7 +30,7 @@ Depends:
 Imports:
     data.table,
     DBI,
-    gdalraster (>= 2.5.0.9103),
+    gdalraster (>= 2.6.0),
     graphics,
     hbsae,
     JoSAE,
@@ -49,8 +49,6 @@ Imports:
     utils
 Suggests:
     knitr
-Remotes:
-    firelab/gdalraster
 License: GPL-3
 Copyright: See file COPYRIGHTS for details. 
 URL: https://github.com/USDAForestService/FIESTAutils
