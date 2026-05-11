@@ -112,19 +112,6 @@ RtoSQL <- function(filter, x=NULL) {
   return(sql)
 }
 
-#check.numeric <- function(x, cols) {
-#  for (col in cols) {
-#    if (!is.numeric(x[[col]])) {
-#      message(paste(col, "is not numeric, converting..."))
-#      if (is.factor(x[[col]])) {
-#        x[[col]] <- as.numeric(as.character(x[[col]]))
-#      } else {
-#        x[[col]] <- as.numeric(x[[col]])
-#      }
-#    }
-#  }
-#  return(x)
-#}
 
 #' @rdname checks_desc
 #' @export

@@ -118,7 +118,6 @@ pcheck.output(
   raw_dsn = NULL,
   outconn = NULL,
   outconnopen = TRUE,
-  gui = FALSE,
   savedata_opts = NULL
 )
 

@@ -737,19 +737,23 @@ pcheck.object <- function(obj=NULL, objnm=NULL, warn=NULL, caption=NULL,
 #' @rdname pcheck_desc
 #' @export
 pcheck.output <- function(outfolder = NULL,
-                          out_fmt = "csv", outsp_fmt = "shp", 
+                          out_fmt = "csv", 
+                          outsp_fmt = "shp", 
                           outobj_fmt = "rds", 
                           out_dsn = NULL, 
                           out_layer = NULL,
-                          outfn.pre = NULL, outfn.date = FALSE, 
+                          outfn.pre = NULL, 
+                          outfn.date = FALSE, 
                           addtitle = TRUE,
-                          overwrite_dsn = FALSE, overwrite_layer = TRUE, 
-                          append_layer = FALSE, add_layer = TRUE, 
+                          overwrite_dsn = FALSE, 
+                          overwrite_layer = TRUE, 
+                          append_layer = FALSE, 
+                          add_layer = TRUE, 
                           createSQLite = FALSE, 
                           raw_fmt = NULL,
                           raw_dsn = NULL,
                           outconn = NULL,
-                          outconnopen = TRUE, gui = FALSE, 
+                          outconnopen = TRUE, 
                           savedata_opts = NULL) {
   
   if (!is.null(savedata_opts)) {
@@ -780,11 +784,11 @@ pcheck.output <- function(outfolder = NULL,
   #out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'gdb', 'shp')
   out_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'csv', 'shp')
   out_fmt <- pcheck.varchar(out_fmt, varnm="out_fmt", checklst=out_fmtlst,
-		                        caption="Out format", gui=gui)
+		                        caption="Out format")
 
   ## check raw_fmt
   raw_fmt <- pcheck.varchar(raw_fmt, varnm="raw_fmt", checklst=out_fmtlst,
-                            caption="Raw out format", gui=gui)
+                            caption="Raw out format")
   
   if (is.null(out_fmt)) {
     if (!is.null(raw_fmt)) {
@@ -801,40 +805,40 @@ pcheck.output <- function(outfolder = NULL,
   ## check outsp_fmt
   outsp_fmtlst <- c('sqlite', 'sqlite3', 'db', 'db3', 'gpkg', 'shp')
   outsp_fmt <- pcheck.varchar(outsp_fmt, varnm="outsp_fmt", checklst=outsp_fmtlst,
-                            caption="Out spatial format", gui=gui)
+                            caption="Out spatial format")
   
   ## check outobj_fmt
   outobj_fmtlst <- c('rds', 'rda')
   outobj_fmt <- pcheck.varchar(outobj_fmt, varnm="outobj_fmt", checklst=outobj_fmtlst,
-                              caption="Out object format", gui=gui)
+                              caption="Out object format")
   
   ## check outfn.date
   outfn.date <- pcheck.logical(outfn.date, varnm="outfn.date",
-		title="outfn.date", first="NO", gui=gui)
+		title="outfn.date", first="NO")
 
   ## check overwrite_dsn
   overwrite_dsn <- pcheck.logical(overwrite_dsn, varnm="overwrite_dsn",
-		title="overwrite_dsn", first="NO", gui=gui)
+		title="overwrite_dsn", first="NO")
 
   ## check overwrite_layer
   overwrite_layer <- pcheck.logical(overwrite_layer, varnm="overwrite_layer",
-		title="overwrite_layer", first="NO", gui=gui)
+		title="overwrite_layer", first="NO")
 
   ## check append_layer
   append_layer <- pcheck.logical(append_layer, varnm="append_layer",
-                                 title="append data", first="NO", gui=gui)
+                                 title="append data", first="NO")
 
   ## check add_layer
   add_layer <- pcheck.logical(add_layer, varnm="add_layer",
-		title="add data to dsn", first="NO", gui=gui)
+		title="add data to dsn", first="NO")
 
   ## check createSQLite
   createSQLite <- pcheck.logical(createSQLite, varnm="createSQLite",
-                              title="create SQLite", first="NO", gui=gui)
+                              title="create SQLite", first="NO")
   
   ## check outconnopen
   outconnopen <- pcheck.logical(outconnopen, varnm="outconnopen",
-                                 title="Keep db open", first="YES", gui=gui)
+                                 title="Keep db open", first="YES")
   
   ## check outfn.pre
   if (!is.null(outfn.pre) && (!is.vector(outfn.pre) || length(outfn.pre) > 1)) {
@@ -1028,15 +1032,9 @@ pcheck.colors <- function(colorlst, n) {
 pcheck.areaunits <- function(unitarea, areavar, areaunits, metric=FALSE) {
   ## Description: check areaunits for conversions
 
-  gui <- FALSE
-#  ## Check outunits
-#  outunits <- pcheck.varchar(var2check=outunits, varnm="outunits",
-#	gui=gui, checklst=c("ENGLISH", "METRIC"), caption="Area output units?",
-#	stopifnull=TRUE)
-
   ## check metric
   metric <- pcheck.logical(metric, varnm="metric",
-		title="Metric units", first="NO", gui=gui)
+		title="Metric units", first="NO")
   if (metric) {
     outunits <- "hectares"
   } else {
