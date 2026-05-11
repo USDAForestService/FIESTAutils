@@ -1,3 +1,8 @@
+# FIESTAutils 1.3.3
+
+* removed Rcpp dependency and compiled code 
+
+
 # FIESTutils 1.1.5
 
 * Deprecated evalType - changed to Type
