@@ -18,8 +18,12 @@ Authors@R:
              email = "graysonwhite13@gmail.com"),
       person(given = "Joshua",
              family = "Yamamoto",
-             role = "aut",
-             email = "joshuayamamoto5@gmail.com"))
+             role = "ctb",
+             email = "joshuayamamoto5@gmail.com"),
+      person(given = "Elizabeth",
+             family = "Freeman",
+             role = "ctb",
+             email = "elizabeth.a.freeman"))
 Description: A set of tools for data wrangling, spatial data analysis,
     statistical modeling (including direct, model-assisted, photo-based, and
     small area tools), and USDA Forest Service data base tools. These tools are
@@ -55,4 +59,4 @@ URL: https://github.com/USDAForestService/FIESTAutils
 BugReports: https://github.com/USDAForestService/FIESTAutils/issues
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0
