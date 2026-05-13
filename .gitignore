@@ -9,3 +9,4 @@ src/*.so
 src/*.dll
 revdep/
 docs
+cran-comments.md
