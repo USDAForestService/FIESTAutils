@@ -12,6 +12,8 @@
 #' index.
 #' @param lowernames Logical. If TRUE, convert column names to lowercase 
 #' before writing to output.
+#' @param dbconn deprecated. open connection.
+#' @param dbconnopen deprecated. logical. if TRUE, keeps database connection open.
 #' @param savedata_opts List. See help(savedata_options()) for a list
 #' of options.
 #' @return An sf spatial object is written to the out_dsn.
@@ -29,6 +31,8 @@ datExportData <- function(dfobj,
                           index.unique = NULL, 
                           index = NULL, 
                           lowernames = FALSE,
+                          dbconn = NULL,
+                          dbconnopen = TRUE,
                           savedata_opts = savedata_options()
                           ) {
   ###########################################################################

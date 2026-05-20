@@ -10,6 +10,8 @@ datExportData(
   index.unique = NULL,
   index = NULL,
   lowernames = FALSE,
+  dbconn = NULL,
+  dbconnopen = TRUE,
   savedata_opts = savedata_options()
 )
 }
@@ -26,6 +28,10 @@ index.}
 
 \item{lowernames}{Logical. If TRUE, convert column names to lowercase 
 before writing to output.}
+
+\item{dbconn}{deprecated. open connection.}
+
+\item{dbconnopen}{deprecated. logical. if TRUE, keeps database connection open.}
 
 \item{savedata_opts}{List. See help(savedata_options()) for a list
 of options.}

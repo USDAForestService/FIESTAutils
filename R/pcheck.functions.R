@@ -755,7 +755,8 @@ pcheck.output <- function(outfolder = NULL,
                           outconn = NULL,
                           outconnopen = TRUE, 
                           savedata_opts = NULL,
-                          gui = FALSE) {
+                          gui = FALSE,
+                          ...) {
   
   if (!is.null(savedata_opts)) {
     outfolder <- savedata_opts$outfolder

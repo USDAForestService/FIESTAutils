@@ -119,7 +119,8 @@ pcheck.output(
   outconn = NULL,
   outconnopen = TRUE,
   savedata_opts = NULL,
-  gui = FALSE
+  gui = FALSE,
+  ...
 )
 
 pcheck.colors(colorlst, n)
