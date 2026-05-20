@@ -118,7 +118,8 @@ pcheck.output(
   raw_dsn = NULL,
   outconn = NULL,
   outconnopen = TRUE,
-  savedata_opts = NULL
+  savedata_opts = NULL,
+  gui = FALSE
 )
 
 pcheck.colors(colorlst, n)
