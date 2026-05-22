@@ -148,7 +148,7 @@ check.logic.vars <- function(varlst, statement, ignore.case = FALSE, returnVars 
 #' @export
 check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
 	stopifinvalid=TRUE, removeinvalid=FALSE, syntax="R", returnvar=FALSE,
-	returnpart = FALSE){
+	returnpart = TRUE){
   ## DESCRIPTION: checks logical statement
   ## ARGUMENTS"
   ## x 	- data frame or vector of field names to check column names
@@ -418,10 +418,11 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
           } else {
             return(NULL)
           }
-		    }
-	      if (sum(sapply(chkparts, is.null)) > 0 && sum(sapply(chkparts, is.null)) < length(chkparts)) {
-		      return(names(chkparts)[!sapply(chkparts, is.null)])
-		    }
+	      }
+	      return(names(chkparts)[!sapply(chkparts, is.null)])
+	      #if (sum(sapply(chkparts, is.null)) > 0 && sum(sapply(chkparts, is.null)) < length(chkparts)) {
+		    #  return(names(chkparts)[!sapply(chkparts, is.null)])
+		    #}
 	    }
       if (stopifinvalid) {
         stop(fwarning)
@@ -430,6 +431,7 @@ check.logic <- function(x, statement, filternm=NULL, stopifnull=FALSE,
       }
     }
   }
+
 
   if (returnvar) {
     return(unlist(names(chkparts)))
