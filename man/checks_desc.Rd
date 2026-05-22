@@ -27,7 +27,7 @@ check.logic(
   removeinvalid = FALSE,
   syntax = "R",
   returnvar = FALSE,
-  returnpart = FALSE
+  returnpart = TRUE
 )
 
 check.matchclass(
