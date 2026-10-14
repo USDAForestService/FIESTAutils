@@ -698,10 +698,10 @@ check.matchval <- function(tab1, tab2, var1, var2=NULL, tab1txt=NULL, tab2txt=NU
 check.unique <- function(x, xvar,
                          uniquex,
                          NAname = "Other",
-                         addfactors = TRUE) {
+                         addfactors = FALSE,
+                         dropNAlevel = FALSE) {
   
   ## DESCRIPTION: add factor levels to uniquex if missing
-  
   
   x <- data.frame(x)
   
@@ -715,6 +715,14 @@ check.unique <- function(x, xvar,
         }
         if (!any(is.na(levels(uniquex[[xvar]])))) {
           uniquex[[xvar]] <- addNA(uniquex[[xvar]])
+        }
+        
+        if (!is.null(NAname)) {
+          
+          ## check if name exists... if exists, change name to 'NAname'_1
+          NAname <- checknm(NAname, uniquex[[xvar]])
+          
+          levels(uniquex[[xvar]])[is.na(levels(uniquex[[xvar]]))] <- NAname
         }
       }
     } else {
@@ -752,10 +760,18 @@ check.unique <- function(x, xvar,
       }
     }
   }
+
   ## check other missing factor values and add if necessary
-  #xvalues <- sort(unique(x[[xvar]]))
-  #uniquexlevels <- sort(levels(uniquex[[xvar]]))
-  
+  if (dropNAlevel) {
+    xvalues <- unique(x[[xvar]])
+    uniquexlevels <- levels(uniquex[[xvar]])
+    
+    misslevels <- uniquexlevels[!uniquexlevels %in% xvalues]
+    if (length(misslevels) > 0 && any(is.na(as.numeric(misslevels)))) {
+      uniquex[[xvar]] <- droplevels(uniquex[[xvar]], NA)
+      uniquex <- uniquex[!is.na(as.numeric(uniquex[[xvar]])),]
+    }
+  }
   
   return(uniquex)
 }

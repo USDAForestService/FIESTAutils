@@ -148,25 +148,28 @@ MAest.greg <- function(y,
     xsample <- x_sample[, preds.selected, drop=FALSE]
     xpop <- x_pop[, preds.selected, drop=FALSE]
   }
-  estgreg <- tryCatch(mase::greg(y = y,
-                                 xsample = xsample,
-                                 xpop = x_pop,
-                                 pi = NULL,
-                                 N = N,
-                                 pi2 = NULL,
-                                 model = "linear",
-                                 var_est = TRUE,
-                                 var_method = var_method,
-                                 datatype = "means",
-                                 modelselect = FALSE,
-                                 lambda = "lambda.min",
-                                 messages = FALSE,
-                                 fpc = !FIA,
-                                 B = 1000),
+  
+  estgreg <- tryCatch(
+    mase::greg(y = y,
+               xsample = xsample,
+               xpop = xpop,
+               pi = NULL,
+               N = N,
+               pi2 = NULL,
+               model = "linear",
+               var_est = TRUE,
+               var_method = var_method,
+               datatype = "means",
+               modelselect = FALSE,
+               lambda = "lambda.min",
+               messages = FALSE,
+               fpc = !FIA,
+               B = 1000),
 			error=function(err) {
 				message(err, "\n")
 				return(NULL)
 			} )
+  
   if (is.null(estgreg)) {
     if (save4testing) {
       message("saving objects to working directory for testing: y, x_sample, x_pop, N")
@@ -188,6 +191,7 @@ MAest.greg <- function(y,
     }
     return(returnlst)
   }
+
 
   selected <- data.frame(t(estgreg$coefficients))[,-1]
   if (!is(selected, "data.frame")) {
@@ -386,7 +390,8 @@ MAest.gregRatio <- function(yn,
 
   # don't trust these estimates
   if (NBRPLT < 5 || NBRPLT.gt0 < 2 || gt0.ratio > 0.9){
-    estgregRatio <- data.table(matrix(c(NA, NA, NA, NA), 1, 4))
+#    estgregRatio <- data.table(matrix(c(NA, NA, NA, NA), 1, 4))
+    estgregRatio <- data.table(matrix(c(NA, NA, NBRPLT, NBRPLT.gt0), 1, 4))
     setnames(estgregRatio, c("rhat", "rhat.var", "NBRPLT", "NBRPLT.gt0"))
     returnlst <- list(est = estgregRatio)
     return(returnlst)
@@ -496,12 +501,12 @@ MAest <- function(yn = "CONDPROP_ADJ",
   ## Merge dat.dom to pltassgn
   pltdat.dom <- as.data.frame(dat.dom[pltassgn])
   pltdat.dom[is.na(pltdat.dom[[yn]]), yn] <- 0
-
+  
   if (MAmethod == "gregRatio") {
     pltdat.dom[is.na(pltdat.dom[[yd]]), yd] <- 0
     yd.vect <- pltdat.dom[[yd]]
   }
-  
+ 
   ## define variance calculation method
   var_method <- ifelse(MAmethod %in% c("PS"), "SRSunconditional", "LinHTSRS")
 
@@ -586,7 +591,6 @@ MAest <- function(yn = "CONDPROP_ADJ",
     }
   }
 
-
   if (getweights) {
     estlst$weights <- data.frame(pltdat.dom[[cuniqueid]], estlst$weights)
     names(estlst$weights) <- c(cuniqueid, "weights")
@@ -624,7 +628,7 @@ MAest.dom <- function(dom,
 
   ## Subset tomdat to domain=dom
   dat.dom <- dat[dat[[domain]] == dom,]
-
+  
   if (nrow(dat.dom) == 0 || sum(!is.na(dat.dom[[domain]])) == 0) {
 
     domest <- data.table(dom, matrix(c(NA, NA, 0, 0), 1,4))
@@ -738,7 +742,6 @@ MAest.unit <- function(unit,
     prednames.unit <- prednames
   }
 
-
   if (nrow(dat.unit) == 0 || sum(!is.na(dat.unit[[domain]])) == 0) {
 
     if (domain == "TOTAL") {
@@ -770,7 +773,7 @@ MAest.unit <- function(unit,
 
   unitlut.unit <- unitlut[unitlut[[unitvar]] == unit, ]
   N.unit <-  npixels[["npixels"]][npixels[[unitvar]] == unit]
-
+  
   if (MAmethod == "gregRatio") {
     area.unit <- unitarea[[areavar]][unitarea[[unitvar]] == unit]
   } else {
@@ -798,7 +801,6 @@ MAest.unit <- function(unit,
                        getweights = getweights,
                        var_method = var_method,
                        quiet = quiet)
-
 
   unitest <- data.table(unit=unit, do.call(rbind, sapply(unitestlst, '[', "est")))
   setnames(unitest, "unit", unitvar)

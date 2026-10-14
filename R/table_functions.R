@@ -148,7 +148,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
     byvars <- c(byvars, xvar2)
 
     if (xvar.add0 && xvar2.add0) {
-      
+    
       ## Expand uniquex to all combinations
       uniquex.exp <- unique(expand.grid(uniquex[[xvar]], uniquex2[[xvar2]],
 		                    stringsAsFactors=FALSE))
@@ -163,7 +163,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         chkvars <- c(xvar, xvar2)
       }
       ordvars <- chkvars
-      
+     
       ## Match classes of xvar in x with xvar in uniquex
       xchk <- check.matchclass(uniquex, uniquex.exp, xvar)
       uniquex <- xchk$tab1
@@ -207,6 +207,8 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
         setnames(uniquex.exp, c(xvar, xvar2))
         chkvars <- c(xvar, xvar2)
       }
+      uniquex.exp[[xvar]] <- as.character(uniquex.exp[[xvar]])
+      uniquex.exp[[xvar2]] <- as.character(uniquex.exp[[xvar2]])
       
       ## Match classes of xvar in x with xvar in uniquex
       xchk <- check.matchclass(uniquex, uniquex.exp, xvar)
@@ -217,7 +219,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       xchk <- check.matchclass(uniquex2, uniquex.exp, xvar2)
       uniquex2 <- xchk$tab1
       uniquex.exp <- xchk$tab2
-      
+    
       ## Merge uniquex to uniquex.exp if greater than 1 column
       if (ncol(uniquex) > 1) {
         uniquex.exp <- merge(uniquex.exp, uniquex, by=xvar, all.x=TRUE, all.y=TRUE)
@@ -238,7 +240,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       setcolorder(x, c(chkvars, names(x)[!names(x) %in% chkvars]))
 
       ## Set NA values to 0
-      #x[is.na(x)] <- 0
+      x[is.na(x)] <- 0
 
     } else if (xvar2.add0) {
 	
@@ -283,7 +285,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
       x <- merge(uniquex.exp, x, by=chkvars, all.x=TRUE, all.y=TRUE)
 
       ## Set NA values to 0
-      #x[is.na(x)] <- 0
+      x[is.na(x)] <- 0
 
     } else {
 	
@@ -307,6 +309,7 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
   } else {  ## is.null(xvar2)
     
     if (xvar.add0) {
+
       xchk <- check.matchclass(uniquex, x, byvars)
       uniquex <- xchk$tab1
       x <- xchk$tab2
@@ -317,9 +320,12 @@ add0unit <- function(x, xvar, uniquex, unitvar=NULL, xvar.add0=FALSE,
 		            c(.SD, list(uvar=rep(unique(x$uvar), each=nrow(uniquex))))],
 		            on=c("uvar", xvar)]
         setnames(x, "uvar", unitvar)
-        #x[is.na(x)] <- 0
+        x[is.na(x)] <- 0
+        
       } else {
         x <- merge(uniquex, x, by=byvars, all.y=TRUE)
+        x[is.na(x)] <- 0
+        
       }
     } else {
      
@@ -488,27 +494,27 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
 
   ## Generate tables
   #################################################################################
-  dcastdrop <- TRUE
-  if (is.factor(rowvar.est[[rowvar]])) {
-    #if (any(as.character(levels(rowvar.est[[rowvar]])) == "NA")) {
-    if (length(levels(rowvar.est[[rowvar]])) > length(rowvar.est[[rowvar]])) {
-      dcastdrop <- FALSE
-    }
-  } else {
-    if (any(is.na(rowvar.est[[rowvar]]))) {
-      dcastdrop <- FALSE
-    }
-  }
-  if (is.factor(colvar.est[[colvar]])) {
-    #if (any(as.character(levels(colvar.est[[colvar]])) == "NA")) {
-    if (length(levels(colvar.est[[colvar]])) > length(colvar.est[[colvar]])) {
-      dcastdrop <- FALSE
-    }
-  } else {
-    if (any(is.na(colvar.est[[colvar]]))) {
-      dcastdrop <- FALSE
-    }
-  }
+  dcastdrop <- FALSE
+  # if (is.factor(rowvar.est[[rowvar]])) {
+  #   #if (any(as.character(levels(rowvar.est[[rowvar]])) == "NA")) {
+  #   if (length(levels(rowvar.est[[rowvar]])) > length(rowvar.est[[rowvar]])) {
+  #     dcastdrop <- FALSE
+  #   }
+  # } else {
+  #   if (any(is.na(rowvar.est[[rowvar]]))) {
+  #     dcastdrop <- FALSE
+  #   }
+  # }
+  # if (is.factor(colvar.est[[colvar]])) {
+  #   #if (any(as.character(levels(colvar.est[[colvar]])) == "NA")) {
+  #   if (length(levels(colvar.est[[colvar]])) > length(colvar.est[[colvar]])) {
+  #     dcastdrop <- FALSE
+  #   }
+  # } else {
+  #   if (any(is.na(colvar.est[[colvar]]))) {
+  #     dcastdrop <- FALSE
+  #   }
+  # }
   if (rowgrp) {
     est <- dcast(group.est, get(rowgrpnm) + get(rowvar) ~ get(colvar),
                  value.var = estnm, fill = estnull, drop = dcastdrop)
@@ -544,6 +550,7 @@ crossxtab <- function (group.est, rowvar.est=NULL, colvar.est=NULL, total.est=NU
   est[, (title.rnames) := lapply(.SD, as.character), .SDcols=title.rnames]
   pse[, (title.rnames) := lapply(.SD, as.character), .SDcols=title.rnames]
 
+  
   if (allin1) {
     #estmat <- as.matrix(est[, -(1:rnbr)])
     #psemat <- as.matrix(pse[, -(1:rnbr)])
