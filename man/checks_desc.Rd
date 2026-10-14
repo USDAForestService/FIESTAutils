@@ -51,7 +51,14 @@ check.matchval(
   subsetrows = FALSE
 )
 
-check.unique(x, xvar, uniquex, NAname = "Other", addfactors = TRUE)
+check.unique(
+  x,
+  xvar,
+  uniquex,
+  NAname = "Other",
+  addfactors = FALSE,
+  dropNAlevel = FALSE
+)
 
 check.pcfilter(
   pcfilter,
