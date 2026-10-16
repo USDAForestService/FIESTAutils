@@ -2258,7 +2258,7 @@ dbgetflds <- function(conn, tabnm, schema = NULL, upper = TRUE) {
   if (!is.null(schema)) {
     SCHEMA. <- paste0(schema, ".")
   }
-  
+
   flds <- tryCatch(
     #    DBI::dbGetQuery(conn,
     #                    paste0("SELECT * FROM ", SCHEMA., tabnm, " LIMIT 0")),
@@ -2267,7 +2267,7 @@ dbgetflds <- function(conn, tabnm, schema = NULL, upper = TRUE) {
     error = function(e) {
       message(e,"\n")
       return(NULL) })
-  
+
   if (is.null(flds)) {
     message("query for ", tabnm, " is invalid")
     return(NULL)

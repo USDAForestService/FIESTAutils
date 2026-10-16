@@ -3,8 +3,8 @@
 popTabchk <- function(tabnames, tabtext, 
                       tabs, tabIDs, 
                       dbtablst, 
-                      dbconn, schema = NULL, 
-                      datindb = FALSE) {
+                      dbconn, datindb = FALSE,
+                      schema = NULL) {
   ## DESCRIPTION: check name in tabs list
   tabx=tabnm <- NULL
   
@@ -48,9 +48,10 @@ popTabchk <- function(tabnames, tabtext,
 	    }
       tab <- tabs[[dbtabnmchk]]
       tabid <- tabIDs[[dbtabnmchk]]
+      
       tabnm <- findnm(tablst[[dbtabnmchk]], dbtablst)
       tabflds <- dbgetflds(conn = dbconn, schema = schema, tabnm = tabnm, upper = TRUE)
-      
+     
 	  } else {
 
 	    tabchk1 <- unlist(tabchk)[1]

@@ -174,8 +174,8 @@ popTabchk(
   tabIDs,
   dbtablst,
   dbconn,
-  schema = NULL,
-  datindb = FALSE
+  datindb = FALSE,
+  schema = NULL
 )
 }
 \value{

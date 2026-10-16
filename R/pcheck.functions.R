@@ -281,6 +281,8 @@ pcheck.table <- function(tab=NULL, conn=NULL, tab_dsn=NULL, tabnm=NULL, tabqry=N
       }
     }
   } else if (is.null(tab) && is.null(tab_dsn)) {
+    
+
     if (gui) {
       tabresp <- select.list(selectlst, title=caption, multiple=FALSE)
       if (tabresp=="") {
